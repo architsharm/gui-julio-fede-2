@@ -25,7 +25,8 @@ import com.jme.util.export.binary.BinaryImporter;
 public class MomentoBowling extends SimpleGame {
 	private static final Logger logger = Logger.getLogger(MomentoBowling.class.getName());
 	private static final String IMAGE_LOGO = "resources/logo.jpg";
-	private static final String SCENE = "resources/untitled.x3d";
+	private static final String SCENE = "resources/simpleScene.x3d";
+	
 	
 	public static void main(String [] args) throws MalformedURLException {
 		MomentoBowling app = new MomentoBowling(); 
@@ -33,6 +34,7 @@ public class MomentoBowling extends SimpleGame {
 		app.start();
 	}
 
+	
 	@Override
 	protected void simpleInitGame() {
 		try {
