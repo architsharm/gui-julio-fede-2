@@ -1,5 +1,7 @@
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.logging.Logger;
@@ -27,16 +29,17 @@ import com.jmex.model.collada.ColladaImporter;
  *
  */
 public class TestColladaLoading extends SimpleGame {
-    private static final Logger logger = Logger
-            .getLogger(TestColladaLoading.class.getName());
+    private static final Logger logger = Logger.getLogger(TestColladaLoading.class.getName());
+    private AnimationController ac;
+    private boolean boneOn = false;
     
-    AnimationController ac;
-    boolean boneOn = false;
+    
     public static void main(String[] args) {
         TestColladaLoading app = new TestColladaLoading();
         app.setConfigShowMode(ConfigShowMode.AlwaysShow);
         app.start();
     }
+    
     
     protected void simpleUpdate() {
         if( KeyBindingManager.getKeyBindingManager().isValidCommand( "bones", false ) ) {
@@ -44,6 +47,7 @@ public class TestColladaLoading extends SimpleGame {
         }
     }
 
+    
     protected void simpleRender() {
         //If we want to display the skeleton use the BoneDebugger.
         if(boneOn) {
@@ -51,34 +55,35 @@ public class TestColladaLoading extends SimpleGame {
         }
     }
 
+    
     protected void simpleInitGame() {
-        try {
-            ResourceLocatorTool.addResourceLocator(
-                    ResourceLocatorTool.TYPE_TEXTURE,
-                    new SimpleResourceLocator( new URL("file:" + "resources/") ) );
-        } catch (Exception e1) {
-            logger.warning("Unable to add texture directory to RLT: "
-                    + e1.toString());
-        }
-
-        KeyBindingManager.getKeyBindingManager().set( "bones", KeyInput.KEY_SPACE );
+    	KeyBindingManager.getKeyBindingManager().set( "bones", KeyInput.KEY_SPACE );
         
         //Our model is Z up so orient the camera properly.
-        cam.setAxes(new Vector3f(-1,0,0), new Vector3f(0,0,1), new Vector3f(0,1,0));
+        cam.setAxes( new Vector3f(-1,0,0), new Vector3f(0,0,1), new Vector3f(0,1,0) );
         cam.setLocation(new Vector3f(0,-100,20));
         input = new FirstPersonHandler( cam, 80, 1 );
         
         //this stream points to the model itself.
-        InputStream mobboss = TestColladaLoading.class.getClassLoader()
-                .getResourceAsStream("resources/man.dae");
+        InputStream mobboss = null;
+		try {
+			mobboss = new FileInputStream( new File( "resources/man.dae" ) );
+		} catch (FileNotFoundException e) {
+			logger.info("Unable to find file man.dae");
+			e.printStackTrace();
+			System.exit(0);
+		}
         //this stream points to the animation file. Note: You don't necessarily
         //have to split animations out into seperate files, this just helps.
-        InputStream animation = TestColladaLoading.class.getClassLoader()
-        .getResourceAsStream("resources/man_walk.dae");
-        if (mobboss == null) {
-            logger.info("Unable to find file, did you include jme-test.jar in classpath?");
-            System.exit(0);
-        }
+        InputStream animation = null;
+		try {
+			animation = new FileInputStream( new File( "resources/man_walk.dae" ) );
+		} catch (FileNotFoundException e) {
+			logger.info("Unable to find file man_walk.dae");
+			e.printStackTrace();
+			System.exit(0);
+		}
+		
         //tell the importer to load the mob boss
         ColladaImporter.load(mobboss, "model");
         //we can then retrieve the skin from the importer as well as the skeleton
