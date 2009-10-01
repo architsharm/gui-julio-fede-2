@@ -8,9 +8,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme.app.SimpleGame;
-import com.jme.bounding.BoundingSphere;
-import com.jme.math.Vector3f;
-import com.jme.scene.shape.Box;
 import com.jmex.model.converters.X3dToJme;
 import com.jme.scene.Node;
 import com.jme.util.export.binary.BinaryImporter;
@@ -20,6 +17,8 @@ import com.jme.util.export.binary.BinaryImporter;
 // 2. Wraps OpenGL and OpenAL 
 // 3. Hires timers LWJGL currently 
 // supports Linux, Mac OS X (10.3 and above) and Windows (2000 and above).
+
+// Setting up Eclipse: http://www.jmonkeyengine.com/wiki/doku.php?id=setting_up_eclipse_to_build_jme_2
 
 // Extends SimpleGame giving a basic framework
 public class MomentoBowling extends SimpleGame {
