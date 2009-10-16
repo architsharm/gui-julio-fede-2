@@ -8,23 +8,24 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme.app.SimpleGame;
+import com.jmex.model.converters.FormatConverter;
+import com.jmex.model.converters.ObjToJme;
 import com.jmex.model.converters.X3dToJme;
+import com.jme.light.PointLight;
+import com.jme.math.Vector3f;
+import com.jme.renderer.ColorRGBA;
 import com.jme.scene.Node;
+import com.jme.scene.Spatial;
+import com.jme.scene.TriMesh;
 import com.jme.util.export.binary.BinaryImporter;
-
-// LWJGL: A Java Game Library extension: 
-// 1. Handles the graphics, sound, and input simply 
-// 2. Wraps OpenGL and OpenAL 
-// 3. Hires timers LWJGL currently 
-// supports Linux, Mac OS X (10.3 and above) and Windows (2000 and above).
 
 // Setting up Eclipse: http://www.jmonkeyengine.com/wiki/doku.php?id=setting_up_eclipse_to_build_jme_2
 
-// Extends SimpleGame giving a basic framework
 public class MomentoBowling extends SimpleGame {
 	private static final Logger logger = Logger.getLogger(MomentoBowling.class.getName());
 	private static final String IMAGE_LOGO = "resources/logo.jpg";
-	private static final String SCENE = "resources/simpleScene.x3d";
+	private static final String SCENE = "resources/simpleScene.obj";
+	private static final String MODEL = "";
 	
 	
 	public static void main(String [] args) throws MalformedURLException {
@@ -36,18 +37,35 @@ public class MomentoBowling extends SimpleGame {
 	
 	@Override
 	protected void simpleInitGame() {
-		try {
-            X3dToJme converter = new X3dToJme();
-            URL x3dFile = new URL("file:" + SCENE);
+		try{
+			FormatConverter converter = null;
+            if( SCENE.toLowerCase().endsWith(".x3d") ) {
+            	converter = new X3dToJme(); 
+            }else if( SCENE.toLowerCase().endsWith(".obj") ) {
+            	converter = new ObjToJme();
+            	if( MODEL != null && !MODEL.isEmpty() ) {
+            		converter.setProperty( "mtllib", MODEL );
+            	}
+            }else{
+            	converter = null;
+            }
+            URL sceneFile = new URL( "file:" + SCENE );
             ByteArrayOutputStream bo = new ByteArrayOutputStream();
-            logger.info("Starting to convert .x3d to .jme");
-            converter.convert( x3dFile.openStream(), bo );
-            logger.info("Done converting, now watch how fast it loads!");
-            long time=System.currentTimeMillis();
-            Node r= (Node)BinaryImporter.getInstance().load( new ByteArrayInputStream(bo.toByteArray()) );
-            logger.info( "Finished loading time is " + ( System.currentTimeMillis() - time ) );
+            converter.convert( sceneFile.openStream(), bo );
+            Spatial r = (Spatial) BinaryImporter.getInstance().load( new ByteArrayInputStream( bo.toByteArray() ) );
+            r.setLocalScale( 100 );
             rootNode.attachChild(r);
-        } catch (Exception e) {
+            display.getRenderer().setBackgroundColor( ColorRGBA.red.clone() );
+            PointLight light = new PointLight();
+            light.setDiffuse( new ColorRGBA( 0.75f, 0.75f, 0.75f, 0.75f ) );
+            light.setAmbient( new ColorRGBA( 200f, 200f, 200f, 1.0f ) );
+            light.setLocation( new Vector3f( 0, 0, 0 ) );
+            light.setEnabled( true );
+            lightState = display.getRenderer().createLightState();
+            lightState.setEnabled( true );
+            lightState.attach( light );
+            rootNode.setRenderState( lightState );
+        }catch( Exception e ) {
             logger.logp(Level.SEVERE, this.getClass().toString(),
                     "simpleInitGame()", "Exception", e);
         }
