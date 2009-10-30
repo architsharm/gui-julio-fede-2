@@ -5,18 +5,17 @@ import java.net.URL;
 
 import com.jme.app.SimpleGame;
 import com.jme.bounding.BoundingBox;
+import com.jme.bounding.BoundingSphere;
 import com.jme.light.PointLight;
-import com.jme.math.Matrix3f;
-import com.jme.math.Plane;
 import com.jme.math.Quaternion;
 import com.jme.math.Vector3f;
 import com.jme.renderer.ColorRGBA;
 import com.jme.scene.Node;
-import com.jme.scene.Spatial;
 import com.jme.scene.shape.Box;
 import com.jme.scene.shape.Cylinder;
 import com.jme.scene.shape.Quad;
 import com.jme.scene.shape.Sphere;
+import com.jme.scene.state.MaterialState;
 
 //	W	 Move Forward
 //	A	 Strafe Left
@@ -42,7 +41,7 @@ public class Bowling extends SimpleGame {
 	private static final float BALL_RADIUS = 21.8F;
 	private static final float BALL_WEIGHT = 7255;
 	private static final int BALL_SAMPLES = 50;
-	private static final float GUTTER_EXTRA = 1.10F;
+	private static final float GUTTER_EXTRA = 1.20F;
 	private static final int GUTTER_SAMPLES = 100;
 	// The middle of the foul line is at 0, BALL_RADIUS, 0
 	// Ten Pin Bowling: http://en.wikipedia.org/wiki/Tenpin
@@ -91,13 +90,17 @@ public class Bowling extends SimpleGame {
 		Box room = new Box( "room", new Vector3f(-ROOM_WIDTH/2, ROOM_HEIGHT, APPROACH_LENGTH), new Vector3f(ROOM_WIDTH/2, 0, -LANE_LENGTH) );
 		room.setModelBound( new BoundingBox() ); 
 		room.updateModelBound();
+		room.setIsCollidable( true );
 		rootNode.attachChild( room );
 		// Lane
 		Box lane = new Box( "lane", new Vector3f(-LANE_WIDTH/2, BALL_RADIUS_EXTRA, 0), new Vector3f(LANE_WIDTH/2, 0, -LANE_LENGTH) );
 		lane.setModelBound( new BoundingBox() ); 
 		lane.updateModelBound();
-		lane.setDefaultColor(ColorRGBA.brown);
-		lane.setSolidColor(ColorRGBA.brown);
+		lane.setIsCollidable( true );
+		MaterialState materialState = display.getRenderer().createMaterialState();
+		materialState.setColorMaterial( MaterialState.ColorMaterial.Diffuse );
+		materialState.setDiffuse( ColorRGBA.green.clone() );
+		lane.setRenderState( materialState );
 		rootNode.attachChild( lane );
 		// Approach
 		Box approach = new Box( "approach", new Vector3f(-(LANE_WIDTH/2 + BALL_DIAMETER_EXTRA), BALL_RADIUS_EXTRA, 0), new Vector3f(LANE_WIDTH/2 + BALL_DIAMETER_EXTRA, 0, APPROACH_LENGTH) );
@@ -106,7 +109,7 @@ public class Bowling extends SimpleGame {
 		rootNode.attachChild( approach );
 		// Ball
 		Sphere ball = new Sphere("ball", new Vector3f(0, BALL_DIAMETER, 0), BALL_SAMPLES, BALL_SAMPLES, BALL_RADIUS);
-		ball.setModelBound( new BoundingBox() ); 
+		ball.setModelBound( new BoundingSphere() ); 
 		ball.updateModelBound();
 		ball.setDefaultColor( ColorRGBA.red.clone() );
 		ball.setSolidColor( ColorRGBA.red.clone() );
@@ -137,6 +140,10 @@ public class Bowling extends SimpleGame {
 		gutterBorderRight.setLocalTranslation( LANE_WIDTH/2 + BALL_DIAMETER_EXTRA  , BALL_RADIUS_EXTRA / 2, -(LANE_LENGTH / 2) );
 		gutterLeft.attachChild( gutterBorderLeft );
 		gutterLeft.attachChild( gutterBorderRight );
+		gutterBorderLeft.setModelBound( new BoundingBox() ); 
+		gutterBorderLeft.updateModelBound();
+		gutterBorderRight.setModelBound( new BoundingBox() ); 
+		gutterRight.updateModelBound();
 		for( int i = 1; i < GUTTER_SAMPLES; i++ ) {
 			Quad left =  new Quad( "gutter_left_"  + String.valueOf(i), circumference / GUTTER_SAMPLES, LANE_LENGTH);
 			Quad right = new Quad( "gutter_right_" + String.valueOf(i), circumference / GUTTER_SAMPLES, LANE_LENGTH);
@@ -146,6 +153,10 @@ public class Bowling extends SimpleGame {
 			float angle = (float)Math.PI + (float)Math.PI / GUTTER_SAMPLES * i;
 			left.setLocalTranslation( -(LANE_WIDTH/2 + BALL_RADIUS_EXTRA) + BALL_RADIUS_EXTRA * (float)Math.cos( angle ), BALL_RADIUS_EXTRA + BALL_RADIUS_EXTRA * (float)Math.sin( angle ), -(LANE_LENGTH / 2) );
 			right.setLocalTranslation( LANE_WIDTH/2 + BALL_RADIUS_EXTRA + BALL_RADIUS_EXTRA * (float)Math.cos( angle ), BALL_RADIUS_EXTRA + BALL_RADIUS_EXTRA * (float)Math.sin( angle ), -(LANE_LENGTH / 2) );
+			left.setModelBound( new BoundingBox() ); 
+			left.updateModelBound();
+			right.setModelBound( new BoundingBox() ); 
+			right.updateModelBound();
 			gutterLeft.attachChild( left );
 			gutterLeft.attachChild( right );
 		}
@@ -155,18 +166,27 @@ public class Bowling extends SimpleGame {
 		gutterRight.updateModelBound();
 		rootNode.attachChild( gutterLeft );
 		rootNode.attachChild( gutterRight );	
-		// Light state
-		lightState = display.getRenderer().createLightState();
-        lightState.detachAll();
+		
+		((PointLight)lightState.get(0)).setLocation(new Vector3f(0, ROOM_HEIGHT * 0.9F, 0));
+		lightState.setTwoSidedLighting(true);
+		
+		// Clear Light state
+//        lightState.detachAll();
+//        lightState.setEnabled( true );
+//        lightState.setGlobalAmbient( ColorRGBA.white.clone() );
         // Light
-		PointLight light = new PointLight();
-        light.setAmbient( new ColorRGBA( 1f, 1f, 1f, 1.0f ) );
-        light.setLocation( new Vector3f( 0, ROOM_HEIGHT * 0.9F, -LANE_LENGTH/2 ) );
-        light.setEnabled( true );
-        lightState.attach( light );
-        rootNode.setRenderState( lightState );
+//		PointLight light = new PointLight();
+//        light.setAmbient( ColorRGBA.white.clone() );
+//        light.setDiffuse( ColorRGBA.white.clone() );
+//        light.setSpecular( ColorRGBA.white.clone() );
+//        light.setAttenuate( true );
+//        light.setLocation( new Vector3f( 0, ROOM_HEIGHT * 0.9F, 0 ) );
+//        light.setEnabled( true );
+//        lightState.attach( light );
 		// Camera
 		cam.setLocation( new Vector3f(0,80,30) );
+		// Update
+		rootNode.updateRenderState();
 	}
 
 }
