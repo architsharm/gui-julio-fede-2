@@ -173,7 +173,8 @@ public class Bowling extends SimpleGame {
 	
 	
 	private void createLane() {
-		Box lane = new Box( "lane", new Vector3f(-LANE_WIDTH/2, BALL_RADIUS_EXTRA, 0), new Vector3f(LANE_WIDTH/2, 0, -LANE_LENGTH) );
+		Box lane = new Box("lane", new Vector3f(0,0,0), LANE_WIDTH / 2, BALL_RADIUS_EXTRA / 2, LANE_LENGTH / 2 );
+		lane.setLocalTranslation( new Vector3f(0, BALL_RADIUS_EXTRA / 2, -LANE_LENGTH / 2) );
 		lane.setModelBound( new BoundingBox() ); 
 		lane.updateModelBound();
 		lane.setIsCollidable( true );
@@ -189,7 +190,8 @@ public class Bowling extends SimpleGame {
 	
 	
 	private void createApproach() {
-		Box approach = new Box( "approach", new Vector3f(-(LANE_WIDTH/2 + BALL_DIAMETER_EXTRA), BALL_RADIUS_EXTRA, 0), new Vector3f(LANE_WIDTH/2 + BALL_DIAMETER_EXTRA, 0, APPROACH_LENGTH) );
+		Box approach = new Box( "approach", new Vector3f(0,0,0), LANE_WIDTH/2 + BALL_DIAMETER_EXTRA, BALL_RADIUS_EXTRA / 2, APPROACH_LENGTH / 2 );
+		approach.setLocalTranslation( new Vector3f(0, BALL_RADIUS_EXTRA / 2, APPROACH_LENGTH / 2) );
 		approach.setModelBound( new BoundingBox() ); 
 		approach.updateModelBound();
 		rootNode.attachChild( approach );
@@ -197,7 +199,8 @@ public class Bowling extends SimpleGame {
 	
 	
 	private void createBall() {
-		Sphere ball = new Sphere("ball", new Vector3f(0, BALL_DIAMETER, 0), BALL_SAMPLES, BALL_SAMPLES, BALL_RADIUS);
+		Sphere ball = new Sphere("ball", new Vector3f(0, 0, 0), BALL_SAMPLES, BALL_SAMPLES, BALL_RADIUS);
+		ball.setLocalTranslation( new Vector3f(0, BALL_DIAMETER, 0) );
 		ball.setModelBound( new BoundingSphere() ); 
 		ball.updateModelBound();
 		ball.setDefaultColor( ColorRGBA.red.clone() );
@@ -274,17 +277,17 @@ public class Bowling extends SimpleGame {
 		((PointLight)lightState.get(0)).setLocation(new Vector3f(0, ROOM_HEIGHT * 0.9F, 0));
 		lightState.setTwoSidedLighting(true);
 		
-		// Create a point light
-		PointLight l=new PointLight();
-		// Give it a location
-		l.setLocation(new Vector3f(0,25,15));
-		// Make it a red light
-		l.setDiffuse(ColorRGBA.red);
-		// Create a LightState to put my light in
-		LightState ls=display.getRenderer().createLightState();
-		// Attach the light
-		ls.attach(l);
-		lightState.detachAll();
+//		// Create a point light
+//		PointLight l=new PointLight();
+//		// Give it a location
+//		l.setLocation(new Vector3f(0,25,15));
+//		// Make it a red light
+//		l.setDiffuse(ColorRGBA.red);
+//		// Create a LightState to put my light in
+//		LightState ls=display.getRenderer().createLightState();
+//		// Attach the light
+//		ls.attach(l);
+//		lightState.detachAll();
 		
 	} 
 
