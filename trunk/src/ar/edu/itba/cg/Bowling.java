@@ -64,6 +64,8 @@ public class Bowling extends SimpleGame {
 	private static float BALL_RADIUS_EXTRA = BALL_RADIUS * GUTTER_EXTRA;
 	private static float BALL_DIAMETER = BALL_RADIUS * 2;
 	private static float BALL_DIAMETER_EXTRA = BALL_RADIUS_EXTRA * 2;
+	private static float ROOM_LENGTH = LANE_LENGTH + APPROACH_LENGTH;
+	private static float ROOM_CENTER_Z = -LANE_LENGTH / 2 + APPROACH_LENGTH / 2;
 	//Pin Positions
 	//Distance between to pins (12 inches)
 	private static final float PIN_WIDTHDIST = 30.5F;
@@ -74,7 +76,7 @@ public class Bowling extends SimpleGame {
 	//Initial position of the pin 1
 	private static float INITIAL_POS = 0F;
 	//Distance between the pin 1 and the pit relative to the end of the lane
-	private static float DIST2PIT = - (LANE_LENGTH/2) + 86.8F ;
+	private static float DIST2PIT = -LANE_LENGTH + 86.8F ;
 	private static final Vector3f [] positions = {	new Vector3f(INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)),
 													new Vector3f(-PIN_WIDTHHALFDIST + INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)- PIN_HEIGHTDIST),
 													new Vector3f(PIN_WIDTHHALFDIST + INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)- PIN_HEIGHTDIST),
@@ -93,42 +95,113 @@ public class Bowling extends SimpleGame {
 		app.start();
 	}
 	
+	
 	@Override
 	protected void simpleInitGame() {		
-		// Title
-		display.setTitle(TITLE);
-		// Backgournd color
+		// Display
+		this.createDisplay();
+		// Room
+		this.createRoom();
+		// Lane
+		this.createLane();
+		// Approach
+		this.createApproach();
+		// Ball
+		this.createBall();
+		// Pins
+		this.createPins();
+		// Gutters
+		this.createGutters();
+		// Lights
+		this.createIlumination();
+		// Camera
+		this.createCamera();
+		// Update
+		rootNode.updateRenderState();
+	}
+	
+	
+	private void createDisplay() {
 		display.getRenderer().setBackgroundColor( ColorRGBA.black.clone() );
-		// Room!
-		Box room = new Box( "room", new Vector3f(-ROOM_WIDTH/2, ROOM_HEIGHT, APPROACH_LENGTH), new Vector3f(ROOM_WIDTH/2, 0, -LANE_LENGTH) );
+		display.setTitle(TITLE);
+	}
+	
+	
+	private void createRoom() {
+		Node room = new Node("room");
+		// Top and bottom
+		Quad wallDown = new Quad("wall_down", ROOM_WIDTH, ROOM_LENGTH);
+		Quad wallUp = new Quad("wall_up", ROOM_WIDTH, ROOM_LENGTH);
+		wallDown.setLocalRotation( new Quaternion( new float[]{ (float)Math.PI/2, 0, 0 } ) );
+		wallUp.setLocalRotation(  new Quaternion( new float[]{ (float)Math.PI/2, 0, 0 } ) );
+		wallDown.setLocalTranslation( 0, 0, ROOM_CENTER_Z );
+		wallUp.setLocalTranslation(  0, ROOM_HEIGHT, ROOM_CENTER_Z );
+		// Left and right
+		Quad wallLeft =  new Quad("wall_left",  ROOM_LENGTH, ROOM_HEIGHT);
+		Quad wallRight = new Quad("wall_right", ROOM_LENGTH, ROOM_HEIGHT);
+		wallLeft.setLocalRotation(  new Quaternion( new float[]{ 0, (float)Math.PI/2, 0 } ) );
+		wallRight.setLocalRotation( new Quaternion( new float[]{ 0, (float)Math.PI/2, 0 } ) );
+		wallLeft.setLocalTranslation(  -ROOM_WIDTH / 2, ROOM_HEIGHT / 2, ROOM_CENTER_Z );
+		wallRight.setLocalTranslation(  ROOM_WIDTH / 2, ROOM_HEIGHT / 2, ROOM_CENTER_Z );
+		// Back
+		Quad wallBack =  new Quad("wall_back", ROOM_HEIGHT, ROOM_WIDTH);
+		wallBack.setLocalRotation(  new Quaternion( new float[]{ 0, 0, (float)Math.PI/2 } ) );
+		wallBack.setLocalTranslation(  0, ROOM_HEIGHT / 2, APPROACH_LENGTH );
+		// TODO: WALL FRONT!
+		// Bounds
+		wallDown.setModelBound( new BoundingBox() ); 
+		wallDown.updateModelBound();
+		wallUp.setModelBound( new BoundingBox() ); 
+		wallUp.updateModelBound();
+		wallLeft.setModelBound( new BoundingBox() ); 
+		wallLeft.updateModelBound();
+		wallRight.setModelBound( new BoundingBox() ); 
+		wallRight.updateModelBound();
+		wallBack.setModelBound( new BoundingBox() ); 
+		wallBack.updateModelBound();
+		// Attach
+		room.attachChild( wallDown );
+		room.attachChild( wallUp );
+		room.attachChild( wallLeft );
+		room.attachChild( wallRight );
+		room.attachChild( wallBack );
 		room.setModelBound( new BoundingBox() ); 
 		room.updateModelBound();
-		room.setIsCollidable( true );
-		rootNode.attachChild( room );
-		// Lane
+		rootNode.attachChild( room );	
+	}
+	
+	
+	private void createLane() {
 		Box lane = new Box( "lane", new Vector3f(-LANE_WIDTH/2, BALL_RADIUS_EXTRA, 0), new Vector3f(LANE_WIDTH/2, 0, -LANE_LENGTH) );
 		lane.setModelBound( new BoundingBox() ); 
 		lane.updateModelBound();
-		lane.setIsCollidable( true );
 		MaterialState materialState = display.getRenderer().createMaterialState();
 		materialState.setColorMaterial( MaterialState.ColorMaterial.Diffuse );
 		materialState.setDiffuse( ColorRGBA.green.clone() );
 		lane.setRenderState( materialState );
 		rootNode.attachChild( lane );
-		// Approach
+	}
+	
+	
+	private void createApproach() {
 		Box approach = new Box( "approach", new Vector3f(-(LANE_WIDTH/2 + BALL_DIAMETER_EXTRA), BALL_RADIUS_EXTRA, 0), new Vector3f(LANE_WIDTH/2 + BALL_DIAMETER_EXTRA, 0, APPROACH_LENGTH) );
 		approach.setModelBound( new BoundingBox() ); 
 		approach.updateModelBound();
 		rootNode.attachChild( approach );
-		// Ball
+	}
+	
+	
+	private void createBall() {
 		Sphere ball = new Sphere("ball", new Vector3f(0, BALL_DIAMETER, 0), BALL_SAMPLES, BALL_SAMPLES, BALL_RADIUS);
 		ball.setModelBound( new BoundingSphere() ); 
 		ball.updateModelBound();
 		ball.setDefaultColor( ColorRGBA.red.clone() );
 		ball.setSolidColor( ColorRGBA.red.clone() );
 		rootNode.attachChild( ball );
-		
-		//pins
+	}
+	
+	
+	private void createPins() {
 		for(int i=0; i<10;i++){
 			Cylinder pin = new Cylinder("pin"+ i,AXIS_SAMPLES,RADIAL_SAMPLES,PIN_RADIUS,PIN_HEIGHT,true);
 			pin.setModelBound( new BoundingBox() ); 
@@ -139,9 +212,10 @@ public class Bowling extends SimpleGame {
 			pin.setSolidColor( ColorRGBA.blue.clone() );
 			rootNode.attachChild( pin );
 		}
-		
-		
-		// Gutters
+	}
+	
+	
+	private void createGutters() {
 		float circumference = 2.0F * (float)Math.PI * BALL_RADIUS_EXTRA;
 		Node gutterLeft =  new Node("gutter_left");
 		Node gutterRight = new Node("gutter_right");
@@ -178,8 +252,16 @@ public class Bowling extends SimpleGame {
 		gutterRight.setModelBound( new BoundingBox() ); 
 		gutterRight.updateModelBound();
 		rootNode.attachChild( gutterLeft );
-		rootNode.attachChild( gutterRight );	
-		
+		rootNode.attachChild( gutterRight );
+	}
+	
+	
+	private void createCamera() {
+		cam.setLocation( new Vector3f(0,80,30) );
+	}
+	
+	
+	private void createIlumination() {
 		((PointLight)lightState.get(0)).setLocation(new Vector3f(0, ROOM_HEIGHT * 0.9F, 0));
 		lightState.setTwoSidedLighting(true);
 		
@@ -196,10 +278,7 @@ public class Bowling extends SimpleGame {
 //        light.setLocation( new Vector3f( 0, ROOM_HEIGHT * 0.9F, 0 ) );
 //        light.setEnabled( true );
 //        lightState.attach( light );
-		// Camera
-		cam.setLocation( new Vector3f(0,80,30) );
-		// Update
-		rootNode.updateRenderState();
 	}
-
+	
+	
 }
