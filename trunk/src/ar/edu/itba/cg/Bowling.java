@@ -40,6 +40,8 @@ public class Bowling extends SimpleGame {
 	private static final float PIN_HEIGHT = 40;
 	private static final float PIN_RADIUS = 6.5F;
 	private static final float PIN_WEIGHT = 7255;
+	private static final int AXIS_SAMPLES = 4;
+	private static final int RADIAL_SAMPLES = 10;
 	// Ball Parameters
 	private static final float BALL_RADIUS = 21.8F;
 	private static final float BALL_WEIGHT = 7255;
@@ -63,19 +65,26 @@ public class Bowling extends SimpleGame {
 	private static float BALL_DIAMETER = BALL_RADIUS * 2;
 	private static float BALL_DIAMETER_EXTRA = BALL_RADIUS_EXTRA * 2;
 	//Pin Positions
-	private static final float PIN_WIDTHHALFDIST = 15.2F; 
+	//Distance between to pins (12 inches)
 	private static final float PIN_WIDTHDIST = 30.5F;
+	//Half a distance between to pins (6 inches)
+	private static final float PIN_WIDTHHALFDIST = 15.2F; 
+	//Depth distance between two rows of pins (10.39 inches)
 	private static final float PIN_HEIGHTDIST = 26.4F;
-	private static final Vector3f [] positions = {	new Vector3f(0,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), -(LANE_LENGTH/2)),
-													new Vector3f(-PIN_WIDTHHALFDIST,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), -(LANE_LENGTH/2)- PIN_HEIGHTDIST),
-													new Vector3f(PIN_WIDTHHALFDIST,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), -(LANE_LENGTH/2)- PIN_HEIGHTDIST),
-													new Vector3f(-PIN_WIDTHDIST,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), -(LANE_LENGTH/2)- (2 * PIN_HEIGHTDIST)),
-													new Vector3f(0,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), -(LANE_LENGTH/2)- (2 * PIN_HEIGHTDIST)),
-													new Vector3f(PIN_WIDTHDIST,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), -(LANE_LENGTH/2)- (2 * PIN_HEIGHTDIST)),
-													new Vector3f(-(PIN_WIDTHDIST + PIN_WIDTHHALFDIST),BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), -(LANE_LENGTH/2)-(3 * PIN_HEIGHTDIST)),
-													new Vector3f(-PIN_WIDTHHALFDIST,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), -(LANE_LENGTH/2)-(3 * PIN_HEIGHTDIST)),
-													new Vector3f(PIN_WIDTHHALFDIST,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), -(LANE_LENGTH/2)-(3 * PIN_HEIGHTDIST)),
-													new Vector3f((PIN_WIDTHDIST+PIN_WIDTHHALFDIST),BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), -(LANE_LENGTH/2)-(3 * PIN_HEIGHTDIST))};
+	//Initial position of the pin 1
+	private static float INITIAL_POS = 0F;
+	//Distance between the pin 1 and the pit relative to the end of the lane
+	private static float DIST2PIT = - (LANE_LENGTH/2) + 86.8F ;
+	private static final Vector3f [] positions = {	new Vector3f(INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)),
+													new Vector3f(-PIN_WIDTHHALFDIST + INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)- PIN_HEIGHTDIST),
+													new Vector3f(PIN_WIDTHHALFDIST + INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)- PIN_HEIGHTDIST),
+													new Vector3f(-PIN_WIDTHDIST + INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)- (2 * PIN_HEIGHTDIST)),
+													new Vector3f(INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)- (2 * PIN_HEIGHTDIST)),
+													new Vector3f(PIN_WIDTHDIST + INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)- (2 * PIN_HEIGHTDIST)),
+													new Vector3f(-(PIN_WIDTHDIST + PIN_WIDTHHALFDIST)+ INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)-(3 * PIN_HEIGHTDIST)),
+													new Vector3f(-PIN_WIDTHHALFDIST + INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)-(3 * PIN_HEIGHTDIST)),
+													new Vector3f(PIN_WIDTHHALFDIST + INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)-(3 * PIN_HEIGHTDIST)),
+													new Vector3f((PIN_WIDTHDIST+PIN_WIDTHHALFDIST)+ INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)-(3 * PIN_HEIGHTDIST))};
 
 	
 	public static void main(String [] args) throws MalformedURLException {
@@ -121,7 +130,7 @@ public class Bowling extends SimpleGame {
 		
 		//pins
 		for(int i=0; i<10;i++){
-			Cylinder pin = new Cylinder("pin"+ i,100,100,PIN_RADIUS,PIN_HEIGHT,true);
+			Cylinder pin = new Cylinder("pin"+ i,AXIS_SAMPLES,RADIAL_SAMPLES,PIN_RADIUS,PIN_HEIGHT,true);
 			pin.setModelBound( new BoundingBox() ); 
 			pin.setLocalTranslation(positions[i]);
 			pin.setLocalRotation(new Quaternion(new float[]{(float)Math.PI/2,0,0}));
