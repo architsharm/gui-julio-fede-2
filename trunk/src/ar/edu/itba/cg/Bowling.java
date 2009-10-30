@@ -3,9 +3,10 @@ package ar.edu.itba.cg;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import com.jme.app.SimpleGame;
 import com.jme.bounding.BoundingBox;
 import com.jme.bounding.BoundingSphere;
+import com.jme.input.KeyInput;
+import com.jme.input.MouseInput;
 import com.jme.light.PointLight;
 import com.jme.math.Quaternion;
 import com.jme.math.Vector3f;
@@ -15,8 +16,12 @@ import com.jme.scene.shape.Box;
 import com.jme.scene.shape.Cylinder;
 import com.jme.scene.shape.Quad;
 import com.jme.scene.shape.Sphere;
-import com.jme.scene.state.LightState;
 import com.jme.scene.state.MaterialState;
+import com.jmex.physics.DynamicPhysicsNode;
+import com.jmex.physics.StaticPhysicsNode;
+import com.jmex.physics.material.Material;
+import com.jmex.physics.util.PhysicsPicker;
+import com.jmex.physics.util.SimplePhysicsGame;
 
 //	W	 Move Forward
 //	A	 Strafe Left
@@ -34,7 +39,7 @@ import com.jme.scene.state.MaterialState;
 //	N	 Normals On/Off
 //	F1	 Take Screenshot
 
-public class Bowling extends SimpleGame {
+public class Bowling extends SimplePhysicsGame {
 	private static final String IMAGE_LOGO = "resources/logo.jpg";
 	private static final String TITLE = "Bowling";
 	// Pin Parameters
@@ -56,7 +61,7 @@ public class Bowling extends SimpleGame {
 	private static final int LANE_WIDTH = 105; // centimeters
 	private static final int LANE_LENGTH = 1800; // centimeters
 	// Approach Parameters
-	// Behind the foul line is an ÒapproachÓ used to gain speed
+	// Behind the foul line is an ï¿½approachï¿½ used to gain speed
 	private static final int APPROACH_LENGTH = 500;
 	// Room Parameters
 	private static final int ROOM_WIDTH = 800;
@@ -88,7 +93,7 @@ public class Bowling extends SimpleGame {
 													new Vector3f(-PIN_WIDTHHALFDIST + INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)-(3 * PIN_HEIGHTDIST)),
 													new Vector3f(PIN_WIDTHHALFDIST + INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)-(3 * PIN_HEIGHTDIST)),
 													new Vector3f((PIN_WIDTHDIST+PIN_WIDTHHALFDIST)+ INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)-(3 * PIN_HEIGHTDIST))};
-
+	private DynamicPhysicsNode ball;
 	
 	public static void main(String [] args) throws MalformedURLException {
 		Bowling app = new Bowling(); 
@@ -96,9 +101,21 @@ public class Bowling extends SimpleGame {
 		app.start();
 	}
 	
+	protected void simpleUpdate() {
+		//cameraInputHandler.setEnabled( MouseInput.get().isButtonDown( 1 ) );
+		if ( KeyInput.get().isKeyDown(KeyInput.KEY_SPACE)) {
+			ball.setLocalTranslation(new Vector3f(0, BALL_DIAMETER_EXTRA, 0));
+		}
+		if ( KeyInput.get().isKeyDown(KeyInput.KEY_PGUP)) {
+			Vector3f speed = new Vector3f(0,0,-50);
+			ball.addForce(speed);
+		}
+	}
 	
 	@Override
-	protected void simpleInitGame() {		
+	protected void simpleInitGame() {
+		getPhysicsSpace().setAutoRestThreshold( 0.2f );
+        setPhysicsSpeed( 20 );
 		// Display
 		this.createDisplay();
 		// Room
@@ -118,12 +135,15 @@ public class Bowling extends SimpleGame {
 		// Camera
 		this.createCamera();
 		// Update
+		new PhysicsPicker( input, rootNode, getPhysicsSpace() );
+        MouseInput.get().setCursorVisible( true );
 		rootNode.updateRenderState();
 	}
 	
 	
 	private void createDisplay() {
 		display.getRenderer().setBackgroundColor( ColorRGBA.black.clone() );
+		display.getRenderer().getCamera().setFrustumFar(LANE_LENGTH * 1.1f);
 		display.setTitle(TITLE);
 	}
 	
@@ -173,51 +193,68 @@ public class Bowling extends SimpleGame {
 	
 	
 	private void createLane() {
-		Box lane = new Box("lane", new Vector3f(0,0,0), LANE_WIDTH / 2, BALL_RADIUS_EXTRA / 2, LANE_LENGTH / 2 );
-		lane.setLocalTranslation( new Vector3f(0, BALL_RADIUS_EXTRA / 2, -LANE_LENGTH / 2) );
-		lane.setModelBound( new BoundingBox() ); 
-		lane.updateModelBound();
-		lane.setIsCollidable( true );
-		lane.setDefaultColor( ColorRGBA.brown.clone() );
-		lane.setSolidColor( ColorRGBA.brown.clone() );
+		Box laneVisual = new Box("lane", new Vector3f(0,0,0), LANE_WIDTH / 2, BALL_RADIUS_EXTRA / 2, LANE_LENGTH / 2 );
+		laneVisual.setModelBound( new BoundingBox() ); 
+		laneVisual.updateModelBound();
+		laneVisual.setIsCollidable( true );
+		laneVisual.setDefaultColor( ColorRGBA.brown.clone() );
+		laneVisual.setSolidColor( ColorRGBA.brown.clone() );
 
 		MaterialState materialState = display.getRenderer().createMaterialState();
 		materialState.setColorMaterial( MaterialState.ColorMaterial.Diffuse );
 		materialState.setDiffuse( ColorRGBA.green.clone() );
-		lane.setRenderState( materialState );
+		laneVisual.setRenderState( materialState );
+		StaticPhysicsNode lane = getPhysicsSpace().createStaticNode();
+		lane.attachChild( laneVisual );
+		lane.setLocalTranslation( new Vector3f(0, BALL_RADIUS_EXTRA / 2, -LANE_LENGTH / 2) );
+		lane.generatePhysicsGeometry();
 		rootNode.attachChild( lane );
 	}
 	
 	
 	private void createApproach() {
-		Box approach = new Box( "approach", new Vector3f(0,0,0), LANE_WIDTH/2 + BALL_DIAMETER_EXTRA, BALL_RADIUS_EXTRA / 2, APPROACH_LENGTH / 2 );
-		approach.setLocalTranslation( new Vector3f(0, BALL_RADIUS_EXTRA / 2, APPROACH_LENGTH / 2) );
-		approach.setModelBound( new BoundingBox() ); 
-		approach.updateModelBound();
+		Box approachVisual = new Box( "approach", new Vector3f(0,0,0), LANE_WIDTH/2 + BALL_DIAMETER_EXTRA, BALL_RADIUS_EXTRA / 2, APPROACH_LENGTH / 2 );
+		approachVisual.setLocalTranslation( new Vector3f(0, BALL_RADIUS_EXTRA / 2, APPROACH_LENGTH / 2) );
+		approachVisual.setModelBound( new BoundingBox() ); 
+		approachVisual.updateModelBound();
+		StaticPhysicsNode approach = getPhysicsSpace().createStaticNode();
+		approach.attachChild( approachVisual );
+		approach.generatePhysicsGeometry();
 		rootNode.attachChild( approach );
 	}
 	
 	
 	private void createBall() {
-		Sphere ball = new Sphere("ball", new Vector3f(0, 0, 0), BALL_SAMPLES, BALL_SAMPLES, BALL_RADIUS);
-		ball.setLocalTranslation( new Vector3f(0, BALL_DIAMETER, 0) );
-		ball.setModelBound( new BoundingSphere() ); 
-		ball.updateModelBound();
-		ball.setDefaultColor( ColorRGBA.red.clone() );
-		ball.setSolidColor( ColorRGBA.red.clone() );
+		Sphere ballVisual = new Sphere("ball", new Vector3f(0, 0, 0), BALL_SAMPLES, BALL_SAMPLES, BALL_RADIUS);
+		ballVisual.setModelBound( new BoundingSphere() ); 
+		ballVisual.updateModelBound();
+		ballVisual.setDefaultColor( ColorRGBA.red.clone() );
+		ballVisual.setSolidColor( ColorRGBA.red.clone() ); 
+		ballVisual.updateModelBound();
+		this.ball = getPhysicsSpace().createDynamicNode();
+		ball.attachChild(ballVisual);
+		ball.setLocalTranslation(new Vector3f(0, BALL_DIAMETER_EXTRA, 0));
+		ball.generatePhysicsGeometry();
+		Material materiaDeBola = new Material();
+		materiaDeBola.setDensity(10000);
+		ball.setMaterial(materiaDeBola);
 		rootNode.attachChild( ball );
 	}
 	
 	
 	private void createPins() {
 		for(int i=0; i<10;i++){
-			Cylinder pin = new Cylinder("pin"+ i,AXIS_SAMPLES,RADIAL_SAMPLES,PIN_RADIUS,PIN_HEIGHT,true);
-			pin.setModelBound( new BoundingBox() ); 
+			Cylinder pinVisual = new Cylinder("pin"+ i,AXIS_SAMPLES,RADIAL_SAMPLES,PIN_RADIUS,PIN_HEIGHT,true);
+			pinVisual.setModelBound( new BoundingBox() ); 
+			pinVisual.setLocalRotation(new Quaternion(new float[]{(float)Math.PI/2,0,0}));
+			pinVisual.updateModelBound();
+			pinVisual.setDefaultColor( ColorRGBA.blue.clone() );
+			pinVisual.setSolidColor( ColorRGBA.blue.clone() );
+			DynamicPhysicsNode pin = getPhysicsSpace().createDynamicNode();
+			
 			pin.setLocalTranslation(positions[i]);
-			pin.setLocalRotation(new Quaternion(new float[]{(float)Math.PI/2,0,0}));
-			pin.updateModelBound();
-			pin.setDefaultColor( ColorRGBA.blue.clone() );
-			pin.setSolidColor( ColorRGBA.blue.clone() );
+			pin.attachChild(pinVisual);
+			pin.generatePhysicsGeometry();
 			rootNode.attachChild( pin );
 		}
 	}
@@ -262,16 +299,11 @@ public class Bowling extends SimpleGame {
 		rootNode.attachChild( gutterLeft );
 		rootNode.attachChild( gutterRight );	
 
-		
-		/*((PointLight)lightState.get(0)).setLocation(new Vector3f(0, ROOM_HEIGHT * 0.9F, 0));
-		rootNode.attachChild( gutterRight );*/
 	}
-	
 	
 	private void createCamera() {
 		cam.setLocation( new Vector3f(0,80,30) );
 	}
-	
 	
 	private void createIlumination() {
 		((PointLight)lightState.get(0)).setLocation(new Vector3f(0, ROOM_HEIGHT * 0.9F, 0));
@@ -304,5 +336,6 @@ public class Bowling extends SimpleGame {
 //        light.setLocation( new Vector3f( 0, ROOM_HEIGHT * 0.9F, 0 ) );
 //        light.setEnabled( true );
 //        lightState.attach( light );
+
 
 }
