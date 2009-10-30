@@ -50,7 +50,10 @@ public class Bowling extends SimpleGame {
 	// Room
 	private static final int ROOM_WIDTH = 800;
 	private static final int ROOM_HEIGHT = 300;
-	
+	// Calculated parameters
+	private static float BALL_RADIUS_EXTRA = BALL_RADIUS * GUTTER_EXTRA;
+	private static float BALL_DIAMETER = BALL_RADIUS * 2;
+	private static float BALL_DIAMETER_EXTRA = BALL_RADIUS_EXTRA * 2;
 	
 	public static void main(String [] args) throws MalformedURLException {
 		Bowling app = new Bowling(); 
@@ -60,14 +63,11 @@ public class Bowling extends SimpleGame {
 	
 	@Override
 	protected void simpleInitGame() {
-		float BALL_DIAMETER = BALL_RADIUS * 2;
-		float BALL_RADIUS_EXTRA = BALL_RADIUS * GUTTER_EXTRA;
-		float BALL_DIAMETER_EXTRA = BALL_RADIUS_EXTRA * 2;
 		// Title
 		display.setTitle(TITLE);
 		// Backgournd color
 		display.getRenderer().setBackgroundColor( ColorRGBA.black.clone() );
-		// Room
+		// Room!
 		Box room = new Box( "room", new Vector3f(-ROOM_WIDTH/2, ROOM_HEIGHT, APPROACH_LENGTH), new Vector3f(ROOM_WIDTH/2, 0, -LANE_LENGTH) );
 		room.setModelBound( new BoundingBox() ); 
 		room.updateModelBound();
@@ -91,8 +91,16 @@ public class Bowling extends SimpleGame {
 		rootNode.attachChild( ball );
 		// Gutters
 		float circumference = 2.0F * (float)Math.PI * BALL_RADIUS_EXTRA;
-		Node gutterLeft = new Node("gutter_left");
-		Node gutterRight = new Node("gutter_left");
+		Node gutterLeft =  new Node("gutter_left");
+		Node gutterRight = new Node("gutter_right");
+		Quad gutterBorderLeft  = new Quad("gutter_border_left",  BALL_RADIUS_EXTRA, LANE_LENGTH);
+		Quad gutterBorderRight = new Quad("gutter_border_right", BALL_RADIUS_EXTRA, LANE_LENGTH);
+		gutterBorderLeft.setLocalRotation(  new Quaternion( new float[]{ (float)Math.PI/2, 0, -(float)Math.PI/2 } ) );
+		gutterBorderRight.setLocalRotation( new Quaternion( new float[]{ (float)Math.PI/2, 0, -(float)Math.PI/2 } ) );
+		gutterBorderLeft.setLocalTranslation( -(LANE_WIDTH/2 + BALL_DIAMETER_EXTRA), BALL_RADIUS_EXTRA / 2, -(LANE_LENGTH / 2) );
+		gutterBorderRight.setLocalTranslation( LANE_WIDTH/2 + BALL_DIAMETER_EXTRA  , BALL_RADIUS_EXTRA / 2, -(LANE_LENGTH / 2) );
+		gutterLeft.attachChild( gutterBorderLeft );
+		gutterLeft.attachChild( gutterBorderRight );
 		for( int i = 1; i < GUTTER_SAMPLES; i++ ) {
 			Quad left =  new Quad( "gutter_left_"  + String.valueOf(i), circumference / GUTTER_SAMPLES, LANE_LENGTH);
 			Quad right = new Quad( "gutter_right_" + String.valueOf(i), circumference / GUTTER_SAMPLES, LANE_LENGTH);
@@ -105,6 +113,10 @@ public class Bowling extends SimpleGame {
 			gutterLeft.attachChild( left );
 			gutterLeft.attachChild( right );
 		}
+		gutterLeft.setModelBound( new BoundingBox() ); 
+		gutterLeft.updateModelBound();
+		gutterRight.setModelBound( new BoundingBox() ); 
+		gutterRight.updateModelBound();
 		rootNode.attachChild( gutterLeft );
 		rootNode.attachChild( gutterRight );
 		// Light state
