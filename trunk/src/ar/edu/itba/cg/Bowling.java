@@ -14,6 +14,7 @@ import com.jme.renderer.ColorRGBA;
 import com.jme.scene.Node;
 import com.jme.scene.Spatial;
 import com.jme.scene.shape.Box;
+import com.jme.scene.shape.Cylinder;
 import com.jme.scene.shape.Quad;
 import com.jme.scene.shape.Sphere;
 
@@ -36,6 +37,8 @@ import com.jme.scene.shape.Sphere;
 public class Bowling extends SimpleGame {
 	private static final String IMAGE_LOGO = "resources/logo.jpg";
 	private static final String TITLE = "Bowling";
+	private static final float PIN_HEIGHT = 40;
+	private static final float PIN_RADIUS = 6.5F;
 	private static final float BALL_RADIUS = 21.8F;
 	private static final float BALL_WEIGHT = 7255;
 	private static final int BALL_SAMPLES = 50;
@@ -54,6 +57,21 @@ public class Bowling extends SimpleGame {
 	private static float BALL_RADIUS_EXTRA = BALL_RADIUS * GUTTER_EXTRA;
 	private static float BALL_DIAMETER = BALL_RADIUS * 2;
 	private static float BALL_DIAMETER_EXTRA = BALL_RADIUS_EXTRA * 2;
+	//Pin Positions
+	private static final float PIN_WIDTHHALFDIST = 15.2F; 
+	private static final float PIN_WIDTHDIST = 30.5F;
+	private static final float PIN_HEIGHTDIST = 26.4F;
+	private static final Vector3f [] positions = {	new Vector3f(0,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), -(LANE_LENGTH/2)),
+													new Vector3f(-PIN_WIDTHHALFDIST,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), -(LANE_LENGTH/2)- PIN_HEIGHTDIST),
+													new Vector3f(PIN_WIDTHHALFDIST,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), -(LANE_LENGTH/2)- PIN_HEIGHTDIST),
+													new Vector3f(-PIN_WIDTHDIST,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), -(LANE_LENGTH/2)- (2 * PIN_HEIGHTDIST)),
+													new Vector3f(0,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), -(LANE_LENGTH/2)- (2 * PIN_HEIGHTDIST)),
+													new Vector3f(PIN_WIDTHDIST,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), -(LANE_LENGTH/2)- (2 * PIN_HEIGHTDIST)),
+													new Vector3f(-(PIN_WIDTHDIST + PIN_WIDTHHALFDIST),BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), -(LANE_LENGTH/2)-(3 * PIN_HEIGHTDIST)),
+													new Vector3f(-PIN_WIDTHHALFDIST,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), -(LANE_LENGTH/2)-(3 * PIN_HEIGHTDIST)),
+													new Vector3f(PIN_WIDTHHALFDIST,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), -(LANE_LENGTH/2)-(3 * PIN_HEIGHTDIST)),
+													new Vector3f((PIN_WIDTHDIST+PIN_WIDTHHALFDIST),BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), -(LANE_LENGTH/2)-(3 * PIN_HEIGHTDIST))};
+
 	
 	public static void main(String [] args) throws MalformedURLException {
 		Bowling app = new Bowling(); 
@@ -63,6 +81,8 @@ public class Bowling extends SimpleGame {
 	
 	@Override
 	protected void simpleInitGame() {
+		float BALL_RADIUS_EXTRA = BALL_RADIUS * GUTTER_EXTRA;
+		
 		// Title
 		display.setTitle(TITLE);
 		// Backgournd color
@@ -76,6 +96,8 @@ public class Bowling extends SimpleGame {
 		Box lane = new Box( "lane", new Vector3f(-LANE_WIDTH/2, BALL_RADIUS_EXTRA, 0), new Vector3f(LANE_WIDTH/2, 0, -LANE_LENGTH) );
 		lane.setModelBound( new BoundingBox() ); 
 		lane.updateModelBound();
+		lane.setDefaultColor(ColorRGBA.brown);
+		lane.setSolidColor(ColorRGBA.brown);
 		rootNode.attachChild( lane );
 		// Approach
 		Box approach = new Box( "approach", new Vector3f(-(LANE_WIDTH/2 + BALL_DIAMETER_EXTRA), BALL_RADIUS_EXTRA, 0), new Vector3f(LANE_WIDTH/2 + BALL_DIAMETER_EXTRA, 0, APPROACH_LENGTH) );
@@ -89,6 +111,20 @@ public class Bowling extends SimpleGame {
 		ball.setDefaultColor( ColorRGBA.red.clone() );
 		ball.setSolidColor( ColorRGBA.red.clone() );
 		rootNode.attachChild( ball );
+		
+		//pins
+		for(int i=0; i<10;i++){
+			Cylinder pin = new Cylinder("pin"+ i,100,100,PIN_RADIUS,PIN_HEIGHT,true);
+			pin.setModelBound( new BoundingBox() ); 
+			pin.setLocalTranslation(positions[i]);
+			pin.setLocalRotation(new Quaternion(new float[]{(float)Math.PI/2,0,0}));
+			pin.updateModelBound();
+			pin.setDefaultColor( ColorRGBA.blue.clone() );
+			pin.setSolidColor( ColorRGBA.blue.clone() );
+			rootNode.attachChild( pin );
+		}
+		
+		
 		// Gutters
 		float circumference = 2.0F * (float)Math.PI * BALL_RADIUS_EXTRA;
 		Node gutterLeft =  new Node("gutter_left");
@@ -118,7 +154,7 @@ public class Bowling extends SimpleGame {
 		gutterRight.setModelBound( new BoundingBox() ); 
 		gutterRight.updateModelBound();
 		rootNode.attachChild( gutterLeft );
-		rootNode.attachChild( gutterRight );
+		rootNode.attachChild( gutterRight );	
 		// Light state
 		lightState = display.getRenderer().createLightState();
         lightState.detachAll();
