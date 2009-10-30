@@ -15,6 +15,7 @@ import com.jme.scene.shape.Box;
 import com.jme.scene.shape.Cylinder;
 import com.jme.scene.shape.Quad;
 import com.jme.scene.shape.Sphere;
+import com.jme.scene.state.LightState;
 import com.jme.scene.state.MaterialState;
 
 //	W	 Move Forward
@@ -175,6 +176,10 @@ public class Bowling extends SimpleGame {
 		Box lane = new Box( "lane", new Vector3f(-LANE_WIDTH/2, BALL_RADIUS_EXTRA, 0), new Vector3f(LANE_WIDTH/2, 0, -LANE_LENGTH) );
 		lane.setModelBound( new BoundingBox() ); 
 		lane.updateModelBound();
+		lane.setIsCollidable( true );
+		lane.setDefaultColor( ColorRGBA.brown.clone() );
+		lane.setSolidColor( ColorRGBA.brown.clone() );
+
 		MaterialState materialState = display.getRenderer().createMaterialState();
 		materialState.setColorMaterial( MaterialState.ColorMaterial.Diffuse );
 		materialState.setDiffuse( ColorRGBA.green.clone() );
@@ -252,7 +257,11 @@ public class Bowling extends SimpleGame {
 		gutterRight.setModelBound( new BoundingBox() ); 
 		gutterRight.updateModelBound();
 		rootNode.attachChild( gutterLeft );
-		rootNode.attachChild( gutterRight );
+		rootNode.attachChild( gutterRight );	
+
+		
+		/*((PointLight)lightState.get(0)).setLocation(new Vector3f(0, ROOM_HEIGHT * 0.9F, 0));
+		rootNode.attachChild( gutterRight );*/
 	}
 	
 	
@@ -265,7 +274,21 @@ public class Bowling extends SimpleGame {
 		((PointLight)lightState.get(0)).setLocation(new Vector3f(0, ROOM_HEIGHT * 0.9F, 0));
 		lightState.setTwoSidedLighting(true);
 		
-		// Clear Light state
+		// Create a point light
+		PointLight l=new PointLight();
+		// Give it a location
+		l.setLocation(new Vector3f(0,25,15));
+		// Make it a red light
+		l.setDiffuse(ColorRGBA.red);
+		// Create a LightState to put my light in
+		LightState ls=display.getRenderer().createLightState();
+		// Attach the light
+		ls.attach(l);
+		lightState.detachAll();
+		
+	} 
+
+// Clear Light state
 //        lightState.detachAll();
 //        lightState.setEnabled( true );
 //        lightState.setGlobalAmbient( ColorRGBA.white.clone() );
@@ -278,7 +301,5 @@ public class Bowling extends SimpleGame {
 //        light.setLocation( new Vector3f( 0, ROOM_HEIGHT * 0.9F, 0 ) );
 //        light.setEnabled( true );
 //        lightState.attach( light );
-	}
-	
-	
+
 }
