@@ -36,20 +36,26 @@ import com.jme.scene.state.MaterialState;
 public class Bowling extends SimpleGame {
 	private static final String IMAGE_LOGO = "resources/logo.jpg";
 	private static final String TITLE = "Bowling";
+	// Pin Parameters
 	private static final float PIN_HEIGHT = 40;
 	private static final float PIN_RADIUS = 6.5F;
+	private static final float PIN_WEIGHT = 7255;
+	// Ball Parameters
 	private static final float BALL_RADIUS = 21.8F;
 	private static final float BALL_WEIGHT = 7255;
 	private static final int BALL_SAMPLES = 50;
+	// Gutter Parameters
 	private static final float GUTTER_EXTRA = 1.20F;
 	private static final int GUTTER_SAMPLES = 100;
+	// Lane Parameters
 	// The middle of the foul line is at 0, BALL_RADIUS, 0
 	// Ten Pin Bowling: http://en.wikipedia.org/wiki/Tenpin
 	private static final int LANE_WIDTH = 105; // centimeters
 	private static final int LANE_LENGTH = 1800; // centimeters
+	// Approach Parameters
 	// Behind the foul line is an “approach” used to gain speed
 	private static final int APPROACH_LENGTH = 500;
-	// Room
+	// Room Parameters
 	private static final int ROOM_WIDTH = 800;
 	private static final int ROOM_HEIGHT = 300;
 	// Calculated parameters
@@ -79,9 +85,7 @@ public class Bowling extends SimpleGame {
 	}
 	
 	@Override
-	protected void simpleInitGame() {
-		float BALL_RADIUS_EXTRA = BALL_RADIUS * GUTTER_EXTRA;
-		
+	protected void simpleInitGame() {		
 		// Title
 		display.setTitle(TITLE);
 		// Backgournd color
