@@ -143,7 +143,7 @@ public class Bowling extends SimplePhysicsGame {
 	
 	private void createDisplay() {
 		display.getRenderer().setBackgroundColor( ColorRGBA.black.clone() );
-		display.getRenderer().getCamera().setFrustumFar(LANE_LENGTH * 1.1f);
+		display.getRenderer().getCamera().setFrustumFar( ROOM_LENGTH * 1.1f);
 		display.setTitle(TITLE);
 	}
 	
@@ -151,35 +151,49 @@ public class Bowling extends SimplePhysicsGame {
 	private void createRoom() {
 		Node room = new Node("room");
 		// Top and bottom
-		Quad wallDown = new Quad("wall_down", ROOM_WIDTH, ROOM_LENGTH);
-		Quad wallUp = new Quad("wall_up", ROOM_WIDTH, ROOM_LENGTH);
+		Quad wallDownVisual = new Quad("wall_down", ROOM_WIDTH, ROOM_LENGTH);
+		Quad wallUpVisual = new Quad("wall_up", ROOM_WIDTH, ROOM_LENGTH);
+		wallDownVisual.setModelBound( new BoundingBox() ); 
+		wallDownVisual.updateModelBound();
+		wallUpVisual.setModelBound( new BoundingBox() ); 
+		wallUpVisual.updateModelBound();
+		StaticPhysicsNode wallDown = getPhysicsSpace().createStaticNode();
+		StaticPhysicsNode wallUp = getPhysicsSpace().createStaticNode();
+		wallDown.attachChild( wallDownVisual );
+		wallUp.attachChild( wallUpVisual );
 		wallDown.setLocalRotation( new Quaternion( new float[]{ (float)Math.PI/2, 0, 0 } ) );
 		wallUp.setLocalRotation(  new Quaternion( new float[]{ (float)Math.PI/2, 0, 0 } ) );
 		wallDown.setLocalTranslation( 0, 0, ROOM_CENTER_Z );
 		wallUp.setLocalTranslation(  0, ROOM_HEIGHT, ROOM_CENTER_Z );
+		wallDown.generatePhysicsGeometry();
+		wallUp.generatePhysicsGeometry();
 		// Left and right
-		Quad wallLeft =  new Quad("wall_left",  ROOM_LENGTH, ROOM_HEIGHT);
-		Quad wallRight = new Quad("wall_right", ROOM_LENGTH, ROOM_HEIGHT);
+		Quad wallLeftVisual =  new Quad("wall_left",  ROOM_LENGTH, ROOM_HEIGHT);
+		Quad wallRightVisual = new Quad("wall_right", ROOM_LENGTH, ROOM_HEIGHT);
+		wallLeftVisual.setModelBound( new BoundingBox() ); 
+		wallLeftVisual.updateModelBound();
+		wallRightVisual.setModelBound( new BoundingBox() ); 
+		wallRightVisual.updateModelBound();
+		StaticPhysicsNode wallLeft = getPhysicsSpace().createStaticNode();
+		StaticPhysicsNode wallRight = getPhysicsSpace().createStaticNode();
+		wallLeft.attachChild( wallLeftVisual );
+		wallRight.attachChild( wallRightVisual );
 		wallLeft.setLocalRotation(  new Quaternion( new float[]{ 0, (float)Math.PI/2, 0 } ) );
 		wallRight.setLocalRotation( new Quaternion( new float[]{ 0, (float)Math.PI/2, 0 } ) );
 		wallLeft.setLocalTranslation(  -ROOM_WIDTH / 2, ROOM_HEIGHT / 2, ROOM_CENTER_Z );
 		wallRight.setLocalTranslation(  ROOM_WIDTH / 2, ROOM_HEIGHT / 2, ROOM_CENTER_Z );
+		wallRight.generatePhysicsGeometry();
+		wallLeft.generatePhysicsGeometry();
 		// Back
-		Quad wallBack =  new Quad("wall_back", ROOM_HEIGHT, ROOM_WIDTH);
+		Quad wallBackVisual =  new Quad("wall_back", ROOM_HEIGHT, ROOM_WIDTH);
+		wallBackVisual.setModelBound( new BoundingBox() ); 
+		wallBackVisual.updateModelBound();
+		StaticPhysicsNode wallBack = getPhysicsSpace().createStaticNode();
+		wallBack.attachChild( wallBackVisual );
 		wallBack.setLocalRotation(  new Quaternion( new float[]{ 0, 0, (float)Math.PI/2 } ) );
 		wallBack.setLocalTranslation(  0, ROOM_HEIGHT / 2, APPROACH_LENGTH );
+		wallBack.generatePhysicsGeometry();
 		// TODO: WALL FRONT!
-		// Bounds
-		wallDown.setModelBound( new BoundingBox() ); 
-		wallDown.updateModelBound();
-		wallUp.setModelBound( new BoundingBox() ); 
-		wallUp.updateModelBound();
-		wallLeft.setModelBound( new BoundingBox() ); 
-		wallLeft.updateModelBound();
-		wallRight.setModelBound( new BoundingBox() ); 
-		wallRight.updateModelBound();
-		wallBack.setModelBound( new BoundingBox() ); 
-		wallBack.updateModelBound();
 		// Attach
 		room.attachChild( wallDown );
 		room.attachChild( wallUp );
@@ -196,29 +210,29 @@ public class Bowling extends SimplePhysicsGame {
 		Box laneVisual = new Box("lane", new Vector3f(0,0,0), LANE_WIDTH / 2, BALL_RADIUS_EXTRA / 2, LANE_LENGTH / 2 );
 		laneVisual.setModelBound( new BoundingBox() ); 
 		laneVisual.updateModelBound();
-		laneVisual.setIsCollidable( true );
-		laneVisual.setDefaultColor( ColorRGBA.brown.clone() );
-		laneVisual.setSolidColor( ColorRGBA.brown.clone() );
-
-		MaterialState materialState = display.getRenderer().createMaterialState();
-		materialState.setColorMaterial( MaterialState.ColorMaterial.Diffuse );
-		materialState.setDiffuse( ColorRGBA.green.clone() );
-		laneVisual.setRenderState( materialState );
 		StaticPhysicsNode lane = getPhysicsSpace().createStaticNode();
 		lane.attachChild( laneVisual );
 		lane.setLocalTranslation( new Vector3f(0, BALL_RADIUS_EXTRA / 2, -LANE_LENGTH / 2) );
 		lane.generatePhysicsGeometry();
+		
+		laneVisual.setDefaultColor( ColorRGBA.brown.clone() );
+		laneVisual.setSolidColor( ColorRGBA.brown.clone() );		
+		MaterialState materialState = display.getRenderer().createMaterialState();
+		materialState.setColorMaterial( MaterialState.ColorMaterial.Diffuse );
+		materialState.setDiffuse( ColorRGBA.green.clone() );
+		laneVisual.setRenderState( materialState );
+
 		rootNode.attachChild( lane );
 	}
 	
 	
 	private void createApproach() {
 		Box approachVisual = new Box( "approach", new Vector3f(0,0,0), LANE_WIDTH/2 + BALL_DIAMETER_EXTRA, BALL_RADIUS_EXTRA / 2, APPROACH_LENGTH / 2 );
-		approachVisual.setLocalTranslation( new Vector3f(0, BALL_RADIUS_EXTRA / 2, APPROACH_LENGTH / 2) );
 		approachVisual.setModelBound( new BoundingBox() ); 
 		approachVisual.updateModelBound();
 		StaticPhysicsNode approach = getPhysicsSpace().createStaticNode();
 		approach.attachChild( approachVisual );
+		approach.setLocalTranslation( new Vector3f(0, BALL_RADIUS_EXTRA / 2, APPROACH_LENGTH / 2) );
 		approach.generatePhysicsGeometry();
 		rootNode.attachChild( approach );
 	}
@@ -228,17 +242,18 @@ public class Bowling extends SimplePhysicsGame {
 		Sphere ballVisual = new Sphere("ball", new Vector3f(0, 0, 0), BALL_SAMPLES, BALL_SAMPLES, BALL_RADIUS);
 		ballVisual.setModelBound( new BoundingSphere() ); 
 		ballVisual.updateModelBound();
+		this.ball = getPhysicsSpace().createDynamicNode();
+		this.ball.attachChild( ballVisual );
+		this.ball.setLocalTranslation( new Vector3f(0, BALL_DIAMETER_EXTRA, 0) );
+		this.ball.generatePhysicsGeometry();
+		
 		ballVisual.setDefaultColor( ColorRGBA.red.clone() );
 		ballVisual.setSolidColor( ColorRGBA.red.clone() ); 
-		ballVisual.updateModelBound();
-		this.ball = getPhysicsSpace().createDynamicNode();
-		ball.attachChild(ballVisual);
-		ball.setLocalTranslation(new Vector3f(0, BALL_DIAMETER_EXTRA, 0));
-		ball.generatePhysicsGeometry();
 		Material materiaDeBola = new Material();
-		materiaDeBola.setDensity(10000);
-		ball.setMaterial(materiaDeBola);
-		rootNode.attachChild( ball );
+		materiaDeBola.setDensity( 10000 );
+		this.ball.setMaterial( materiaDeBola );
+		
+		rootNode.attachChild( this.ball );
 	}
 	
 	
@@ -262,20 +277,22 @@ public class Bowling extends SimplePhysicsGame {
 	
 	private void createGutters() {
 		float circumference = 2.0F * (float)Math.PI * BALL_RADIUS_EXTRA;
-		Node gutterLeft =  new Node("gutter_left");
-		Node gutterRight = new Node("gutter_right");
+		StaticPhysicsNode gutterLeft =  getPhysicsSpace().createStaticNode(); // new Node("gutter_left");
+		StaticPhysicsNode gutterRight = getPhysicsSpace().createStaticNode(); // new Node("gutter_right");
 		Quad gutterBorderLeft  = new Quad("gutter_border_left",  BALL_RADIUS_EXTRA, LANE_LENGTH);
 		Quad gutterBorderRight = new Quad("gutter_border_right", BALL_RADIUS_EXTRA, LANE_LENGTH);
 		gutterBorderLeft.setLocalRotation(  new Quaternion( new float[]{ (float)Math.PI/2, 0, -(float)Math.PI/2 } ) );
 		gutterBorderRight.setLocalRotation( new Quaternion( new float[]{ (float)Math.PI/2, 0, -(float)Math.PI/2 } ) );
 		gutterBorderLeft.setLocalTranslation( -(LANE_WIDTH/2 + BALL_DIAMETER_EXTRA), BALL_RADIUS_EXTRA / 2, -(LANE_LENGTH / 2) );
 		gutterBorderRight.setLocalTranslation( LANE_WIDTH/2 + BALL_DIAMETER_EXTRA  , BALL_RADIUS_EXTRA / 2, -(LANE_LENGTH / 2) );
-		gutterLeft.attachChild( gutterBorderLeft );
-		gutterLeft.attachChild( gutterBorderRight );
 		gutterBorderLeft.setModelBound( new BoundingBox() ); 
 		gutterBorderLeft.updateModelBound();
 		gutterBorderRight.setModelBound( new BoundingBox() ); 
-		gutterRight.updateModelBound();
+		gutterBorderRight.updateModelBound();
+		gutterBorderLeft.setIsCollidable(true);
+		gutterBorderRight.setIsCollidable(true);
+		gutterLeft.attachChild( gutterBorderLeft );
+		gutterRight.attachChild( gutterBorderRight );
 		for( int i = 1; i < GUTTER_SAMPLES; i++ ) {
 			Quad left =  new Quad( "gutter_left_"  + String.valueOf(i), circumference / GUTTER_SAMPLES, LANE_LENGTH);
 			Quad right = new Quad( "gutter_right_" + String.valueOf(i), circumference / GUTTER_SAMPLES, LANE_LENGTH);
@@ -289,13 +306,19 @@ public class Bowling extends SimplePhysicsGame {
 			left.updateModelBound();
 			right.setModelBound( new BoundingBox() ); 
 			right.updateModelBound();
+			left.setIsCollidable(true);
+			right.setIsCollidable(true);
 			gutterLeft.attachChild( left );
-			gutterLeft.attachChild( right );
+			gutterRight.attachChild( right );
 		}
 		gutterLeft.setModelBound( new BoundingBox() ); 
 		gutterLeft.updateModelBound();
 		gutterRight.setModelBound( new BoundingBox() ); 
 		gutterRight.updateModelBound();
+		gutterLeft.setIsCollidable(true);
+		gutterRight.setIsCollidable(true);
+		gutterLeft.generatePhysicsGeometry();
+		gutterRight.generatePhysicsGeometry();
 		rootNode.attachChild( gutterLeft );
 		rootNode.attachChild( gutterRight );	
 
