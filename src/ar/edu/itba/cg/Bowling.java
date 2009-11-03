@@ -11,7 +11,6 @@ import com.jme.light.PointLight;
 import com.jme.math.Quaternion;
 import com.jme.math.Vector3f;
 import com.jme.renderer.ColorRGBA;
-import com.jme.renderer.Renderer;
 import com.jme.scene.Node;
 import com.jme.scene.Spatial;
 import com.jme.scene.shape.Box;
@@ -102,7 +101,11 @@ public class Bowling extends SimplePhysicsGame {
 													new Vector3f(PIN_WIDTHHALFDIST + INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)-(3 * PIN_HEIGHTDIST)),
 													new Vector3f((PIN_WIDTHDIST+PIN_WIDTHHALFDIST)+ INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)-(3 * PIN_HEIGHTDIST))};
 	private DynamicPhysicsNode ball;
-	
+	// Constants
+	private static final ColorRGBA NO_COLOR = ColorRGBA.black;
+	private static final float NO_SHININESS = 0.0f;
+	private static final float LOW_SHININESS = 5.0f;
+	private static final float HIGH_SHININESS = 100.0f;
 	
 	
 	public static void main(String [] args) throws MalformedURLException {
@@ -172,8 +175,8 @@ public class Bowling extends SimplePhysicsGame {
 		wallDownVisual.updateModelBound();
 		wallUpVisual.setModelBound( new BoundingBox() ); 
 		wallUpVisual.updateModelBound();
-		setColor( wallDownVisual, ColorRGBA.gray.clone() );
-		setColor( wallUpVisual, ColorRGBA.gray.clone() );
+		setColor( wallDownVisual, ColorRGBA.gray, NO_SHININESS, NO_COLOR );
+		setColor( wallUpVisual,   ColorRGBA.gray, NO_SHININESS, NO_COLOR );
 		StaticPhysicsNode wallDown = getPhysicsSpace().createStaticNode();
 		StaticPhysicsNode wallUp = getPhysicsSpace().createStaticNode();
 		wallDown.attachChild( wallDownVisual );
@@ -193,8 +196,8 @@ public class Bowling extends SimplePhysicsGame {
 		wallLeftVisual.updateModelBound();
 		wallRightVisual.setModelBound( new BoundingBox() ); 
 		wallRightVisual.updateModelBound();
-		setColor( wallLeftVisual, ColorRGBA.gray.clone() );
-		setColor( wallRightVisual, ColorRGBA.gray.clone() );
+		setColor( wallLeftVisual,  ColorRGBA.gray, NO_SHININESS, NO_COLOR );
+		setColor( wallRightVisual, ColorRGBA.gray, NO_SHININESS, NO_COLOR );
 		StaticPhysicsNode wallLeft = getPhysicsSpace().createStaticNode();
 		StaticPhysicsNode wallRight = getPhysicsSpace().createStaticNode();
 		wallLeft.attachChild( wallLeftVisual );
@@ -211,7 +214,7 @@ public class Bowling extends SimplePhysicsGame {
 		Quad wallBackVisual =  new Quad("wall_back", ROOM_HEIGHT, ROOM_WIDTH);
 		wallBackVisual.setModelBound( new BoundingBox() ); 
 		wallBackVisual.updateModelBound();
-		setColor( wallBackVisual, ColorRGBA.gray.clone() );
+		setColor( wallBackVisual, ColorRGBA.gray, NO_SHININESS, NO_COLOR );
 		StaticPhysicsNode wallBack = getPhysicsSpace().createStaticNode();
 		wallBack.attachChild( wallBackVisual );
 		wallBack.setMaterial( Material.CONCRETE );
@@ -222,7 +225,7 @@ public class Bowling extends SimplePhysicsGame {
 		Quad wallFrontVisual =  new Quad("wall_front", ROOM_HEIGHT, ROOM_WIDTH);
 		wallFrontVisual.setModelBound( new BoundingBox() ); 
 		wallFrontVisual.updateModelBound();
-		setColor( wallFrontVisual, ColorRGBA.gray.clone() );
+		setColor( wallFrontVisual, ColorRGBA.gray, NO_SHININESS, NO_COLOR );
 		StaticPhysicsNode wallFront = getPhysicsSpace().createStaticNode();
 		wallFront.attachChild( wallFrontVisual );
 		wallFront.setMaterial( Material.CONCRETE );
@@ -248,7 +251,7 @@ public class Bowling extends SimplePhysicsGame {
 		Quad boxTopVisual = new Quad("box_top", LANE_WIDTH + BALL_DIAMETER_EXTRA * 2, BOX_LENGTH );
 		boxTopVisual.setModelBound( new BoundingBox() ); 
 		boxTopVisual.updateModelBound();
-		setColor( boxTopVisual, ColorRGBA.darkGray.clone() );
+		setColor( boxTopVisual, ColorRGBA.darkGray, NO_SHININESS, NO_COLOR );
 		StaticPhysicsNode boxTop = getPhysicsSpace().createStaticNode();
 		boxTop.attachChild( boxTopVisual );
 		boxTop.setMaterial( Material.CONCRETE );
@@ -262,8 +265,8 @@ public class Bowling extends SimplePhysicsGame {
 		boxLeftVisual.updateModelBound();
 		boxRightVisual.setModelBound( new BoundingBox() ); 
 		boxRightVisual.updateModelBound();
-		setColor( boxLeftVisual, ColorRGBA.darkGray.clone() );
-		setColor( boxRightVisual, ColorRGBA.darkGray.clone() );
+		setColor( boxLeftVisual,  ColorRGBA.darkGray, NO_SHININESS, NO_COLOR );
+		setColor( boxRightVisual, ColorRGBA.darkGray, NO_SHININESS, NO_COLOR );
 		StaticPhysicsNode boxLeft = getPhysicsSpace().createStaticNode();
 		StaticPhysicsNode boxRight = getPhysicsSpace().createStaticNode();
 		boxLeft.attachChild( boxLeftVisual );
@@ -290,7 +293,7 @@ public class Bowling extends SimplePhysicsGame {
 		Box laneVisual = new Box("lane", new Vector3f(0,0,0), LANE_WIDTH / 2, BALL_RADIUS_EXTRA / 2, LANE_LENGTH / 2 );
 		laneVisual.setModelBound( new BoundingBox() ); 
 		laneVisual.updateModelBound();
-		setColor( laneVisual, ColorRGBA.brown );
+		setColor( laneVisual, ColorRGBA.brown, NO_SHININESS, NO_COLOR );
 		StaticPhysicsNode lane = getPhysicsSpace().createStaticNode();
 		lane.setMaterial( Material.WOOD );
 		lane.attachChild( laneVisual );
@@ -304,7 +307,7 @@ public class Bowling extends SimplePhysicsGame {
 		Box approachVisual = new Box( "approach", new Vector3f(0,0,0), LANE_WIDTH/2 + BALL_DIAMETER_EXTRA, BALL_RADIUS_EXTRA / 2, APPROACH_LENGTH / 2 );
 		approachVisual.setModelBound( new BoundingBox() ); 
 		approachVisual.updateModelBound();
-		setColor( approachVisual, ColorRGBA.brown );
+		setColor( approachVisual, ColorRGBA.brown, NO_SHININESS, NO_COLOR );
 		StaticPhysicsNode approach = getPhysicsSpace().createStaticNode();
 		approach.setMaterial( Material.WOOD );
 		approach.attachChild( approachVisual );
@@ -318,7 +321,7 @@ public class Bowling extends SimplePhysicsGame {
 		Sphere ballVisual = new Sphere("ball", new Vector3f(0, 0, 0), BALL_SAMPLES, BALL_SAMPLES, BALL_RADIUS);
 		ballVisual.setModelBound( new BoundingSphere() ); 
 		ballVisual.updateModelBound();
-		setColor( ballVisual, ColorRGBA.blue );
+		setColor( ballVisual, ColorRGBA.blue, HIGH_SHININESS, ColorRGBA.white );
 		this.ball = getPhysicsSpace().createDynamicNode();
 		this.ball.setMaterial( Material.PLASTIC );
 		this.ball.attachChild( ballVisual );
@@ -334,7 +337,7 @@ public class Bowling extends SimplePhysicsGame {
 			Cylinder pinVisual = new Cylinder("pin"+ i,AXIS_SAMPLES,RADIAL_SAMPLES,PIN_RADIUS,PIN_HEIGHT,true);
 			pinVisual.setModelBound( new BoundingBox() );
 			pinVisual.updateModelBound();
-			setColor( pinVisual, ColorRGBA.red );
+			setColor( pinVisual, ColorRGBA.red, HIGH_SHININESS, ColorRGBA.white );
 			DynamicPhysicsNode pin = getPhysicsSpace().createDynamicNode();
 			pin.setMaterial( Material.PLASTIC );
 			pin.attachChild(pinVisual);
@@ -437,9 +440,12 @@ public class Bowling extends SimplePhysicsGame {
 //        lightState.attach( light );
 
 	
-	private void setColor( Spatial spatial, ColorRGBA color ) {
+	private void setColor( Spatial spatial, ColorRGBA diffuseColor, float shininess, ColorRGBA specularColor ) {
         final MaterialState materialState = display.getRenderer().createMaterialState();
-        materialState.setDiffuse( color );
+        materialState.setDiffuse( diffuseColor );
+        materialState.setSpecular( specularColor );
+        materialState.setShininess( shininess );
+        materialState.setEnabled( true );
         spatial.setRenderState( materialState );
     }
 
