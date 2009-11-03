@@ -6,6 +6,8 @@ import java.net.URL;
 import com.jme.bounding.BoundingBox;
 import com.jme.bounding.BoundingSphere;
 import com.jme.image.Texture;
+import com.jme.image.Texture.WrapAxis;
+import com.jme.image.Texture.WrapMode;
 import com.jme.input.KeyInput;
 import com.jme.input.MouseInput;
 import com.jme.light.PointLight;
@@ -56,10 +58,10 @@ public class Bowling extends SimplePhysicsGame {
 	// Ball Parameters
 	private static final float BALL_RADIUS = 15.0F;
 	private static final float BALL_WEIGHT = 10;
-	private static final int BALL_SAMPLES = 50;		// The definition of the ball
+	private static final int BALL_SAMPLES = 100;		// The definition of the ball
 	// Gutter Parameters
 	private static final float GUTTER_EXTRA = 1.20F;// How much bigger or smaller than the ball (1 is the same)
-	private static final int GUTTER_SAMPLES = 100;	// The definition of the gutters
+	private static final int GUTTER_SAMPLES = 50;	// The definition of the gutters
 	// Lane Parameters
 	// The middle of the foul line is at 0, BALL_RADIUS, 0
 	// Ten Pin Bowling: http://en.wikipedia.org/wiki/Tenpin
@@ -317,7 +319,8 @@ public class Bowling extends SimplePhysicsGame {
 		Box approachVisual = new Box( "approach", new Vector3f(0,0,0), LANE_WIDTH/2 + BALL_DIAMETER_EXTRA, BALL_RADIUS_EXTRA / 2, APPROACH_LENGTH / 2 );
 		approachVisual.setModelBound( new BoundingBox() ); 
 		approachVisual.updateModelBound();
-		setColor( approachVisual, ColorRGBA.brown, NO_SHININESS, NO_COLOR );
+		setColor( approachVisual, NO_COLOR, NO_SHININESS, ColorRGBA.white );
+		setTexture( approachVisual, "file:resources/textures/wood.jpg" );
 		StaticPhysicsNode approach = getPhysicsSpace().createStaticNode();
 		approach.setMaterial( Material.WOOD );
 		approach.attachChild( approachVisual );
@@ -371,6 +374,10 @@ public class Bowling extends SimplePhysicsGame {
 		gutterBorderLeftVisual.updateModelBound();
 		gutterBorderRightVisual.setModelBound( new BoundingBox() ); 
 		gutterBorderRightVisual.updateModelBound();
+		setColor( gutterBorderLeftVisual, ColorRGBA.gray, LOW_SHININESS, NO_COLOR );
+		setColor( gutterBorderRightVisual,   ColorRGBA.gray, LOW_SHININESS, NO_COLOR );
+		setTexture( gutterBorderLeftVisual, "file:resources/textures/metal.jpg" );
+		setTexture( gutterBorderRightVisual, "file:resources/textures/metal.jpg" );
 		StaticPhysicsNode gutterBorderLeft = getPhysicsSpace().createStaticNode();
 		StaticPhysicsNode gutterBorderRight = getPhysicsSpace().createStaticNode();
 		gutterBorderLeft.setMaterial( Material.IRON );
@@ -392,6 +399,10 @@ public class Bowling extends SimplePhysicsGame {
 			leftVisual.updateModelBound();
 			rightVisual.setModelBound( new BoundingBox() ); 
 			rightVisual.updateModelBound();
+			setColor( leftVisual, ColorRGBA.gray, LOW_SHININESS, NO_COLOR );
+			setColor( rightVisual,   ColorRGBA.gray, LOW_SHININESS, NO_COLOR );
+			setTexture( leftVisual,  "file:resources/textures/metal.jpg" );
+			setTexture( rightVisual, "file:resources/textures/metal.jpg" );
 			StaticPhysicsNode left = getPhysicsSpace().createStaticNode();
 			StaticPhysicsNode right = getPhysicsSpace().createStaticNode();
 			left.setMaterial( Material.IRON );
@@ -474,6 +485,7 @@ public class Bowling extends SimplePhysicsGame {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		texture.setWrap( WrapMode.Repeat );
 		textureState.setTexture( texture );
 	    spatial.setRenderState(textureState);
 	}
