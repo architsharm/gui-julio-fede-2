@@ -5,6 +5,7 @@ import java.net.URL;
 
 import com.jme.bounding.BoundingBox;
 import com.jme.bounding.BoundingSphere;
+import com.jme.image.Texture;
 import com.jme.input.KeyInput;
 import com.jme.input.MouseInput;
 import com.jme.light.PointLight;
@@ -18,6 +19,8 @@ import com.jme.scene.shape.Cylinder;
 import com.jme.scene.shape.Quad;
 import com.jme.scene.shape.Sphere;
 import com.jme.scene.state.MaterialState;
+import com.jme.scene.state.TextureState;
+import com.jme.util.TextureManager;
 import com.jmex.physics.DynamicPhysicsNode;
 import com.jmex.physics.StaticPhysicsNode;
 import com.jmex.physics.material.Material;
@@ -177,6 +180,8 @@ public class Bowling extends SimplePhysicsGame {
 		wallUpVisual.updateModelBound();
 		setColor( wallDownVisual, ColorRGBA.gray, NO_SHININESS, NO_COLOR );
 		setColor( wallUpVisual,   ColorRGBA.gray, NO_SHININESS, NO_COLOR );
+		setTexture( wallDownVisual, "file:resources/textures/wall.jpg" );
+		setTexture( wallUpVisual, "file:resources/textures/wall.jpg" );
 		StaticPhysicsNode wallDown = getPhysicsSpace().createStaticNode();
 		StaticPhysicsNode wallUp = getPhysicsSpace().createStaticNode();
 		wallDown.attachChild( wallDownVisual );
@@ -198,6 +203,8 @@ public class Bowling extends SimplePhysicsGame {
 		wallRightVisual.updateModelBound();
 		setColor( wallLeftVisual,  ColorRGBA.gray, NO_SHININESS, NO_COLOR );
 		setColor( wallRightVisual, ColorRGBA.gray, NO_SHININESS, NO_COLOR );
+		setTexture( wallLeftVisual, "file:resources/textures/wall.jpg" );
+		setTexture( wallRightVisual, "file:resources/textures/wall.jpg" );
 		StaticPhysicsNode wallLeft = getPhysicsSpace().createStaticNode();
 		StaticPhysicsNode wallRight = getPhysicsSpace().createStaticNode();
 		wallLeft.attachChild( wallLeftVisual );
@@ -215,6 +222,7 @@ public class Bowling extends SimplePhysicsGame {
 		wallBackVisual.setModelBound( new BoundingBox() ); 
 		wallBackVisual.updateModelBound();
 		setColor( wallBackVisual, ColorRGBA.gray, NO_SHININESS, NO_COLOR );
+		setTexture( wallBackVisual, "file:resources/textures/wall.jpg" );
 		StaticPhysicsNode wallBack = getPhysicsSpace().createStaticNode();
 		wallBack.attachChild( wallBackVisual );
 		wallBack.setMaterial( Material.CONCRETE );
@@ -226,6 +234,7 @@ public class Bowling extends SimplePhysicsGame {
 		wallFrontVisual.setModelBound( new BoundingBox() ); 
 		wallFrontVisual.updateModelBound();
 		setColor( wallFrontVisual, ColorRGBA.gray, NO_SHININESS, NO_COLOR );
+		setTexture( wallFrontVisual, "file:resources/textures/wall.jpg" );
 		StaticPhysicsNode wallFront = getPhysicsSpace().createStaticNode();
 		wallFront.attachChild( wallFrontVisual );
 		wallFront.setMaterial( Material.CONCRETE );
@@ -293,7 +302,8 @@ public class Bowling extends SimplePhysicsGame {
 		Box laneVisual = new Box("lane", new Vector3f(0,0,0), LANE_WIDTH / 2, BALL_RADIUS_EXTRA / 2, LANE_LENGTH / 2 );
 		laneVisual.setModelBound( new BoundingBox() ); 
 		laneVisual.updateModelBound();
-		setColor( laneVisual, ColorRGBA.brown, NO_SHININESS, NO_COLOR );
+		setColor( laneVisual, NO_COLOR, LOW_SHININESS, ColorRGBA.white );
+		setTexture( laneVisual, "file:resources/textures/wood.jpg" );
 		StaticPhysicsNode lane = getPhysicsSpace().createStaticNode();
 		lane.setMaterial( Material.WOOD );
 		lane.attachChild( laneVisual );
@@ -321,7 +331,8 @@ public class Bowling extends SimplePhysicsGame {
 		Sphere ballVisual = new Sphere("ball", new Vector3f(0, 0, 0), BALL_SAMPLES, BALL_SAMPLES, BALL_RADIUS);
 		ballVisual.setModelBound( new BoundingSphere() ); 
 		ballVisual.updateModelBound();
-		setColor( ballVisual, ColorRGBA.blue, HIGH_SHININESS, ColorRGBA.white );
+		setColor( ballVisual, ColorRGBA.green, HIGH_SHININESS, ColorRGBA.white );
+		setTexture( ballVisual, "file:resources/textures/marble.jpg" );
 		this.ball = getPhysicsSpace().createDynamicNode();
 		this.ball.setMaterial( Material.PLASTIC );
 		this.ball.attachChild( ballVisual );
@@ -448,5 +459,24 @@ public class Bowling extends SimplePhysicsGame {
         materialState.setEnabled( true );
         spatial.setRenderState( materialState );
     }
+	
+	
+	private void setTexture( Spatial spatial, String image ) {
+		TextureState textureState = display.getRenderer().createTextureState();
+		Texture texture = null;
+		try {
+			texture = TextureManager.loadTexture(
+				new URL( image ),
+				Texture.MinificationFilter.BilinearNearestMipMap,
+				Texture.MagnificationFilter.Bilinear 
+			);
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		textureState.setTexture( texture );
+	    spatial.setRenderState(textureState);
+	}
 
+	
 }
