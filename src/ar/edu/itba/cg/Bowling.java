@@ -9,12 +9,11 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.Properties;
 
-import sun.reflect.Reflection;
-
 import com.jme.bounding.BoundingBox;
 import com.jme.bounding.BoundingSphere;
 import com.jme.image.Texture;
 import com.jme.image.Texture.WrapMode;
+import com.jme.input.ChaseCamera;
 import com.jme.input.FirstPersonHandler;
 import com.jme.input.KeyInput;
 import com.jme.input.MouseInput;
@@ -24,6 +23,7 @@ import com.jme.math.Vector3f;
 import com.jme.renderer.ColorRGBA;
 import com.jme.scene.Node;
 import com.jme.scene.Spatial;
+import com.jme.scene.Text;
 import com.jme.scene.shape.Box;
 import com.jme.scene.shape.Cylinder;
 import com.jme.scene.shape.Quad;
@@ -31,13 +31,11 @@ import com.jme.scene.shape.Sphere;
 import com.jme.scene.state.MaterialState;
 import com.jme.scene.state.TextureState;
 import com.jme.util.TextureManager;
-import com.jmex.model.collada.schema.float2;
 import com.jmex.physics.DynamicPhysicsNode;
 import com.jmex.physics.StaticPhysicsNode;
 import com.jmex.physics.material.Material;
 import com.jmex.physics.util.PhysicsPicker;
 import com.jmex.physics.util.SimplePhysicsGame;
-
 
 //	W	 Move Forward
 //	A	 Strafe Left
@@ -53,6 +51,7 @@ import com.jmex.physics.util.SimplePhysicsGame;
 //	C	 Print Camera Position
 //	B	 Bounding Volumes On/Off
 //	N	 Normals On/Off
+//  V	 Show Physics
 //	F1	 Take Screenshot
 
 public class Bowling extends SimplePhysicsGame {
@@ -62,12 +61,12 @@ public class Bowling extends SimplePhysicsGame {
 	// Pin Parameters
 	public static float PIN_HEIGHT = 40;
 	public static float PIN_RADIUS = 6.5F;
-	public static float PIN_WEIGHT = 2;
+	public static float PIN_WEIGHT = 1750;
 	public static int AXIS_SAMPLES = 4;		// The definition of the pin
 	public static int RADIAL_SAMPLES = 10;	// The definition of the pin
 	// Ball Parameters
 	public static float BALL_RADIUS = 15.0F;
-	public static float BALL_WEIGHT = 10;
+	public static float BALL_WEIGHT = 2800;
 	public static int BALL_SAMPLES = 100;		// The definition of the ball
 	// Gutter Parameters
 	public static float GUTTER_EXTRA = 1.20F;// How much bigger or smaller than the ball (1 is the same)
@@ -90,13 +89,13 @@ public class Bowling extends SimplePhysicsGame {
 	public static int CAMERA_MOVE_SPEED = 150;
 	public static int CAMERA_TURN_SPEED = 1;
 	// Calculated parameters
-	public static float BALL_RADIUS_EXTRA = BALL_RADIUS * GUTTER_EXTRA;
-	public static float BALL_DIAMETER = BALL_RADIUS * 2;
-	public static float BALL_DIAMETER_EXTRA = BALL_RADIUS_EXTRA * 2;
-	public static float ROOM_LENGTH = LANE_LENGTH + APPROACH_LENGTH + BOX_LENGTH;
-	public static float ROOM_CENTER_X = 0;
-	public static float ROOM_CENTER_Y = ROOM_HEIGHT / 2;
-	public static float ROOM_CENTER_Z = APPROACH_LENGTH / 2 - BOX_LENGTH / 2 - LANE_LENGTH / 2;
+	public static float BALL_RADIUS_EXTRA;
+	public static float BALL_DIAMETER;
+	public static float BALL_DIAMETER_EXTRA;
+	public static float ROOM_LENGTH;
+	public static float ROOM_CENTER_X;
+	public static float ROOM_CENTER_Y;
+	public static float ROOM_CENTER_Z;
 	//Pin Positions
 	//Distance between to pins (12 inches)
 	public static float PIN_WIDTHDIST = 30.5F;
@@ -107,18 +106,11 @@ public class Bowling extends SimplePhysicsGame {
 	//Initial position of the pin 1
 	public static float INITIAL_POS = 0F;
 	//Distance between the pin 1 and the pit relative to the end of the lane
-	public static float DIST2PIT = -LANE_LENGTH + 86.8F ;
-	public static Vector3f [] positions = {	new Vector3f(INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)),
-													new Vector3f(-PIN_WIDTHHALFDIST + INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)- PIN_HEIGHTDIST),
-													new Vector3f(PIN_WIDTHHALFDIST + INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)- PIN_HEIGHTDIST),
-													new Vector3f(-PIN_WIDTHDIST + INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)- (2 * PIN_HEIGHTDIST)),
-													new Vector3f(INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)- (2 * PIN_HEIGHTDIST)),
-													new Vector3f(PIN_WIDTHDIST + INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)- (2 * PIN_HEIGHTDIST)),
-													new Vector3f(-(PIN_WIDTHDIST + PIN_WIDTHHALFDIST)+ INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)-(3 * PIN_HEIGHTDIST)),
-													new Vector3f(-PIN_WIDTHHALFDIST + INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)-(3 * PIN_HEIGHTDIST)),
-													new Vector3f(PIN_WIDTHHALFDIST + INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)-(3 * PIN_HEIGHTDIST)),
-													new Vector3f((PIN_WIDTHDIST+PIN_WIDTHHALFDIST)+ INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)-(3 * PIN_HEIGHTDIST))};
+	public static float DIST2PIT;
+	// Objects
 	private DynamicPhysicsNode ball;
+	private DynamicPhysicsNode[] pins;
+	private Text score;
 	// Constants
 	public static ColorRGBA NO_COLOR = ColorRGBA.black;
 	public static float NO_SHININESS = 0.0f;
@@ -127,21 +119,26 @@ public class Bowling extends SimplePhysicsGame {
 	
 	
 	public static void main(String [] args) throws MalformedURLException {
-		
 		Bowling app = new Bowling(); 
 		app.setParameters();
+		BALL_RADIUS_EXTRA = BALL_RADIUS * GUTTER_EXTRA;
+		BALL_DIAMETER = BALL_RADIUS * 2;
+		BALL_DIAMETER_EXTRA = BALL_RADIUS_EXTRA * 2;
+		ROOM_LENGTH = LANE_LENGTH + APPROACH_LENGTH + BOX_LENGTH;
+		ROOM_CENTER_X = 0;
+		ROOM_CENTER_Y = ROOM_HEIGHT / 2;
+		ROOM_CENTER_Z = APPROACH_LENGTH / 2 - BOX_LENGTH / 2 - LANE_LENGTH / 2;
+		DIST2PIT = -LANE_LENGTH + 86.8F ;
 		app.setConfigShowMode( ConfigShowMode.AlwaysShow, new URL("file:" + IMAGE_LOGO ) );
 		app.start();
 	}
 	
-	private void setParameters()
-	{
+	
+	private void setParameters() {
 		 Properties props = new Properties();
-
             try {
             	props.load(new FileInputStream("resources/configFiles/test.properties"));
-                for(Enumeration properties=props.propertyNames(); properties.hasMoreElements();)
-	            {
+                for(Enumeration properties=props.propertyNames(); properties.hasMoreElements();) {
 	            	try {
 	            		String property = (String)properties.nextElement();
 						Field field = Bowling.class.getField(property);
@@ -151,7 +148,7 @@ public class Bowling extends SimplePhysicsGame {
 						}else if(type.equals(float.class)){
 							field.set(null,Float.parseFloat(props.getProperty(property)));
 						}else{
-							field.set(null,props.getProperty(property));						
+							field.set(null,props.getProperty(property));
 						}
 	            	} catch (SecurityException e) {
 						System.err.println("Parametro inexistente: " + e.getMessage());
@@ -163,28 +160,28 @@ public class Bowling extends SimplePhysicsGame {
 						System.err.println("Parametro inexistente: " + e.getMessage());
 					}
 	            }
-            }catch(IOException e){
+            }catch(IOException e) {
             	System.err.println("Properties file could not be loaded");
             }
 	}
 	
+	
 	@Override
 	protected void simpleUpdate() {
-		//cameraInputHandler.setEnabled( MouseInput.get().isButtonDown( 1 ) );
 		if ( KeyInput.get().isKeyDown(KeyInput.KEY_SPACE)) {
-			ball.setLocalTranslation( new Vector3f(0, BALL_DIAMETER_EXTRA, 0) );
+			this.resetBall();
+			this.resetPins();
 		}
-		if ( KeyInput.get().isKeyDown(KeyInput.KEY_PGUP)) {
-			Vector3f speed = new Vector3f(0,0,-200);
-			ball.addForce(speed);
+		if( KeyInput.get().isKeyDown(KeyInput.KEY_PGUP) && ball.getLocalTranslation().z > -1 ) {
+			Vector3f speed = new Vector3f(0,0,-20000);
+			this.ball.addForce( speed );
 		}
+		this.score.print(" Pins down: " + this.numberOfPins() );
 	}
 	
 	
 	@Override
 	protected void simpleInitGame() {
-		getPhysicsSpace().setAutoRestThreshold( 0.2f );
-        setPhysicsSpeed( 2000 );
 		// Display
 		this.createDisplay();
 		// Physics
@@ -207,24 +204,48 @@ public class Bowling extends SimplePhysicsGame {
 		this.createIlumination();
 		// Camera
 		this.createCamera();
+		// Create controls
+		this.createControls();
 		// Update
-		new PhysicsPicker( input, rootNode, getPhysicsSpace() );
-        MouseInput.get().setCursorVisible( true );
 		rootNode.updateRenderState();
 	}
 	
 	
 	private void createDisplay() {
-		display.getRenderer().setBackgroundColor( ColorRGBA.black.clone() );
+		display.getRenderer().setBackgroundColor( ColorRGBA.black );
 		display.getRenderer().getCamera().setFrustumFar( ROOM_LENGTH * 1.1f);
 		display.getRenderer().getCamera().update();
-		display.setTitle(TITLE);
+		display.setTitle( TITLE );
+		score = Text.createDefaultTextLabel( "score", "" );
+		score.setLocalTranslation( 0, 20, 0 );
+		statNode.attachChild( score );
 	}
 	
 	
 	private void createPhysics() {
+		getPhysicsSpace().setAutoRestThreshold( 0.0f );
+        setPhysicsSpeed( 4 );
 		//getPhysicsSpace().setWorldBounds( new Vector3f(ROOM_CENTER_X - ROOM_WIDTH, ROOM_CENTER_Y - ROOM_HEIGHT, ROOM_CENTER_Z - ROOM_LENGTH), new Vector3f(ROOM_CENTER_X + ROOM_WIDTH, ROOM_CENTER_Y + ROOM_HEIGHT, ROOM_CENTER_Z + ROOM_LENGTH) );
-		getPhysicsSpace().setWorldBounds( new Vector3f(-9999,-9999,-9999), new Vector3f(9999,9999,9999) );
+		// getPhysicsSpace().setWorldBounds( new Vector3f(-9999,-9999,-9999), new Vector3f(9999,9999,9999) );
+		// getPhysicsSpace().setDirectionalGravity( new Vector3f(0,-9.81F,0) );
+	}
+	
+	
+	private void createCamera() {
+		//cam.setLocation( new Vector3f(0,80,30) );
+		//ChaseCamera chaser = new ChaseCamera( cam, ball);
+		//input = new FirstPersonHandler( cam, CAMERA_MOVE_SPEED, CAMERA_TURN_SPEED );
+		
+		// Simple chase camera
+        input.removeFromAttachedHandlers( cameraInputHandler );
+        cameraInputHandler = new ChaseCamera( cam, ball );
+        input.addToAttachedHandlers( cameraInputHandler );
+	}
+	
+	
+	private void createControls() {
+		//new PhysicsPicker( input, rootNode, getPhysicsSpace() );
+        //MouseInput.get().setCursorVisible( true );
 	}
 	
 	
@@ -314,6 +335,7 @@ public class Bowling extends SimplePhysicsGame {
 	
 	
 	private void createBox() {
+		// TODO: FIX THE BOX
 		Node box = new Node("box");
 		// Top
 		Quad boxTopVisual = new Quad("box_top", LANE_WIDTH + BALL_DIAMETER_EXTRA * 2, BOX_LENGTH );
@@ -394,32 +416,90 @@ public class Bowling extends SimplePhysicsGame {
 		setColor( ballVisual, ColorRGBA.green, HIGH_SHININESS, ColorRGBA.white );
 		setTexture( ballVisual, "resources/textures/marble.jpg" );
 		this.ball = getPhysicsSpace().createDynamicNode();
-		this.ball.setCenterOfMass( new Vector3f(0,0,0) );
 		this.ball.setMaterial( Material.GRANITE );
 		this.ball.attachChild( ballVisual );
-		this.ball.setLocalTranslation( new Vector3f(0, BALL_DIAMETER_EXTRA, 0) );
 		this.ball.generatePhysicsGeometry(); 
 		this.ball.setMass(BALL_WEIGHT);
 		rootNode.attachChild( this.ball );
+		resetBall();
+	}
+	
+	
+	private void resetBall() {
+		ball.setActive(true);
+		ball.clearDynamics();
+		ball.setLocalTranslation( new Vector3f(0, BALL_RADIUS_EXTRA + BALL_RADIUS, APPROACH_LENGTH / 2) );
 	}
 	
 	
 	private void createPins() {
-		for(int i=0; i<10;i++){
+		this.pins = new DynamicPhysicsNode[10];
+		for( int i = 0; i < 10; i++ ){
 			Cylinder pinVisual = new Cylinder("pin"+ i,AXIS_SAMPLES,RADIAL_SAMPLES,PIN_RADIUS,PIN_HEIGHT,true);
 			pinVisual.setModelBound( new BoundingBox() );
 			pinVisual.updateModelBound();
+			pinVisual.lockMeshes();
 			setColor( pinVisual, ColorRGBA.red, HIGH_SHININESS, ColorRGBA.white );
-			DynamicPhysicsNode pin = getPhysicsSpace().createDynamicNode();
-			pin.setCenterOfMass( new Vector3f(0,-PIN_HEIGHT/2 + PIN_HEIGHT * 0.1F,0) );
-			pin.setMaterial( Material.PLASTIC );
-			pin.attachChild(pinVisual);
-			pinVisual.setLocalRotation(new Quaternion(new float[]{(float)Math.PI/2,0,0}));
-			pin.setLocalTranslation(positions[i]);
-			pin.generatePhysicsGeometry();
-			pin.setMass(PIN_WEIGHT);
-			rootNode.attachChild( pin );
+			pins[i] = getPhysicsSpace().createDynamicNode();
+			//pins[i].setCenterOfMass( new Vector3f(0,0,PIN_HEIGHT*1/8) );
+			pins[i].setMaterial( Material.GRANITE );
+			pins[i].attachChild(pinVisual);
+			pins[i].generatePhysicsGeometry();
+			pins[i].setMass(PIN_WEIGHT);
+			rootNode.attachChild( pins[i] );
 		}
+		resetPins();
+	}
+	
+	
+	private Vector3f getPinPosition(int i) {
+		switch( i ) {
+			case 0:
+				return new Vector3f(INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT));
+			case 1:
+				return new Vector3f(-PIN_WIDTHHALFDIST + INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)- PIN_HEIGHTDIST);
+			case 2:
+				return new Vector3f(PIN_WIDTHHALFDIST + INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)- PIN_HEIGHTDIST);
+			case 3:
+				return new Vector3f(-PIN_WIDTHDIST + INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)- (2 * PIN_HEIGHTDIST));
+			case 4:
+				return new Vector3f(INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)- (2 * PIN_HEIGHTDIST));
+			case 5:
+				return new Vector3f(PIN_WIDTHDIST + INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)- (2 * PIN_HEIGHTDIST));
+			case 6:
+				return new Vector3f(-(PIN_WIDTHDIST + PIN_WIDTHHALFDIST)+ INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)-(3 * PIN_HEIGHTDIST));
+			case 7:
+				return new Vector3f(-PIN_WIDTHHALFDIST + INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)-(3 * PIN_HEIGHTDIST));
+			case 8:
+				return new Vector3f(PIN_WIDTHHALFDIST + INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)-(3 * PIN_HEIGHTDIST));
+			case 9:
+				return new Vector3f((PIN_WIDTHDIST+PIN_WIDTHHALFDIST)+ INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)-(3 * PIN_HEIGHTDIST));
+			default:
+				return new Vector3f(INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT));
+		}
+	}
+	
+	
+	private void resetPins() {
+		for( int i = 0; i < 10; i++ ){
+			pins[i].rest();
+			pins[i].clearDynamics();
+			pins[i].setLocalRotation(new Quaternion( new float[]{(float)Math.PI/2,0,0} ));
+			pins[i].setLocalTranslation( getPinPosition(i) );
+		}
+	}
+	
+	
+	private int numberOfPins() {
+		int count = 0;
+		for( int i = 0; i < 10; i++) {
+			if( Math.abs( pins[i].getLocalRotation().x - 0.7064871 ) > 0.1 ) {
+				count++;
+			}else if( pins[i].getLocalTranslation().distance( getPinPosition(i) ) > PIN_RADIUS / 2 ){
+				count++;
+			}
+		}
+		return count;
 	}
 	
 	
@@ -480,13 +560,6 @@ public class Bowling extends SimplePhysicsGame {
 			rootNode.attachChild( right );
 		}	
 	}
-	
-	
-	private void createCamera() {
-		cam.setLocation( new Vector3f(0,80,30) );
-		//input = new FirstPersonHandler( cam, CAMERA_MOVE_SPEED, CAMERA_TURN_SPEED );
-	}
-	
 	
 	
 	private void createIlumination() {
