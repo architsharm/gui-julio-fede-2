@@ -1,7 +1,15 @@
 package ar.edu.itba.cg;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Enumeration;
+import java.util.Properties;
+
+import sun.reflect.Reflection;
 
 import com.jme.bounding.BoundingBox;
 import com.jme.bounding.BoundingSphere;
@@ -23,11 +31,13 @@ import com.jme.scene.shape.Sphere;
 import com.jme.scene.state.MaterialState;
 import com.jme.scene.state.TextureState;
 import com.jme.util.TextureManager;
+import com.jmex.model.collada.schema.float2;
 import com.jmex.physics.DynamicPhysicsNode;
 import com.jmex.physics.StaticPhysicsNode;
 import com.jmex.physics.material.Material;
 import com.jmex.physics.util.PhysicsPicker;
 import com.jmex.physics.util.SimplePhysicsGame;
+
 
 //	W	 Move Forward
 //	A	 Strafe Left
@@ -46,59 +56,59 @@ import com.jmex.physics.util.SimplePhysicsGame;
 //	F1	 Take Screenshot
 
 public class Bowling extends SimplePhysicsGame {
-	private static final String IMAGE_LOGO = "resources/logo.jpg";
-	private static final String TITLE = "Bowling";
+	public static String IMAGE_LOGO = "resources/logo.jpg";
+	public static String TITLE = "Bowling";
 	// Parameters are in centimeters!
 	// Pin Parameters
-	private static final float PIN_HEIGHT = 40;
-	private static final float PIN_RADIUS = 6.5F;
-	private static final float PIN_WEIGHT = 2;
-	private static final int AXIS_SAMPLES = 4;		// The definition of the pin
-	private static final int RADIAL_SAMPLES = 10;	// The definition of the pin
+	public static float PIN_HEIGHT = 40;
+	public static float PIN_RADIUS = 6.5F;
+	public static float PIN_WEIGHT = 2;
+	public static int AXIS_SAMPLES = 4;		// The definition of the pin
+	public static int RADIAL_SAMPLES = 10;	// The definition of the pin
 	// Ball Parameters
-	private static final float BALL_RADIUS = 15.0F;
-	private static final float BALL_WEIGHT = 10;
-	private static final int BALL_SAMPLES = 100;		// The definition of the ball
+	public static float BALL_RADIUS = 15.0F;
+	public static float BALL_WEIGHT = 10;
+	public static int BALL_SAMPLES = 100;		// The definition of the ball
 	// Gutter Parameters
-	private static final float GUTTER_EXTRA = 1.20F;// How much bigger or smaller than the ball (1 is the same)
-	private static final int GUTTER_SAMPLES = 50;	// The definition of the gutters
+	public static float GUTTER_EXTRA = 1.20F;// How much bigger or smaller than the ball (1 is the same)
+	public static int GUTTER_SAMPLES = 50;	// The definition of the gutters
 	// Lane Parameters
 	// The middle of the foul line is at 0, BALL_RADIUS, 0
 	// Ten Pin Bowling: http://en.wikipedia.org/wiki/Tenpin
-	private static final int LANE_WIDTH = 105;
-	private static final int LANE_LENGTH = 1800;
+	public static int LANE_WIDTH = 105;
+	public static int LANE_LENGTH = 1800;
 	// Approach Parameters
 	// Behind the foul line is an "approach" used to gain speed
-	private static final int APPROACH_LENGTH = 500;
+	public static int APPROACH_LENGTH = 500;
 	// Room Parameters
-	private static final int ROOM_WIDTH = 800;
-	private static final int ROOM_HEIGHT = 300;
+	public static int ROOM_WIDTH = 800;
+	public static int ROOM_HEIGHT = 300;
 	// Final box
-	private static final int BOX_LENGTH = 100;
-	private static final int BOX_HEIGHT = 50;
-	// Camera speed
-	private static final int CAMERA_MOVE_SPEED = 150;
-	private static final int CAMERA_TURN_SPEED = 1;
+	public static int BOX_LENGTH = 100;
+	public static int BOX_HEIGHT = 50;
+		// Camera speed
+	public static int CAMERA_MOVE_SPEED = 150;
+	public static int CAMERA_TURN_SPEED = 1;
 	// Calculated parameters
-	private static float BALL_RADIUS_EXTRA = BALL_RADIUS * GUTTER_EXTRA;
-	private static float BALL_DIAMETER = BALL_RADIUS * 2;
-	private static float BALL_DIAMETER_EXTRA = BALL_RADIUS_EXTRA * 2;
-	private static float ROOM_LENGTH = LANE_LENGTH + APPROACH_LENGTH + BOX_LENGTH;
-	private static float ROOM_CENTER_X = 0;
-	private static float ROOM_CENTER_Y = ROOM_HEIGHT / 2;
-	private static float ROOM_CENTER_Z = APPROACH_LENGTH / 2 - BOX_LENGTH / 2 - LANE_LENGTH / 2;
+	public static float BALL_RADIUS_EXTRA = BALL_RADIUS * GUTTER_EXTRA;
+	public static float BALL_DIAMETER = BALL_RADIUS * 2;
+	public static float BALL_DIAMETER_EXTRA = BALL_RADIUS_EXTRA * 2;
+	public static float ROOM_LENGTH = LANE_LENGTH + APPROACH_LENGTH + BOX_LENGTH;
+	public static float ROOM_CENTER_X = 0;
+	public static float ROOM_CENTER_Y = ROOM_HEIGHT / 2;
+	public static float ROOM_CENTER_Z = APPROACH_LENGTH / 2 - BOX_LENGTH / 2 - LANE_LENGTH / 2;
 	//Pin Positions
 	//Distance between to pins (12 inches)
-	private static final float PIN_WIDTHDIST = 30.5F;
+	public static float PIN_WIDTHDIST = 30.5F;
 	//Half a distance between to pins (6 inches)
-	private static final float PIN_WIDTHHALFDIST = 15.2F; 
+	public static float PIN_WIDTHHALFDIST = 15.2F; 
 	//Depth distance between two rows of pins (10.39 inches)
-	private static final float PIN_HEIGHTDIST = 26.4F;
+	public static float PIN_HEIGHTDIST = 26.4F;
 	//Initial position of the pin 1
-	private static float INITIAL_POS = 0F;
+	public static float INITIAL_POS = 0F;
 	//Distance between the pin 1 and the pit relative to the end of the lane
-	private static float DIST2PIT = -LANE_LENGTH + 86.8F ;
-	private static final Vector3f [] positions = {	new Vector3f(INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)),
+	public static float DIST2PIT = -LANE_LENGTH + 86.8F ;
+	public static Vector3f [] positions = {	new Vector3f(INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)),
 													new Vector3f(-PIN_WIDTHHALFDIST + INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)- PIN_HEIGHTDIST),
 													new Vector3f(PIN_WIDTHHALFDIST + INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)- PIN_HEIGHTDIST),
 													new Vector3f(-PIN_WIDTHDIST + INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)- (2 * PIN_HEIGHTDIST)),
@@ -110,18 +120,53 @@ public class Bowling extends SimplePhysicsGame {
 													new Vector3f((PIN_WIDTHDIST+PIN_WIDTHHALFDIST)+ INITIAL_POS,BALL_RADIUS_EXTRA + (PIN_HEIGHT/2), (DIST2PIT)-(3 * PIN_HEIGHTDIST))};
 	private DynamicPhysicsNode ball;
 	// Constants
-	private static final ColorRGBA NO_COLOR = ColorRGBA.black;
-	private static final float NO_SHININESS = 0.0f;
-	private static final float LOW_SHININESS = 5.0f;
-	private static final float HIGH_SHININESS = 100.0f;
+	public static ColorRGBA NO_COLOR = ColorRGBA.black;
+	public static float NO_SHININESS = 0.0f;
+	public static float LOW_SHININESS = 5.0f;
+	public static float HIGH_SHININESS = 100.0f;
 	
 	
 	public static void main(String [] args) throws MalformedURLException {
+		
 		Bowling app = new Bowling(); 
+		app.setParameters();
 		app.setConfigShowMode( ConfigShowMode.AlwaysShow, new URL("file:" + IMAGE_LOGO ) );
 		app.start();
 	}
 	
+	private void setParameters()
+	{
+		 Properties props = new Properties();
+
+            try {
+            	props.load(new FileInputStream("resources/configFiles/test.properties"));
+                for(Enumeration properties=props.propertyNames(); properties.hasMoreElements();)
+	            {
+	            	try {
+	            		String property = (String)properties.nextElement();
+						Field field = Bowling.class.getField(property);
+						Type type = field.getType();
+						if (type.equals(int.class)) {
+							field.set(null,Integer.parseInt(props.getProperty(property)));
+						}else if(type.equals(float.class)){
+							field.set(null,Float.parseFloat(props.getProperty(property)));
+						}else{
+							field.set(null,props.getProperty(property));						
+						}
+	            	} catch (SecurityException e) {
+						System.err.println("Parametro inexistente: " + e.getMessage());
+					} catch (NoSuchFieldException e) {
+						System.err.println("Parametro inexistente: " + e.getMessage());
+					} catch (IllegalArgumentException e) {
+						System.err.println("Parametro inexistente: " + e.getMessage());
+					} catch (IllegalAccessException e) {
+						System.err.println("Parametro inexistente: " + e.getMessage());
+					}
+	            }
+            }catch(IOException e){
+            	System.err.println("Properties file could not be loaded");
+            }
+	}
 	
 	@Override
 	protected void simpleUpdate() {
