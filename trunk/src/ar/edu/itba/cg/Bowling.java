@@ -33,6 +33,8 @@ import com.jme.scene.state.TextureState;
 import com.jme.util.TextureManager;
 import com.jmex.physics.DynamicPhysicsNode;
 import com.jmex.physics.StaticPhysicsNode;
+import com.jmex.physics.contact.ContactCallback;
+import com.jmex.physics.contact.PendingContact;
 import com.jmex.physics.material.Material;
 import com.jmex.physics.util.PhysicsPicker;
 import com.jmex.physics.util.SimplePhysicsGame;
@@ -118,7 +120,8 @@ public class Bowling extends SimplePhysicsGame {
 	private Text score;
 	// Constants
 	public static ColorRGBA NO_COLOR = ColorRGBA.black;
-
+	// Game States
+	public static enum States {SHOOTING, ROWLING};
 	
 	
 	public static void main(String [] args) throws MalformedURLException {
@@ -232,9 +235,25 @@ public class Bowling extends SimplePhysicsGame {
 	private void createPhysics() {
 		getPhysicsSpace().setAutoRestThreshold( 0.0f );
         setPhysicsSpeed( 4 );
-		//getPhysicsSpace().setWorldBounds( new Vector3f(ROOM_CENTER_X - ROOM_WIDTH, ROOM_CENTER_Y - ROOM_HEIGHT, ROOM_CENTER_Z - ROOM_LENGTH), new Vector3f(ROOM_CENTER_X + ROOM_WIDTH, ROOM_CENTER_Y + ROOM_HEIGHT, ROOM_CENTER_Z + ROOM_LENGTH) );
+		// getPhysicsSpace().setWorldBounds( new Vector3f(ROOM_CENTER_X - ROOM_WIDTH, ROOM_CENTER_Y - ROOM_HEIGHT, ROOM_CENTER_Z - ROOM_LENGTH), new Vector3f(ROOM_CENTER_X + ROOM_WIDTH, ROOM_CENTER_Y + ROOM_HEIGHT, ROOM_CENTER_Z + ROOM_LENGTH) );
 		// getPhysicsSpace().setWorldBounds( new Vector3f(-9999,-9999,-9999), new Vector3f(9999,9999,9999) );
 		// getPhysicsSpace().setDirectionalGravity( new Vector3f(0,-9.81F,0) );
+        ContactCallback myCallBack = new ContactCallback() {
+			public boolean adjustContact( PendingContact c ) {
+				String name1 = c.getNode1().getName();
+				String name2 = c.getNode2().getName();
+				if( name1 == null || name2 == null ) {
+					return false;
+				}
+				if( name1.startsWith( "pin" ) && name2.startsWith( "lane" ) || name2.startsWith( "pin" ) && name1.startsWith( "lane" )) {
+                    System.out.println( "Pin Lane collition!");
+                }
+                // everything normal, continue with next callback
+                return false;
+            }
+			
+        };
+        getPhysicsSpace().getContactCallbacks().add( myCallBack );
 	}
 	
 	
@@ -242,14 +261,12 @@ public class Bowling extends SimplePhysicsGame {
 		//cam.setLocation( new Vector3f(0,80,30) );
 		//ChaseCamera chaser = new ChaseCamera( cam, ball);
 		//input = new FirstPersonHandler( cam, CAMERA_MOVE_SPEED, CAMERA_TURN_SPEED );
-		
 		// Simple chase camera
         input.removeFromAttachedHandlers( cameraInputHandler );
         cameraInputHandler = new ChaseCamera( cam, ball );
         ((ChaseCamera)cameraInputHandler).setMaxDistance(500);
         ((ChaseCamera)cameraInputHandler).setMinDistance(200);
         input.addToAttachedHandlers( cameraInputHandler );
-        
 	}
 	
 	
@@ -274,6 +291,8 @@ public class Bowling extends SimplePhysicsGame {
 		setTexture( wallUpVisual, "resources/textures/wall.jpg" );
 		StaticPhysicsNode wallDown = getPhysicsSpace().createStaticNode();
 		StaticPhysicsNode wallUp = getPhysicsSpace().createStaticNode();
+		wallDown.setName( "wall_down" );
+		wallUp.setName( "wall_up" );
 		wallDown.attachChild( wallDownVisual );
 		wallUp.attachChild( wallUpVisual );
 		wallDown.setMaterial( Material.CONCRETE );
@@ -297,6 +316,8 @@ public class Bowling extends SimplePhysicsGame {
 		setTexture( wallRightVisual, "resources/textures/wall.jpg" );
 		StaticPhysicsNode wallLeft = getPhysicsSpace().createStaticNode();
 		StaticPhysicsNode wallRight = getPhysicsSpace().createStaticNode();
+		wallLeft.setName( "wall_left" );
+		wallRight.setName( "wall_right" );
 		wallLeft.attachChild( wallLeftVisual );
 		wallRight.attachChild( wallRightVisual );
 		wallLeft.setMaterial( Material.CONCRETE );
@@ -314,6 +335,7 @@ public class Bowling extends SimplePhysicsGame {
 		setColor( wallBackVisual, ColorRGBA.white, NO_SHININESS, NO_COLOR );
 		setTexture( wallBackVisual, "resources/textures/wall.jpg" );
 		StaticPhysicsNode wallBack = getPhysicsSpace().createStaticNode();
+		wallBack.setName( "wall_back" );
 		wallBack.attachChild( wallBackVisual );
 		wallBack.setMaterial( Material.CONCRETE );
 		wallBack.setLocalRotation(  new Quaternion( new float[]{ 0, 0, (float)Math.PI/2 } ) );
@@ -326,6 +348,7 @@ public class Bowling extends SimplePhysicsGame {
 		setColor( wallFrontVisual, ColorRGBA.white, NO_SHININESS, NO_COLOR );
 		setTexture( wallFrontVisual, "resources/textures/wall.jpg" );
 		StaticPhysicsNode wallFront = getPhysicsSpace().createStaticNode();
+		wallFront.setName( "wall_front" );
 		wallFront.attachChild( wallFrontVisual );
 		wallFront.setMaterial( Material.CONCRETE );
 		wallFront.setLocalRotation(  new Quaternion( new float[]{ 0, 0, (float)Math.PI/2 } ) );
@@ -353,6 +376,7 @@ public class Bowling extends SimplePhysicsGame {
 		boxTopVisual.updateModelBound();
 		setColor( boxTopVisual, ColorRGBA.darkGray, NO_SHININESS, NO_COLOR );
 		StaticPhysicsNode boxTop = getPhysicsSpace().createStaticNode();
+		boxTop.setName( "box_top" );
 		boxTop.attachChild( boxTopVisual );
 		boxTop.setMaterial( Material.CONCRETE );
 		boxTop.setLocalRotation(  new Quaternion( new float[]{ (float)Math.PI/2, 0, 0 } ) );
@@ -369,6 +393,8 @@ public class Bowling extends SimplePhysicsGame {
 		setColor( boxRightVisual, ColorRGBA.darkGray, NO_SHININESS, NO_COLOR );
 		StaticPhysicsNode boxLeft = getPhysicsSpace().createStaticNode();
 		StaticPhysicsNode boxRight = getPhysicsSpace().createStaticNode();
+		boxLeft.setName( "box_left" );
+		boxRight.setName( "box_right" );
 		boxLeft.attachChild( boxLeftVisual );
 		boxRight.attachChild( boxRightVisual );
 		boxLeft.setMaterial( Material.CONCRETE );
@@ -396,6 +422,7 @@ public class Bowling extends SimplePhysicsGame {
 		setColor( laneVisual, ColorRGBA.white, NO_SHININESS, NO_COLOR );
 		setTexture( laneVisual, "resources/textures/wood.jpg" );
 		StaticPhysicsNode lane = getPhysicsSpace().createStaticNode();
+		lane.setName( "lane" );
 		lane.setMaterial( Material.WOOD );
 		lane.attachChild( laneVisual );
 		lane.setLocalTranslation( new Vector3f(0, BALL_RADIUS_EXTRA / 2, -LANE_LENGTH / 2) );
@@ -411,6 +438,7 @@ public class Bowling extends SimplePhysicsGame {
 		setColor( approachVisual, ColorRGBA.white, NO_SHININESS, NO_COLOR );
 		setTexture( approachVisual, "resources/textures/wood.jpg" );
 		StaticPhysicsNode approach = getPhysicsSpace().createStaticNode();
+		approach.setName( "approach" );
 		approach.setMaterial( Material.WOOD );
 		approach.attachChild( approachVisual );
 		approach.setLocalTranslation( new Vector3f(0, BALL_RADIUS_EXTRA / 2, APPROACH_LENGTH / 2) );
@@ -426,6 +454,7 @@ public class Bowling extends SimplePhysicsGame {
 		setColor( ballVisual, ColorRGBA.green, HIGH_SHININESS, ColorRGBA.white );
 		setTexture( ballVisual, "resources/textures/marble.jpg" );
 		this.ball = getPhysicsSpace().createDynamicNode();
+		ball.setName( "ball" );
 		this.ball.setMaterial( Material.GRANITE );
 		this.ball.attachChild( ballVisual );
 		this.ball.generatePhysicsGeometry(); 
@@ -445,12 +474,13 @@ public class Bowling extends SimplePhysicsGame {
 	private void createPins() {
 		this.pins = new DynamicPhysicsNode[10];
 		for( int i = 0; i < 10; i++ ){
-			Cylinder pinVisual = new Cylinder("pin"+ i,AXIS_SAMPLES,RADIAL_SAMPLES,PIN_RADIUS,PIN_HEIGHT,true);
+			Cylinder pinVisual = new Cylinder("pin_"+ i,AXIS_SAMPLES,RADIAL_SAMPLES,PIN_RADIUS,PIN_HEIGHT,true);
 			pinVisual.setModelBound( new BoundingBox() );
 			pinVisual.updateModelBound();
 			pinVisual.lockMeshes();
 			setColor( pinVisual, ColorRGBA.red, HIGH_SHININESS, ColorRGBA.white );
 			pins[i] = getPhysicsSpace().createDynamicNode();
+			pins[i].setName( "pin_" + i);
 			//pins[i].setCenterOfMass( new Vector3f(0,0,PIN_HEIGHT*1/8) );
 			pins[i].setMaterial( Material.GRANITE );
 			pins[i].attachChild(pinVisual);
@@ -562,6 +592,8 @@ public class Bowling extends SimplePhysicsGame {
 		setTexture( gutterBorderRightVisual, "resources/textures/metal.jpg" );
 		StaticPhysicsNode gutterBorderLeft = getPhysicsSpace().createStaticNode();
 		StaticPhysicsNode gutterBorderRight = getPhysicsSpace().createStaticNode();
+		gutterBorderLeft.setName( "gutter_border_left" );
+		gutterBorderRight.setName( "gutter_border_right" );
 		gutterBorderLeft.setMaterial( Material.IRON );
 		gutterBorderRight.setMaterial( Material.IRON );
 		gutterBorderLeft.attachChild( gutterBorderLeftVisual );
@@ -587,6 +619,8 @@ public class Bowling extends SimplePhysicsGame {
 			setTexture( rightVisual, "resources/textures/metal.jpg" );
 			StaticPhysicsNode left = getPhysicsSpace().createStaticNode();
 			StaticPhysicsNode right = getPhysicsSpace().createStaticNode();
+			left.setName( "gutter_left_" + String.valueOf(i) );
+			right.setName( "gutter_right_" + String.valueOf(i) );
 			left.setMaterial( Material.IRON );
 			right.setMaterial( Material.IRON );
 			left.attachChild( leftVisual );
