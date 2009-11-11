@@ -85,18 +85,7 @@ public class Bowling extends SimplePhysicsGame {
 	// Final box
 	public static int BOX_LENGTH = 100;
 	public static int BOX_HEIGHT = 100;
-	public static int BOXMACHINE_LENGTH =210;
-	// Camera speed
-	public static int CAMERA_MOVE_SPEED = 150;
-	public static int CAMERA_TURN_SPEED = 1;
-	// Calculated parameters
-	public static float BALL_RADIUS_EXTRA;
-	public static float BALL_DIAMETER;
-	public static float BALL_DIAMETER_EXTRA;
-	public static float ROOM_LENGTH;
-	public static float ROOM_CENTER_X;
-	public static float ROOM_CENTER_Y;
-	public static float ROOM_CENTER_Z;
+	public static int BOXMACHINE_LENGTH = 210;
 	//Pin Positions
 	//Distance between to pins (12 inches)
 	public static float PIN_WIDTHDIST = 30.5F;
@@ -108,15 +97,28 @@ public class Bowling extends SimplePhysicsGame {
 	public static float INITIAL_POS = 0F;
 	//Distance between the pin 1 and the pit relative to the end of the lane
 	public static float DIST2PIT;
+	// Shading
+	public static float NO_SHININESS = 0.0f;
+	public static float LOW_SHININESS = 5.0f;
+	public static float HIGH_SHININESS = 100.0f;
+	// Camera speed
+	public static int CAMERA_MOVE_SPEED = 350;
+	public static int CAMERA_TURN_SPEED = 1;
+	// Calculated parameters
+	public static float BALL_RADIUS_EXTRA;
+	public static float BALL_DIAMETER;
+	public static float BALL_DIAMETER_EXTRA;
+	public static float ROOM_LENGTH;
+	public static float ROOM_CENTER_X;
+	public static float ROOM_CENTER_Y;
+	public static float ROOM_CENTER_Z;
 	// Objects
 	private DynamicPhysicsNode ball;
 	private DynamicPhysicsNode[] pins;
 	private Text score;
 	// Constants
 	public static ColorRGBA NO_COLOR = ColorRGBA.black;
-	public static float NO_SHININESS = 0.0f;
-	public static float LOW_SHININESS = 5.0f;
-	public static float HIGH_SHININESS = 100.0f;
+
 	
 	
 	public static void main(String [] args) throws MalformedURLException {
