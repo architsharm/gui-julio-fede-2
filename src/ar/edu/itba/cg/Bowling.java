@@ -240,7 +240,10 @@ public class Bowling extends SimplePhysicsGame {
 		// Simple chase camera
         input.removeFromAttachedHandlers( cameraInputHandler );
         cameraInputHandler = new ChaseCamera( cam, ball );
+        ((ChaseCamera)cameraInputHandler).setMaxDistance(500);
+        ((ChaseCamera)cameraInputHandler).setMinDistance(200);
         input.addToAttachedHandlers( cameraInputHandler );
+        
 	}
 	
 	
