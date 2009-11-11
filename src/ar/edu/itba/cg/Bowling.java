@@ -494,18 +494,32 @@ public class Bowling extends SimplePhysicsGame {
 			pins[i].setLocalTranslation( getPinPosition(i) );
 		}
 	}
-	
+	//Calculates if the coordinates are inside the box
+	private boolean outOfBounds(float x, float z){
+			if((x > -LANE_WIDTH/2 && x < LANE_WIDTH/2)&&(z > -LANE_LENGTH && z <(-LANE_LENGTH + BOXMACHINE_LENGTH)))
+				return true;
+			return false;
+	}
 	
 	private int numberOfPins() {
 		int count = 0;
+		int countOutOfBounds = 0;
 		for( int i = 0; i < 10; i++) {
-			if( Math.abs( pins[i].getLocalRotation().x - 0.7064871 ) > 0.1 ) {
-				count++;
-			}else if( pins[i].getLocalTranslation().distance( getPinPosition(i) ) > PIN_RADIUS / 2 ){
-				count++;
+
+			Double tippingCouple = Math.PI*7/36;
+            //Rotation in the x  an z axis
+
+			if(!this.outOfBounds(pins[i].getLocalTranslation().x,pins[i].getLocalTranslation().z)){
+				countOutOfBounds++;
 			}
-		}
-		return count;
+			else if( (Math.abs( pins[i].getLocalRotation().toAngles(null)[0] - Math.PI/2 ) > tippingCouple) || 
+            	(Math.abs( pins[i].getLocalRotation().toAngles(null)[2] - 0 ) > tippingCouple)) 
+            {
+                count++;
+                
+            }
+        }
+		return countOutOfBounds + count;
 	}
 	
 	
