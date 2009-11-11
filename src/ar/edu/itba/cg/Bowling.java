@@ -175,6 +175,10 @@ public class Bowling extends SimplePhysicsGame {
 			this.resetBall();
 			this.resetPins();
 		}
+		if ( KeyInput.get().isKeyDown(KeyInput.KEY_RETURN)) {
+			this.resetBall();
+			this.removePins();
+		}
 		if( KeyInput.get().isKeyDown(KeyInput.KEY_PGUP) && ball.getLocalTranslation().z > -1 ) {
 			Vector3f speed = new Vector3f(0,0,-20000);
 			this.ball.addForce( speed );
@@ -494,6 +498,20 @@ public class Bowling extends SimplePhysicsGame {
 			pins[i].setLocalTranslation( getPinPosition(i) );
 		}
 	}
+	
+	private void removePins() {
+		for( int i = 0; i < 10; i++ ){
+			pins[i].rest();
+			pins[i].clearDynamics();
+			if(isPinDown(pins[i]))
+			{
+				pins[i].setLocalRotation(new Quaternion( new float[]{(float)Math.PI/2,0,0} ));
+				pins[i].setLocalTranslation( new Vector3f(9999,9999,9999) );
+				
+			}
+			
+		}
+	}
 	//Calculates if the coordinates are inside the box
 	private boolean outOfBounds(float x, float z){
 			if((x > -LANE_WIDTH/2 && x < LANE_WIDTH/2)&&(z > -LANE_LENGTH && z <(-LANE_LENGTH + BOXMACHINE_LENGTH)))
@@ -501,25 +519,30 @@ public class Bowling extends SimplePhysicsGame {
 			return false;
 	}
 	
+	private boolean isPinDown(DynamicPhysicsNode pin){
+		
+		Double tippingCouple = Math.PI*7/36;
+		
+		if(!this.outOfBounds(pin.getLocalTranslation().x,pin.getLocalTranslation().z)){
+			return true;
+		}
+		else if( (Math.abs( pin.getLocalRotation().toAngles(null)[0] - Math.PI/2 ) > tippingCouple) || 
+        	(Math.abs( pin.getLocalRotation().toAngles(null)[2] - 0 ) > tippingCouple)) 
+        {
+            return true;           
+        }
+		return false;
+		
+	}
+	
 	private int numberOfPins() {
 		int count = 0;
-		int countOutOfBounds = 0;
+		
 		for( int i = 0; i < 10; i++) {
-
-			Double tippingCouple = Math.PI*7/36;
-            //Rotation in the x  an z axis
-
-			if(!this.outOfBounds(pins[i].getLocalTranslation().x,pins[i].getLocalTranslation().z)){
-				countOutOfBounds++;
-			}
-			else if( (Math.abs( pins[i].getLocalRotation().toAngles(null)[0] - Math.PI/2 ) > tippingCouple) || 
-            	(Math.abs( pins[i].getLocalRotation().toAngles(null)[2] - 0 ) > tippingCouple)) 
-            {
-                count++;
-                
-            }
+			if(isPinDown(pins[i]))
+               count++;
         }
-		return countOutOfBounds + count;
+		return count;
 	}
 	
 	
