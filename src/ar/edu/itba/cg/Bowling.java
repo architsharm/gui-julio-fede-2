@@ -84,8 +84,9 @@ public class Bowling extends SimplePhysicsGame {
 	public static int ROOM_HEIGHT = 300;
 	// Final box
 	public static int BOX_LENGTH = 100;
-	public static int BOX_HEIGHT = 50;
-		// Camera speed
+	public static int BOX_HEIGHT = 100;
+	public static int BOXMACHINE_LENGTH =210;
+	// Camera speed
 	public static int CAMERA_MOVE_SPEED = 150;
 	public static int CAMERA_TURN_SPEED = 1;
 	// Calculated parameters
@@ -338,7 +339,7 @@ public class Bowling extends SimplePhysicsGame {
 		// TODO: FIX THE BOX
 		Node box = new Node("box");
 		// Top
-		Quad boxTopVisual = new Quad("box_top", LANE_WIDTH + BALL_DIAMETER_EXTRA * 2, BOX_LENGTH );
+		Quad boxTopVisual = new Quad("box_top", LANE_WIDTH + BALL_DIAMETER_EXTRA * 2, BOX_LENGTH + BOXMACHINE_LENGTH );
 		boxTopVisual.setModelBound( new BoundingBox() ); 
 		boxTopVisual.updateModelBound();
 		setColor( boxTopVisual, ColorRGBA.darkGray, NO_SHININESS, NO_COLOR );
@@ -346,11 +347,11 @@ public class Bowling extends SimplePhysicsGame {
 		boxTop.attachChild( boxTopVisual );
 		boxTop.setMaterial( Material.CONCRETE );
 		boxTop.setLocalRotation(  new Quaternion( new float[]{ (float)Math.PI/2, 0, 0 } ) );
-		boxTop.setLocalTranslation(  0, BALL_RADIUS_EXTRA + BOX_HEIGHT, -(LANE_LENGTH + BOX_LENGTH / 2) );
+		boxTop.setLocalTranslation(  0, BALL_RADIUS_EXTRA + BOX_HEIGHT, -(LANE_LENGTH) );
 		boxTop.generatePhysicsGeometry();
 		// Left and right
-		Quad boxLeftVisual =  new Quad("box_left",  BOX_LENGTH, BALL_RADIUS_EXTRA + BOX_HEIGHT);
-		Quad boxRightVisual = new Quad("box_right", BOX_LENGTH, BALL_RADIUS_EXTRA + BOX_HEIGHT);
+		Quad boxLeftVisual =  new Quad("box_left",  BOX_LENGTH + BOXMACHINE_LENGTH, BALL_RADIUS_EXTRA + BOX_HEIGHT);
+		Quad boxRightVisual = new Quad("box_right", BOX_LENGTH + BOXMACHINE_LENGTH, BALL_RADIUS_EXTRA + BOX_HEIGHT);
 		boxLeftVisual.setModelBound( new BoundingBox() ); 
 		boxLeftVisual.updateModelBound();
 		boxRightVisual.setModelBound( new BoundingBox() ); 
@@ -365,8 +366,8 @@ public class Bowling extends SimplePhysicsGame {
 		boxRight.setMaterial( Material.CONCRETE );
 		boxLeft.setLocalRotation(  new Quaternion( new float[]{ 0, (float)Math.PI/2, 0 } ) );
 		boxRight.setLocalRotation( new Quaternion( new float[]{ 0, (float)Math.PI/2, 0 } ) );
-		boxLeft.setLocalTranslation(  -(LANE_WIDTH / 2 + BALL_DIAMETER_EXTRA), (BALL_RADIUS_EXTRA + BOX_HEIGHT)/2, -(LANE_LENGTH + BOX_LENGTH / 2) );
-		boxRight.setLocalTranslation(   LANE_WIDTH / 2 + BALL_DIAMETER_EXTRA,  (BALL_RADIUS_EXTRA + BOX_HEIGHT)/2, -(LANE_LENGTH + BOX_LENGTH / 2) );
+		boxLeft.setLocalTranslation(  -(LANE_WIDTH / 2 + BALL_DIAMETER_EXTRA), (BALL_RADIUS_EXTRA + BOX_HEIGHT)/2, -(LANE_LENGTH ) );
+		boxRight.setLocalTranslation(   LANE_WIDTH / 2 + BALL_DIAMETER_EXTRA,  (BALL_RADIUS_EXTRA + BOX_HEIGHT)/2, -(LANE_LENGTH ) );
 		boxRight.generatePhysicsGeometry();
 		boxLeft.generatePhysicsGeometry();
 		// Attach
