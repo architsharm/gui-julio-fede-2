@@ -47,7 +47,7 @@ public class Scene {
 	}
 	
 	
-	private void createRoom() {
+	public void createRoom() {
 		Node room = new Node("room");
 		// Top and bottom
 		Quad wallDownVisual = new Quad("wall_down", params.ROOM_WIDTH, params.ROOM_LENGTH );
@@ -138,7 +138,7 @@ public class Scene {
 	}
 	
 	
-	private void createBox() {
+	public void createBox() {
 		Node box = new Node("box");
 		// Top
 		Quad boxTopVisual = new Quad("box_top", params.LANE_WIDTH + params.BALL_DIAMETER_EXTRA * 2, params.BOX_LENGTH + params.BOXMACHINE_LENGTH );
@@ -185,7 +185,7 @@ public class Scene {
 	}
 	
 	
-	private void createLane() {
+	public void createLane() {
 		Box laneVisual = new Box("lane", new Vector3f(0,0,0), params.LANE_WIDTH / 2, params.BALL_RADIUS_EXTRA / 2, params.LANE_LENGTH / 2 );
 		laneVisual.setModelBound( new BoundingBox() ); 
 		laneVisual.updateModelBound();
@@ -201,7 +201,7 @@ public class Scene {
 	}
 	
 	
-	private void createApproach() {
+	public void createApproach() {
 		Box approachVisual = new Box( "approach", new Vector3f(0,0,0), params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA, params.BALL_RADIUS_EXTRA / 2, params.APPROACH_LENGTH / 2 );
 		approachVisual.setModelBound( new BoundingBox() ); 
 		approachVisual.updateModelBound();
@@ -217,7 +217,7 @@ public class Scene {
 	}
 	
 	
-	private void createGutters() {
+	public void createGutters() {
 		float circumference = 2.0F * (float)Math.PI * params.BALL_RADIUS_EXTRA;
 		// Node gutterLeft =  getPhysicsSpace().createStaticNode(); // new Node("gutter_left");
 		// Node gutterRight = getPhysicsSpace().createStaticNode(); // new Node("gutter_right");
@@ -280,7 +280,7 @@ public class Scene {
 	}
 	
 	
-	private void createIlumination() {
+	public void createIlumination() {
 		((PointLight)lightState.get(0)).setLocation(new Vector3f(0, params.ROOM_HEIGHT * 0.9F, 0));
 		lightState.setTwoSidedLighting(true);
 		
