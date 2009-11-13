@@ -77,7 +77,7 @@ public class SceneParameters {
 		Properties props = new Properties();
 		try {
 			props.load( new FileInputStream( sceneParametersFile ) );
-            for( Enumeration properties=props.propertyNames(); properties.hasMoreElements(); ) {
+            for( Enumeration<?> properties = props.propertyNames(); properties.hasMoreElements(); ) {
             	try {
             		String property = (String)properties.nextElement();
 					Field field = this.getClass().getField( property );
