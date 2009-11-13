@@ -31,6 +31,10 @@ import com.jme.scene.shape.Sphere;
 import com.jme.scene.state.MaterialState;
 import com.jme.scene.state.TextureState;
 import com.jme.util.TextureManager;
+import com.jmex.audio.AudioSystem;
+import com.jmex.audio.AudioTrack;
+import com.jmex.audio.MusicTrackQueue;
+import com.jmex.audio.MusicTrackQueue.RepeatType;
 import com.jmex.physics.DynamicPhysicsNode;
 import com.jmex.physics.StaticPhysicsNode;
 import com.jmex.physics.contact.ContactCallback;
@@ -61,14 +65,14 @@ public class Bowling extends SimplePhysicsGame {
 	public static String TITLE = "Bowling";
 	// Parameters are in centimeters!
 	// Pin Parameters
-	public static float PIN_HEIGHT = 40;
-	public static float PIN_RADIUS = 6.5F;
-	public static float PIN_WEIGHT = 1750;
+	public static float PIN_HEIGHT = 0.40F;
+	public static float PIN_RADIUS = 0.65F;
+	public static float PIN_WEIGHT = 1.750F;
 	public static int AXIS_SAMPLES = 4;		// The definition of the pin
 	public static int RADIAL_SAMPLES = 10;	// The definition of the pin
 	// Ball Parameters
-	public static float BALL_RADIUS = 15.0F;
-	public static float BALL_WEIGHT = 2800;
+	public static float BALL_RADIUS = 0.150F;
+	public static float BALL_WEIGHT = 2.800F;
 	public static int BALL_SAMPLES = 100;		// The definition of the ball
 	// Gutter Parameters
 	public static float GUTTER_EXTRA = 1.20F;// How much bigger or smaller than the ball (1 is the same)
@@ -76,25 +80,25 @@ public class Bowling extends SimplePhysicsGame {
 	// Lane Parameters
 	// The middle of the foul line is at 0, BALL_RADIUS, 0
 	// Ten Pin Bowling: http://en.wikipedia.org/wiki/Tenpin
-	public static int LANE_WIDTH = 105;
-	public static int LANE_LENGTH = 1800;
+	public static float LANE_WIDTH = 1.05F;
+	public static float LANE_LENGTH = 18.00F;
 	// Approach Parameters
 	// Behind the foul line is an "approach" used to gain speed
-	public static int APPROACH_LENGTH = 500;
+	public static float APPROACH_LENGTH = 5.00F;
 	// Room Parameters
-	public static int ROOM_WIDTH = 800;
-	public static int ROOM_HEIGHT = 300;
+	public static float ROOM_WIDTH = 8.00F;
+	public static float ROOM_HEIGHT = 3.00F;
 	// Final box
-	public static int BOX_LENGTH = 100;
-	public static int BOX_HEIGHT = 100;
-	public static int BOXMACHINE_LENGTH = 210;
+	public static float BOX_LENGTH = 1.00F;
+	public static float BOX_HEIGHT = 1.00F;
+	public static float BOXMACHINE_LENGTH = 2.10F;
 	//Pin Positions
 	//Distance between to pins (12 inches)
-	public static float PIN_WIDTHDIST = 30.5F;
+	public static float PIN_WIDTHDIST = 0.305F;
 	//Half a distance between to pins (6 inches)
-	public static float PIN_WIDTHHALFDIST = 15.2F; 
+	public static float PIN_WIDTHHALFDIST = 0.152F; 
 	//Depth distance between two rows of pins (10.39 inches)
-	public static float PIN_HEIGHTDIST = 26.4F;
+	public static float PIN_HEIGHTDIST = 0.264F;
 	//Initial position of the pin 1
 	public static float INITIAL_POS = 0F;
 	//Distance between the pin 1 and the pit relative to the end of the lane
@@ -104,8 +108,10 @@ public class Bowling extends SimplePhysicsGame {
 	public static float LOW_SHININESS = 5.0f;
 	public static float HIGH_SHININESS = 100.0f;
 	// Camera speed
-	public static int CAMERA_MOVE_SPEED = 350;
-	public static int CAMERA_TURN_SPEED = 1;
+	public static float CAMERA_MOVE_SPEED = 350;
+	public static float CAMERA_TURN_SPEED = 1;
+	public static float CAMERA_DISTANCE_MIN = 0.5F;
+	public static float CAMERA_DISTANCE_MAX = 3;
 	// Calculated parameters
 	public static float BALL_RADIUS_EXTRA;
 	public static float BALL_DIAMETER;
@@ -117,7 +123,11 @@ public class Bowling extends SimplePhysicsGame {
 	// Objects
 	private DynamicPhysicsNode ball;
 	private DynamicPhysicsNode[] pins;
+	private boolean[] pinDown;
 	private Text score;
+	// Sounds
+	private MusicTrackQueue audioQueue;
+	private AudioTrack pinHit;
 	// Constants
 	public static ColorRGBA NO_COLOR = ColorRGBA.black;
 	// Game States
@@ -127,14 +137,6 @@ public class Bowling extends SimplePhysicsGame {
 	public static void main(String [] args) throws MalformedURLException {
 		Bowling app = new Bowling(); 
 		app.setParameters();
-		BALL_RADIUS_EXTRA = BALL_RADIUS * GUTTER_EXTRA;
-		BALL_DIAMETER = BALL_RADIUS * 2;
-		BALL_DIAMETER_EXTRA = BALL_RADIUS_EXTRA * 2;
-		ROOM_LENGTH = LANE_LENGTH + APPROACH_LENGTH + BOX_LENGTH;
-		ROOM_CENTER_X = 0;
-		ROOM_CENTER_Y = ROOM_HEIGHT / 2;
-		ROOM_CENTER_Z = APPROACH_LENGTH / 2 - BOX_LENGTH / 2 - LANE_LENGTH / 2;
-		DIST2PIT = -LANE_LENGTH + 86.8F ;
 		app.setConfigShowMode( ConfigShowMode.AlwaysShow, new URL("file:" + IMAGE_LOGO ) );
 		app.start();
 	}
@@ -169,24 +171,14 @@ public class Bowling extends SimplePhysicsGame {
             }catch(IOException e) {
             	System.err.println("Properties file could not be loaded");
             }
-	}
-	
-	
-	@Override
-	protected void simpleUpdate() {
-		if ( KeyInput.get().isKeyDown(KeyInput.KEY_SPACE)) {
-			this.resetBall();
-			this.resetPins();
-		}
-		if ( KeyInput.get().isKeyDown(KeyInput.KEY_RETURN)) {
-			this.resetBall();
-			this.removePins();
-		}
-		if( KeyInput.get().isKeyDown(KeyInput.KEY_PGUP) && ball.getLocalTranslation().z > -1 ) {
-			Vector3f speed = new Vector3f(0,0,-20000);
-			this.ball.addForce( speed );
-		}
-		this.score.print(" Pins down: " + this.numberOfPins() );
+    		BALL_RADIUS_EXTRA = BALL_RADIUS * GUTTER_EXTRA;
+    		BALL_DIAMETER = BALL_RADIUS * 2;
+    		BALL_DIAMETER_EXTRA = BALL_RADIUS_EXTRA * 2;
+    		ROOM_LENGTH = LANE_LENGTH + APPROACH_LENGTH + BOX_LENGTH;
+    		ROOM_CENTER_X = 0;
+    		ROOM_CENTER_Y = ROOM_HEIGHT / 2;
+    		ROOM_CENTER_Z = APPROACH_LENGTH / 2 - BOX_LENGTH / 2 - LANE_LENGTH / 2;
+    		DIST2PIT = -LANE_LENGTH + 0.868F ;
 	}
 	
 	
@@ -196,6 +188,8 @@ public class Bowling extends SimplePhysicsGame {
 		this.createDisplay();
 		// Physics
 		this.createPhysics();
+		// Audio
+		this.createAudio();
 		// Room
 		this.createRoom();
 		// Box
@@ -218,6 +212,24 @@ public class Bowling extends SimplePhysicsGame {
 		this.createControls();
 		// Update
 		rootNode.updateRenderState();
+	}
+	
+	
+	@Override
+	protected void simpleUpdate() {
+		if ( KeyInput.get().isKeyDown(KeyInput.KEY_SPACE)) {
+			this.resetBall();
+			this.resetPins();
+		}
+		if ( KeyInput.get().isKeyDown(KeyInput.KEY_RETURN)) {
+			this.resetBall();
+			this.removePins();
+		}
+		if( KeyInput.get().isKeyDown(KeyInput.KEY_PGUP) && ball.getLocalTranslation().z > -1 ) {
+			Vector3f speed = new Vector3f(0,0,-20);
+			this.ball.addForce( speed );
+		}
+		this.score.print(" Pins down: " + this.numberOfPins() );
 	}
 	
 	
@@ -245,8 +257,10 @@ public class Bowling extends SimplePhysicsGame {
 				if( name1 == null || name2 == null ) {
 					return false;
 				}
-				if( name1.startsWith( "pin" ) && name2.startsWith( "lane" ) || name2.startsWith( "pin" ) && name1.startsWith( "lane" )) {
-                    System.out.println( "Pin Lane collition!");
+				if( name1.startsWith( "pin" ) && name2.startsWith( "pin" ) ) {
+                    playSound( pinHit );
+                }else if( name1.startsWith( "pin" ) && name2.startsWith( "ball" ) || name2.startsWith( "pin" ) && name1.startsWith( "ball" )) {
+                    System.out.println( "Pin Ball collition!");
                 }
                 // everything normal, continue with next callback
                 return false;
@@ -257,6 +271,14 @@ public class Bowling extends SimplePhysicsGame {
 	}
 	
 	
+	private void createAudio() {
+		audioQueue = AudioSystem.getSystem().getMusicQueue();
+		audioQueue.setCrossfadeinTime(0);
+		audioQueue.setRepeatType(RepeatType.NONE);
+		pinHit = getAudioTrack( "resources/Sounds/pinHit.ogg" );
+	}
+	
+	
 	private void createCamera() {
 		//cam.setLocation( new Vector3f(0,80,30) );
 		//ChaseCamera chaser = new ChaseCamera( cam, ball);
@@ -264,8 +286,9 @@ public class Bowling extends SimplePhysicsGame {
 		// Simple chase camera
         input.removeFromAttachedHandlers( cameraInputHandler );
         cameraInputHandler = new ChaseCamera( cam, ball );
-        ((ChaseCamera)cameraInputHandler).setMaxDistance(500);
-        ((ChaseCamera)cameraInputHandler).setMinDistance(200);
+        cameraInputHandler.setActionSpeed( 0.3F );
+        ((ChaseCamera)cameraInputHandler).setMaxDistance(CAMERA_DISTANCE_MAX);
+        ((ChaseCamera)cameraInputHandler).setMinDistance(CAMERA_DISTANCE_MIN);
         input.addToAttachedHandlers( cameraInputHandler );
 	}
 	
@@ -701,5 +724,29 @@ public class Bowling extends SimplePhysicsGame {
 	    spatial.setRenderState(textureState);
 	}
 
+	
+	public AudioTrack getAudioTrack(String file) {
+		AudioTrack track = null;
+		try {
+			track = AudioSystem.getSystem().createAudioTrack( new URL( "file:" + file ), false);
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		track.setLooping( false );
+		track.setVolume( 1.0f );
+		return track;
+	}
+	
+	
+	public void playSound(AudioTrack track) {
+		if( !track.isPlaying() ) {
+			audioQueue.addTrack(track);
+			audioQueue.play();
+		}
+		AudioSystem.getSystem().update();
+		AudioSystem.getSystem().fadeOutAndClear(1.5f);
+	}
+	
 	
 }
