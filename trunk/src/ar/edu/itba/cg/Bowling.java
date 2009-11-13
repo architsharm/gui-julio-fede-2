@@ -41,7 +41,7 @@ public class Bowling extends SimplePhysicsGame {
 	public Text score;
 	// Sounds
 	private MusicTrackQueue audioQueue;
-	private AudioTrack pinHit;
+	private AudioTrack[] pinHit;
 	// Game States
 	public static enum States {SHOOTING, ROWLING};
 	
@@ -54,14 +54,13 @@ public class Bowling extends SimplePhysicsGame {
 	
 	
 	public Bowling() {
-		this.params = new SceneParameters("resources/scene/scene.properties");
-		this.scene = new Scene( rootNode, getPhysicsSpace(), lightState, display.getRenderer(), this.params );
-		this.dynamics = new Dynamics( rootNode, getPhysicsSpace(), display.getRenderer(), this.params );
 	}
 	
 	
 	@Override
 	protected void simpleInitGame() {
+		// Parameters
+		this.params = new SceneParameters("resources/scene/scene.properties");
 		// Display
 		this.createDisplay();
 		// Physics
@@ -69,8 +68,10 @@ public class Bowling extends SimplePhysicsGame {
 		// Audio
 		this.createAudio();
 		// Static scene
+		this.scene = new Scene( rootNode, getPhysicsSpace(), lightState, display.getRenderer(), this.params );
 		this.scene.createStaticWorld();
 		// Dynamic objects
+		this.dynamics = new Dynamics( rootNode, getPhysicsSpace(), display.getRenderer(), this.params );
 		this.dynamics.createDynamicWorld();
 		// Camera
 		this.createCamera();
@@ -126,14 +127,14 @@ public class Bowling extends SimplePhysicsGame {
 				}
 				if( name1.startsWith( "pin" ) && name2.startsWith( "pin" ) ) {
 					System.out.println( "Pin Pin collition!");
-                }else if( name1.startsWith( "pin" ) && name2.startsWith( "ball" ) || name1.startsWith( "ball" ) && name2.startsWith( "pin" )) {
-                	playSound( pinHit );
-                	System.out.println( "Pin Ball collition!");
+				}else if( name1.startsWith( "pin" ) && name2.startsWith( "ball" ) ) {
+                	playSound( pinHit[ Integer.valueOf( name1.substring(4) ) ] );
+                }else if( name1.startsWith( "ball" ) && name2.startsWith( "pin" ) ) {
+                	playSound( pinHit[ Integer.valueOf( name2.substring(4) ) ] );
                 }
                 // everything normal, continue with next callback
                 return false;
             }
-			
         };
         getPhysicsSpace().getContactCallbacks().add( myCallBack );
 	}
@@ -143,7 +144,10 @@ public class Bowling extends SimplePhysicsGame {
 		audioQueue = AudioSystem.getSystem().getMusicQueue();
 		audioQueue.setCrossfadeinTime(0);
 		audioQueue.setRepeatType(RepeatType.NONE);
-		pinHit = getAudioTrack( "resources/Sounds/pinHit.ogg" );
+		pinHit = new AudioTrack[10];
+		for( int i = 0; i < 10; i++ ) {
+			pinHit[i] = getAudioTrack( "resources/Sounds/bowling2.wav" );
+		}
 	}
 	
 	
