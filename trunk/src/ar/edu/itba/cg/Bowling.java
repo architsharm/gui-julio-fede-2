@@ -12,6 +12,8 @@ import com.jmex.audio.AudioSystem;
 import com.jmex.audio.AudioTrack;
 import com.jmex.audio.MusicTrackQueue;
 import com.jmex.audio.MusicTrackQueue.RepeatType;
+import com.jmex.physics.DynamicPhysicsNode;
+import com.jmex.physics.PhysicsNode;
 import com.jmex.physics.contact.ContactCallback;
 import com.jmex.physics.contact.PendingContact;
 import com.jmex.physics.util.SimplePhysicsGame;
@@ -41,7 +43,8 @@ public class Bowling extends SimplePhysicsGame {
 	public Text score;
 	// Sounds
 	private MusicTrackQueue audioQueue;
-	private AudioTrack[] pinHit;
+	private AudioTrack[] pinDown;
+	private AudioTrack ballMoving;
 	// Game States
 	public static enum States {SHOOTING, ROWLING};
 	
@@ -126,12 +129,37 @@ public class Bowling extends SimplePhysicsGame {
 					return false;
 				}
 				if( name1.startsWith( "pin" ) && name2.startsWith( "pin" ) ) {
-					System.out.println( "Pin Pin collition!");
+					// TODO: Set a sound!
 				}else if( name1.startsWith( "pin" ) && name2.startsWith( "ball" ) ) {
-                	playSound( pinHit[ Integer.valueOf( name1.substring(4) ) ] );
+                	Vector3f v1 = new Vector3f();
+                	Vector3f v2 = new Vector3f();
+					((DynamicPhysicsNode)c.getNode1()).getLinearVelocity( v1 );
+					((DynamicPhysicsNode)c.getNode2()).getLinearVelocity( v2 );
+					v1.subtract( v2 );
+					playSound( pinDown[ Integer.valueOf( name1.substring(4) ) ], v1.length()/2 );
                 }else if( name1.startsWith( "ball" ) && name2.startsWith( "pin" ) ) {
-                	playSound( pinHit[ Integer.valueOf( name2.substring(4) ) ] );
+                	Vector3f v1 = new Vector3f();
+                	Vector3f v2 = new Vector3f();
+					((DynamicPhysicsNode)c.getNode1()).getLinearVelocity( v1 );
+					((DynamicPhysicsNode)c.getNode2()).getLinearVelocity( v2 );
+					v1.subtract( v2 );
+                	playSound( pinDown[ Integer.valueOf( name2.substring(4) ) ], v1.length()/2 );
                 }
+				
+				if( name1.startsWith( "ball" ) && name2.startsWith( "lane" ) || name1.startsWith( "lane" ) && name2.startsWith( "ball" ) ) {
+					DynamicPhysicsNode node;
+					if( name1.startsWith( "ball" ) ) {
+						node = (DynamicPhysicsNode)c.getNode1();
+					}else{
+						node = (DynamicPhysicsNode)c.getNode2();
+					}
+					Vector3f v = new Vector3f();
+					node.getLinearVelocity(v);
+					float length = v.lengthSquared();
+					if( length > 1F ) {
+						playSound( ballMoving, length / 2 );
+					}
+				}
                 // everything normal, continue with next callback
                 return false;
             }
@@ -144,10 +172,11 @@ public class Bowling extends SimplePhysicsGame {
 		audioQueue = AudioSystem.getSystem().getMusicQueue();
 		audioQueue.setCrossfadeinTime(0);
 		audioQueue.setRepeatType(RepeatType.NONE);
-		pinHit = new AudioTrack[10];
+		pinDown = new AudioTrack[10];
 		for( int i = 0; i < 10; i++ ) {
-			pinHit[i] = getAudioTrack( "resources/Sounds/bowling2.wav" );
+			pinDown[i] = getAudioTrack( "resources/Sounds/pinHitLong.wav" );
 		}
+		ballMoving = getAudioTrack( "resources/Sounds/ballMoving.wav" );
 	}
 	
 	
@@ -185,8 +214,10 @@ public class Bowling extends SimplePhysicsGame {
 	}
 	
 	
-	public void playSound(AudioTrack track) {
+	public void playSound(AudioTrack track, float volume ) {
 		if( !track.isPlaying() ) {
+			track.setMinVolume( 0 );
+			track.setMaxVolume(volume);
 			audioQueue.addTrack(track);
 			audioQueue.play();
 		}
