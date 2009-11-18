@@ -20,7 +20,7 @@ public class Scene {
 	private LightState lightState;
 	private Renderer renderer;
 	private SceneParameters params;
-	
+	public StaticPhysicsNode lane;
 	
 	public Scene( Node rootNode, PhysicsSpace physicsSpace, LightState lightState, Renderer renderer, SceneParameters parameters ) {
 		this.rootNode = rootNode;
@@ -193,10 +193,11 @@ public class Scene {
 		Utils.setTexture( laneVisual, "resources/textures/wood.jpg", renderer );
 		StaticPhysicsNode lane = physicsSpace.createStaticNode();
 		lane.setName( "lane" );
-		lane.setMaterial( Material.WOOD );
+		lane.setMaterial( Material.ICE );
 		lane.attachChild( laneVisual );
 		lane.setLocalTranslation( new Vector3f(0, params.BALL_RADIUS_EXTRA / 2, -params.LANE_LENGTH / 2) );
 		lane.generatePhysicsGeometry();
+		this.lane = lane;
 		rootNode.attachChild( lane );
 	}
 	
@@ -209,7 +210,7 @@ public class Scene {
 		Utils.setTexture( approachVisual, "resources/textures/wood.jpg", renderer );
 		StaticPhysicsNode approach = physicsSpace.createStaticNode();
 		approach.setName( "approach" );
-		approach.setMaterial( Material.WOOD );
+		approach.setMaterial( Material.ICE );
 		approach.attachChild( approachVisual );
 		approach.setLocalTranslation( new Vector3f(0, params.BALL_RADIUS_EXTRA / 2, params.APPROACH_LENGTH / 2) );
 		approach.generatePhysicsGeometry();

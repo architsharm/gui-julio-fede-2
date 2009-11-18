@@ -15,6 +15,7 @@ import com.jmex.audio.MusicTrackQueue.RepeatType;
 import com.jmex.physics.DynamicPhysicsNode;
 import com.jmex.physics.contact.ContactCallback;
 import com.jmex.physics.contact.PendingContact;
+import com.jmex.physics.material.Material;
 import com.jmex.physics.util.SimplePhysicsGame;
 
 //	W	 Move Forward
@@ -94,10 +95,30 @@ public class Bowling extends SimplePhysicsGame {
 			dynamics.resetBall();
 			dynamics.removePins();
 		}
-		if( KeyInput.get().isKeyDown(KeyInput.KEY_PGUP) && dynamics.ball.getLocalTranslation().z > -1 ) {
+		if( KeyInput.get().isKeyDown(KeyInput.KEY_W) && dynamics.ball.getLocalTranslation().z > -1 ) {
 			Vector3f speed = new Vector3f(0,0,-20);
 			dynamics.ball.unrest();
 			dynamics.ball.addForce( speed );
+		}
+		if( KeyInput.get().isKeyDown(KeyInput.KEY_Q) && dynamics.ball.getLocalTranslation().z > -1 ) {
+			Vector3f speed = new Vector3f(0,0,0.5f);
+			dynamics.ball.unrest();
+			dynamics.ball.addTorque( speed );
+		}
+		if( KeyInput.get().isKeyDown(KeyInput.KEY_E) && dynamics.ball.getLocalTranslation().z > -1 ) {
+			Vector3f speed = new Vector3f(0,0,-0.5f);
+			dynamics.ball.unrest();
+			dynamics.ball.addTorque( speed );
+		}
+		if( KeyInput.get().isKeyDown(KeyInput.KEY_A) && dynamics.ball.getLocalTranslation().z > -1 ) {
+			Vector3f location = new Vector3f(-0.005f,0,0);
+			dynamics.ball.unrest();
+			dynamics.ball.setLocalTranslation(dynamics.ball.getLocalTranslation().add(location));
+		}
+		if( KeyInput.get().isKeyDown(KeyInput.KEY_D) && dynamics.ball.getLocalTranslation().z > -1 ) {
+			Vector3f location = new Vector3f(0.005f,0,0);
+			dynamics.ball.unrest();
+			dynamics.ball.setLocalTranslation(dynamics.ball.getLocalTranslation().add(location));
 		}
 		this.score.print(" Pins down: " + dynamics.numberOfPins() );
 	}
@@ -157,6 +178,10 @@ public class Bowling extends SimplePhysicsGame {
 					float length = v.lengthSquared();
 					if( length > 1F ) {
 						playSound( ballMoving, length / 4096 );
+						if (scene.lane.getMaterial() == Material.ICE && dynamics.ball.getLocalTranslation().z < -params.LANE_LENGTH * 0.7f) {
+							System.out.println("changed material");
+							scene.lane.setMaterial(Material.WOOD);
+						}
 					}
 				}
                 // everything normal, continue with next callback
