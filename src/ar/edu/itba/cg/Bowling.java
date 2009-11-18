@@ -13,7 +13,6 @@ import com.jmex.audio.AudioTrack;
 import com.jmex.audio.MusicTrackQueue;
 import com.jmex.audio.MusicTrackQueue.RepeatType;
 import com.jmex.physics.DynamicPhysicsNode;
-import com.jmex.physics.PhysicsNode;
 import com.jmex.physics.contact.ContactCallback;
 import com.jmex.physics.contact.PendingContact;
 import com.jmex.physics.util.SimplePhysicsGame;
@@ -157,7 +156,7 @@ public class Bowling extends SimplePhysicsGame {
 					node.getLinearVelocity(v);
 					float length = v.lengthSquared();
 					if( length > 1F ) {
-						playSound( ballMoving, length / 2 );
+						playSound( ballMoving, length / 4096 );
 					}
 				}
                 // everything normal, continue with next callback
@@ -217,7 +216,7 @@ public class Bowling extends SimplePhysicsGame {
 	public void playSound(AudioTrack track, float volume ) {
 		if( !track.isPlaying() ) {
 			track.setMinVolume( 0 );
-			track.setMaxVolume(volume);
+			track.setVolume(volume);
 			audioQueue.addTrack(track);
 			audioQueue.play();
 		}
