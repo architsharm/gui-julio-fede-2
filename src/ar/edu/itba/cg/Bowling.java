@@ -46,7 +46,8 @@ public class Bowling extends SimplePhysicsGame {
 	private AudioTrack[] pinDown;
 	private AudioTrack ballMoving;
 	// Game States
-	public static enum States {SHOOTING, ROWLING};
+	public static enum State {SHOOTING, ROWLING};
+	private State state;
 	
 	
 	public static void main(String [] args) throws MalformedURLException {
@@ -96,7 +97,7 @@ public class Bowling extends SimplePhysicsGame {
 			dynamics.removePins();
 		}
 		if( KeyInput.get().isKeyDown(KeyInput.KEY_W) && dynamics.ball.getLocalTranslation().z > -1 ) {
-			Vector3f speed = new Vector3f(0,0,-20);
+			Vector3f speed = new Vector3f(0,0,-5);
 			dynamics.ball.unrest();
 			dynamics.ball.addForce( speed );
 		}
@@ -139,8 +140,9 @@ public class Bowling extends SimplePhysicsGame {
 	
 	
 	private void createPhysics() {
-		getPhysicsSpace().setAutoRestThreshold( 2.0f );
+		getPhysicsSpace().setAutoRestThreshold( 0.2f );
         setPhysicsSpeed( 4 );
+        getPhysicsSpace().setAccuracy( 0.01F );
 		// getPhysicsSpace().setWorldBounds( new Vector3f(ROOM_CENTER_X - ROOM_WIDTH, ROOM_CENTER_Y - ROOM_HEIGHT, ROOM_CENTER_Z - ROOM_LENGTH), new Vector3f(ROOM_CENTER_X + ROOM_WIDTH, ROOM_CENTER_Y + ROOM_HEIGHT, ROOM_CENTER_Z + ROOM_LENGTH) );
 		// getPhysicsSpace().setWorldBounds( new Vector3f(-9999,-9999,-9999), new Vector3f(9999,9999,9999) );
 		// getPhysicsSpace().setDirectionalGravity( new Vector3f(0,-9.81F,0) );
