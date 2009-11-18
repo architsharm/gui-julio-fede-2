@@ -120,6 +120,9 @@ public class Bowling extends SimplePhysicsGame {
 			dynamics.ball.unrest();
 			dynamics.ball.setLocalTranslation(dynamics.ball.getLocalTranslation().add(location));
 		}
+		if( KeyInput.get().isKeyDown(KeyInput.KEY_Z)) {
+			dynamics.joint.detach();
+		}
 		this.score.print(" Pins down: " + dynamics.numberOfPins() );
 	}
 	
