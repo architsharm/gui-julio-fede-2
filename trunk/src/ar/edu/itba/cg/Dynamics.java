@@ -10,7 +10,9 @@ import com.jme.scene.Node;
 import com.jme.scene.shape.Cylinder;
 import com.jme.scene.shape.Sphere;
 import com.jmex.physics.DynamicPhysicsNode;
+import com.jmex.physics.Joint;
 import com.jmex.physics.PhysicsSpace;
+import com.jmex.physics.RotationalJointAxis;
 import com.jmex.physics.material.Material;
 
 public class Dynamics {
@@ -20,8 +22,10 @@ public class Dynamics {
 	private SceneParameters params;
 	// Objects
 	public DynamicPhysicsNode ball;
+	public Joint joint;
 	public DynamicPhysicsNode[] pins;
 	public boolean[] pinsDown;
+	
 	
 	public Dynamics( Node rootNode, PhysicsSpace physicsSpace, Renderer renderer, SceneParameters parameters ) {
 		this.rootNode = rootNode;
@@ -60,7 +64,19 @@ public class Dynamics {
 		ball.setActive(true);
 		ball.clearDynamics();
 		ball.unrest();
-		ball.setLocalTranslation( new Vector3f(0, params.BALL_RADIUS_EXTRA + params.BALL_RADIUS, params.APPROACH_LENGTH / 2) );
+		ball.setLocalTranslation( new Vector3f(0, params.BALL_RADIUS_EXTRA + params.BALL_RADIUS * 1.5F , params.APPROACH_LENGTH / 2) );
+		ball.setLocalRotation( new Quaternion() );
+		if( this.joint != null ) {
+			this.joint.reset();
+			this.joint.detach();
+		}
+		this.joint = physicsSpace.createJoint();
+		joint.attach( this.ball );
+		joint.setAnchor( new Vector3f(0, params.BALL_RADIUS_EXTRA + params.BALL_RADIUS * 10, params.APPROACH_LENGTH / 2) );
+        RotationalJointAxis rotationalAxis = joint.createRotationalAxis();
+        rotationalAxis.setDirection( new Vector3f( 1, 0, 0 ) );
+        rotationalAxis.setPositionMaximum( (float)Math.PI/2 );
+        rotationalAxis.setPositionMinimum( -(float)Math.PI/2 );
 	}
 	
 	
