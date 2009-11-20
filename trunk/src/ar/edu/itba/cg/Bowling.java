@@ -122,7 +122,19 @@ public class Bowling extends SimplePhysicsGame {
 			dynamics.ball.setLocalTranslation(dynamics.ball.getLocalTranslation().add(location));
 		}
 		if( KeyInput.get().isKeyDown(KeyInput.KEY_Z)) {
-			dynamics.joint.detach();
+			dynamics.releaseBall();
+		}
+		if( KeyInput.get().isKeyDown(KeyInput.KEY_UP) && dynamics.getAnchorZ() > 0 ) {
+			dynamics.moveAnchorZ( -0.01F );
+		}
+		if( KeyInput.get().isKeyDown(KeyInput.KEY_DOWN) && dynamics.getAnchorZ() < params.APPROACH_LENGTH ) {
+			dynamics.moveAnchorZ( 0.01F );
+		}
+		if( KeyInput.get().isKeyDown(KeyInput.KEY_LEFT) && dynamics.getAnchorRotation() < (float)(Math.PI/4) ) {
+			dynamics.rotateAnchor( 0.01F );
+		}
+		if( KeyInput.get().isKeyDown(KeyInput.KEY_RIGHT) && dynamics.getAnchorRotation() > (float)(-Math.PI/4) ) {
+			dynamics.rotateAnchor( -0.01F );
 		}
 		this.score.print(" Pins down: " + dynamics.numberOfPins() );
 	}
@@ -143,9 +155,6 @@ public class Bowling extends SimplePhysicsGame {
 		getPhysicsSpace().setAutoRestThreshold( 0.2f );
         setPhysicsSpeed( 4 );
         getPhysicsSpace().setAccuracy( 0.01F );
-		// getPhysicsSpace().setWorldBounds( new Vector3f(ROOM_CENTER_X - ROOM_WIDTH, ROOM_CENTER_Y - ROOM_HEIGHT, ROOM_CENTER_Z - ROOM_LENGTH), new Vector3f(ROOM_CENTER_X + ROOM_WIDTH, ROOM_CENTER_Y + ROOM_HEIGHT, ROOM_CENTER_Z + ROOM_LENGTH) );
-		// getPhysicsSpace().setWorldBounds( new Vector3f(-9999,-9999,-9999), new Vector3f(9999,9999,9999) );
-		// getPhysicsSpace().setDirectionalGravity( new Vector3f(0,-9.81F,0) );
         ContactCallback myCallBack = new ContactCallback() {
 			public boolean adjustContact( PendingContact c ) {
 				String name1 = c.getNode1().getName();

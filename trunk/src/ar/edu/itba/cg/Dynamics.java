@@ -22,7 +22,8 @@ public class Dynamics {
 	private SceneParameters params;
 	// Objects
 	public DynamicPhysicsNode ball;
-	public Joint joint;
+	private DynamicPhysicsNode anchor;
+	private Joint joint;
 	public DynamicPhysicsNode[] pins;
 	public boolean[] pinsDown;
 	
@@ -49,14 +50,28 @@ public class Dynamics {
 		ballVisual.updateModelBound();
 		Utils.setColor( ballVisual, ColorRGBA.green, params.HIGH_SHININESS, ColorRGBA.white, renderer );
 		Utils.setTexture( ballVisual, "resources/textures/marble.jpg", renderer );
-		this.ball = physicsSpace.createDynamicNode();
+		ball = physicsSpace.createDynamicNode();
 		ball.setName( "ball" );
-		this.ball.setMaterial( Material.GRANITE );
-		this.ball.attachChild( ballVisual );
-		this.ball.generatePhysicsGeometry(); 
-		this.ball.setMass( params.BALL_WEIGHT );
-		rootNode.attachChild( this.ball );
+		ball.setMaterial( Material.GRANITE );
+		ball.attachChild( ballVisual );
+		ball.generatePhysicsGeometry(); 
+		ball.setMass( params.BALL_WEIGHT );
+		rootNode.attachChild( ball );
+		// The joint to make the pendulum with the ball
+		anchor = physicsSpace.createDynamicNode();
+		anchor.setAffectedByGravity( false );
+		anchor.setIsCollidable( false );
+		joint = physicsSpace.createJoint();
+		RotationalJointAxis rotationalAxis = joint.createRotationalAxis();
+        rotationalAxis.setDirection( new Vector3f( 1, 0, 0 ) );
+        rotationalAxis.setPositionMaximum( (float)Math.PI/2 );
+        rotationalAxis.setPositionMinimum( -(float)Math.PI/2 );
 		resetBall();
+	}
+	
+	
+	public void releaseBall() {
+		joint.detach();
 	}
 	
 	
@@ -65,25 +80,40 @@ public class Dynamics {
 		ball.clearDynamics();
 		ball.unrest();
 		ball.setLocalTranslation( new Vector3f(0, params.BALL_RADIUS_EXTRA + params.BALL_RADIUS * 1.5F , params.APPROACH_LENGTH / 2) );
-		ball.setLocalRotation( new Quaternion() );
-		if( this.joint != null ) {
-			this.joint.reset();
-			this.joint.detach();
-		}
-		this.joint = physicsSpace.createJoint();
-		joint.attach( this.ball );
-		joint.setAnchor( new Vector3f(0, params.BALL_RADIUS_EXTRA + params.BALL_RADIUS * 10, params.APPROACH_LENGTH / 2) );
-        RotationalJointAxis rotationalAxis = joint.createRotationalAxis();
-        rotationalAxis.setDirection( new Vector3f( 1, 0, 0 ) );
-        rotationalAxis.setPositionMaximum( (float)Math.PI/2 );
-        rotationalAxis.setPositionMinimum( -(float)Math.PI/2 );
+		ball.setLocalRotation( new Quaternion() ); // This is need for the joint to work correctly
+		anchor.setLocalTranslation( 0, params.BALL_RADIUS_EXTRA + 0.8F, params.APPROACH_LENGTH / 2 );
+		anchor.setLocalRotation( new Quaternion() );
+		joint.attach( anchor, ball );
+	}
+	
+	
+	public void moveAnchorZ(float z) {
+		anchor.getLocalTranslation().addLocal( 0, 0, z ); 
+	}
+	
+	
+	public float getAnchorZ() {
+		return anchor.getLocalTranslation().z; 
+	}
+	
+	
+	public void rotateAnchor(float z) {
+		float []angles = anchor.getLocalRotation().toAngles(null);
+		angles[1] = angles[1] + z;
+		anchor.setLocalRotation( new Quaternion(angles) ); 
+	}
+	
+	
+	public float getAnchorRotation() {
+		System.out.println( anchor.getLocalRotation().toAngles(null)[1] );
+		return anchor.getLocalRotation().toAngles(null)[1]; 
 	}
 	
 	
 	public void createPins() {
 		this.pinsDown = new boolean[10];
 		this.pins = new DynamicPhysicsNode[10];
-		for( int i = 0; i < 10; i++ ){
+		for( int i = 0; i < 10; i++ ) {
 			pinsDown[i] = false;
 			Cylinder pinVisual = new Cylinder("pin_"+ i, params.AXIS_SAMPLES, params.RADIAL_SAMPLES, params.PIN_RADIUS, params.PIN_HEIGHT, true);
 			pinVisual.setModelBound( new BoundingBox() );
@@ -143,50 +173,45 @@ public class Dynamics {
 	
 	
 	public void removePins() {
-		for( int i = 0; i < 10; i++ ){
+		for( int i = 0; i < 10; i++ ) {
 			pins[i].rest();
 			pins[i].clearDynamics();
 			if( isPinDown(pins[i]) ) {
 				pins[i].setLocalRotation(new Quaternion( new float[]{(float)Math.PI/2,0,0} ));
 				pins[i].setLocalTranslation( new Vector3f(9999,9999,9999) );
-				
 			}
-			
 		}
 	}
 	
 	
 	//Calculates if the coordinates are inside the box
 	public boolean outOfBounds(float x, float z){
-			if( (x > -params.LANE_WIDTH/2 && x < params.LANE_WIDTH/2)&&(z > -params.LANE_LENGTH && z < (-params.LANE_LENGTH + params.BOXMACHINE_LENGTH)) )
-				return true;
-			return false;
+		if( (x > -params.LANE_WIDTH/2 && x < params.LANE_WIDTH/2)&&(z > -params.LANE_LENGTH && z < (-params.LANE_LENGTH + params.BOXMACHINE_LENGTH)) ) {
+			return true;
+		}
+		return false;
 	}
 	
 	
 	public boolean isPinDown(DynamicPhysicsNode pin){
-		
 		Double tippingCouple = Math.PI*7/36;
-		
-		if(!this.outOfBounds(pin.getLocalTranslation().x,pin.getLocalTranslation().z)){
+		if(!this.outOfBounds(pin.getLocalTranslation().x,pin.getLocalTranslation().z)) {
 			return true;
 		}
 		else if( (Math.abs( pin.getLocalRotation().toAngles(null)[0] - Math.PI/2 ) > tippingCouple) || 
-        	(Math.abs( pin.getLocalRotation().toAngles(null)[2] - 0 ) > tippingCouple)) 
-        {
+        	(Math.abs( pin.getLocalRotation().toAngles(null)[2] - 0 ) > tippingCouple)) {
             return true;           
         }
 		return false;
-		
 	}
 	
 	
 	public int numberOfPins() {
 		int count = 0;
-		
-		for( int i = 0; i < 10; i++) {
-			if(isPinDown(pins[i]))
+		for( int i = 0; i < 10; i++ ) {
+			if( isPinDown(pins[i]) ) {
                count++;
+			}
         }
 		return count;
 	}
