@@ -40,14 +40,15 @@ public class Bowling extends SimplePhysicsGame {
 	private Scene scene;
 	private Dynamics dynamics;
 	private SceneParameters params;
+	public Text help;
 	public Text score;
 	// Sounds
 	private MusicTrackQueue audioQueue;
 	private AudioTrack[] pinDown;
 	private AudioTrack ballMoving;
 	// Game States
-	public static enum State {SHOOTING, ROWLING};
-	private State state;
+	public static enum States {MENU, SHOOTING, ROLLING};
+	private States state = States.SHOOTING;
 	
 	
 	public static void main(String [] args) throws MalformedURLException {
@@ -64,7 +65,7 @@ public class Bowling extends SimplePhysicsGame {
 	@Override
 	protected void simpleInitGame() {
 		// Parameters
-		this.params = new SceneParameters("resources/scene/scene.properties");
+		this.params = new SceneParameters( "resources/scene/scene.properties" );
 		// Display
 		this.createDisplay();
 		// Physics
@@ -88,55 +89,55 @@ public class Bowling extends SimplePhysicsGame {
 	
 	@Override
 	protected void simpleUpdate() {
-		if ( KeyInput.get().isKeyDown(KeyInput.KEY_SPACE)) {
-			dynamics.resetBall();
-			dynamics.resetPins();
+		if( state == States.MENU ) {
+			
+		}else if( state == States.SHOOTING ){
+			if( KeyInput.get().isKeyDown(KeyInput.KEY_LEFT) && dynamics.getAnchorX() > -params.APPROACH_WIDTH/2 ) {
+				dynamics.moveAnchorX( -0.01F );
+			}
+			if( KeyInput.get().isKeyDown(KeyInput.KEY_RIGHT) && dynamics.getAnchorX() < params.APPROACH_WIDTH/2 ) {
+				dynamics.moveAnchorX( 0.01F );
+			}
+			if( KeyInput.get().isKeyDown(KeyInput.KEY_UP) && dynamics.getAnchorZ() > 0 ) {
+				dynamics.moveAnchorZ( -0.01F );
+			}
+			if( KeyInput.get().isKeyDown(KeyInput.KEY_DOWN) && dynamics.getAnchorZ() < params.APPROACH_LENGTH ) {
+				dynamics.moveAnchorZ( 0.01F );
+			}
+			if( KeyInput.get().isKeyDown(KeyInput.KEY_A) && dynamics.getAnchorRotation() < (float)(Math.PI/4) ) {
+				dynamics.rotateAnchor( 0.01F );
+			}
+			if( KeyInput.get().isKeyDown(KeyInput.KEY_D) && dynamics.getAnchorRotation() > (float)(-Math.PI/4) ) {
+				dynamics.rotateAnchor( -0.01F );
+			}
+			if( KeyInput.get().isKeyDown(KeyInput.KEY_W) && dynamics.getBallZ() > -1 ) {
+				dynamics.addForceZ( -5 );
+			}
+			if( KeyInput.get().isKeyDown(KeyInput.KEY_S) && dynamics.getBallZ() > -1 ) {
+				dynamics.addForceZ( 5 );
+			}
+			if( KeyInput.get().isKeyDown(KeyInput.KEY_Q) && dynamics.getBallZ() > -1 ) {
+				dynamics.addTorqueZ( 0.5f );
+			}
+			if( KeyInput.get().isKeyDown(KeyInput.KEY_E) && dynamics.getBallZ() > -1 ) {
+				dynamics.addTorqueZ( -0.5f );
+			}
+			if ( this.pause ) {
+				score.print( "Chupala" );
+			}
+			if ( KeyInput.get().isKeyDown(KeyInput.KEY_SPACE)) {
+				dynamics.resetBall();
+				dynamics.resetPins();
+			}
+			if ( KeyInput.get().isKeyDown(KeyInput.KEY_RETURN)) {
+				dynamics.resetBall();
+				dynamics.removePins();
+			}
+			if( KeyInput.get().isKeyDown(KeyInput.KEY_Z)) {
+				dynamics.releaseBall();
+			}
+			this.score.print(" Pins down: " + dynamics.numberOfPins() );
 		}
-		if ( KeyInput.get().isKeyDown(KeyInput.KEY_RETURN)) {
-			dynamics.resetBall();
-			dynamics.removePins();
-		}
-		if( KeyInput.get().isKeyDown(KeyInput.KEY_W) && dynamics.ball.getLocalTranslation().z > -1 ) {
-			Vector3f speed = new Vector3f(0,0,-5);
-			dynamics.ball.unrest();
-			dynamics.ball.addForce( speed );
-		}
-		if( KeyInput.get().isKeyDown(KeyInput.KEY_Q) && dynamics.ball.getLocalTranslation().z > -1 ) {
-			Vector3f speed = new Vector3f(0,0,0.5f);
-			dynamics.ball.unrest();
-			dynamics.ball.addTorque( speed );
-		}
-		if( KeyInput.get().isKeyDown(KeyInput.KEY_E) && dynamics.ball.getLocalTranslation().z > -1 ) {
-			Vector3f speed = new Vector3f(0,0,-0.5f);
-			dynamics.ball.unrest();
-			dynamics.ball.addTorque( speed );
-		}
-		if( KeyInput.get().isKeyDown(KeyInput.KEY_A) && dynamics.ball.getLocalTranslation().z > -1 ) {
-			Vector3f location = new Vector3f(-0.005f,0,0);
-			dynamics.ball.unrest();
-			dynamics.ball.setLocalTranslation(dynamics.ball.getLocalTranslation().add(location));
-		}
-		if( KeyInput.get().isKeyDown(KeyInput.KEY_D) && dynamics.ball.getLocalTranslation().z > -1 ) {
-			Vector3f location = new Vector3f(0.005f,0,0);
-			dynamics.ball.unrest();
-			dynamics.ball.setLocalTranslation(dynamics.ball.getLocalTranslation().add(location));
-		}
-		if( KeyInput.get().isKeyDown(KeyInput.KEY_Z)) {
-			dynamics.releaseBall();
-		}
-		if( KeyInput.get().isKeyDown(KeyInput.KEY_UP) && dynamics.getAnchorZ() > 0 ) {
-			dynamics.moveAnchorZ( -0.01F );
-		}
-		if( KeyInput.get().isKeyDown(KeyInput.KEY_DOWN) && dynamics.getAnchorZ() < params.APPROACH_LENGTH ) {
-			dynamics.moveAnchorZ( 0.01F );
-		}
-		if( KeyInput.get().isKeyDown(KeyInput.KEY_LEFT) && dynamics.getAnchorRotation() < (float)(Math.PI/4) ) {
-			dynamics.rotateAnchor( 0.01F );
-		}
-		if( KeyInput.get().isKeyDown(KeyInput.KEY_RIGHT) && dynamics.getAnchorRotation() > (float)(-Math.PI/4) ) {
-			dynamics.rotateAnchor( -0.01F );
-		}
-		this.score.print(" Pins down: " + dynamics.numberOfPins() );
 	}
 	
 	
@@ -224,10 +225,10 @@ public class Bowling extends SimplePhysicsGame {
 		//input = new FirstPersonHandler( cam, CAMERA_MOVE_SPEED, CAMERA_TURN_SPEED );
 		// Simple chase camera
         input.removeFromAttachedHandlers( cameraInputHandler );
-        cameraInputHandler = new ChaseCamera( cam, dynamics.ball );
+        cameraInputHandler = new ChaseCamera( cam, dynamics.anchor );
         cameraInputHandler.setActionSpeed( 0.3F );
-        ((ChaseCamera)cameraInputHandler).setMaxDistance( params.CAMERA_DISTANCE_MAX );
-        ((ChaseCamera)cameraInputHandler).setMinDistance( params.CAMERA_DISTANCE_MIN );
+        ((ChaseCamera)cameraInputHandler).setMaxDistance( 2 );
+        ((ChaseCamera)cameraInputHandler).setMinDistance( 1 );
         input.addToAttachedHandlers( cameraInputHandler );
 	}
 	

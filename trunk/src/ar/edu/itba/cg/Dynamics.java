@@ -8,6 +8,7 @@ import com.jme.renderer.ColorRGBA;
 import com.jme.renderer.Renderer;
 import com.jme.scene.Node;
 import com.jme.scene.shape.Cylinder;
+import com.jme.scene.shape.Quad;
 import com.jme.scene.shape.Sphere;
 import com.jmex.physics.DynamicPhysicsNode;
 import com.jmex.physics.Joint;
@@ -22,10 +23,11 @@ public class Dynamics {
 	private SceneParameters params;
 	// Objects
 	public DynamicPhysicsNode ball;
-	private DynamicPhysicsNode anchor;
+	public DynamicPhysicsNode anchor;
+	public DynamicPhysicsNode arrow;
 	private Joint joint;
-	public DynamicPhysicsNode[] pins;
-	public boolean[] pinsDown;
+	private DynamicPhysicsNode[] pins;
+	private boolean[] pinsDown;
 	
 	
 	public Dynamics( Node rootNode, PhysicsSpace physicsSpace, Renderer renderer, SceneParameters parameters ) {
@@ -66,12 +68,20 @@ public class Dynamics {
         rotationalAxis.setDirection( new Vector3f( 1, 0, 0 ) );
         rotationalAxis.setPositionMaximum( (float)Math.PI/2 );
         rotationalAxis.setPositionMinimum( -(float)Math.PI/2 );
-		resetBall();
-	}
-	
-	
-	public void releaseBall() {
-		joint.detach();
+		// The arrow
+        Quad arrowVisual = new Quad("arrow", params.BALL_DIAMETER / 8, params.BALL_DIAMETER * 2);
+		arrowVisual.setModelBound( new BoundingSphere() ); 
+		arrowVisual.updateModelBound();
+		Utils.setColor( arrowVisual, ColorRGBA.red, params.NO_SHININESS, ColorRGBA.white, renderer );
+		arrow = physicsSpace.createDynamicNode();
+		arrow.setActive(false);
+		arrow.setIsCollidable(false);
+		arrow.setAffectedByGravity(false);
+		arrow.setName( "arrow" );
+		arrow.attachChild( arrowVisual );
+		arrow.generatePhysicsGeometry(); 
+		rootNode.attachChild( arrow );
+        resetBall();
 	}
 	
 	
@@ -84,11 +94,48 @@ public class Dynamics {
 		anchor.setLocalTranslation( 0, params.BALL_RADIUS_EXTRA + 0.8F, params.APPROACH_LENGTH / 2 );
 		anchor.setLocalRotation( new Quaternion() );
 		joint.attach( anchor, ball );
+		arrow.setLocalRotation( new Quaternion( new float[] {(float)-Math.PI/2,0,0} ) );
+		arrow.setLocalTranslation( new Vector3f(0,params.BALL_RADIUS_EXTRA + 0.001F ,params.APPROACH_LENGTH / 2) );
+	}
+	
+	
+	public void releaseBall() {
+		joint.detach();
+	}
+	
+	
+	public float getBallZ() {
+		return ball.getLocalRotation().z;
+	}
+	
+	
+	public void addForceZ( float z ) {
+		Vector3f speed = new Vector3f( 0, 0, z );
+		ball.unrest();
+		ball.addForce( speed );
+	}
+	
+	
+	public void addTorqueZ( float z ) {
+		Vector3f speed = new Vector3f( 0, 0, z);
+		ball.addTorque( speed );
+	}
+
+
+	public void moveAnchorX(float x) {
+		anchor.getLocalTranslation().addLocal( x, 0, 0 );
+		arrow.getLocalTranslation().addLocal( x, 0, 0 );
+	}
+	
+	
+	public float getAnchorX() {
+		return anchor.getLocalTranslation().x; 
 	}
 	
 	
 	public void moveAnchorZ(float z) {
-		anchor.getLocalTranslation().addLocal( 0, 0, z ); 
+		anchor.getLocalTranslation().addLocal( 0, 0, z );
+		arrow.getLocalTranslation().addLocal( 0, 0, z );
 	}
 	
 	
@@ -100,15 +147,17 @@ public class Dynamics {
 	public void rotateAnchor(float z) {
 		float []angles = anchor.getLocalRotation().toAngles(null);
 		angles[1] = angles[1] + z;
-		anchor.setLocalRotation( new Quaternion(angles) ); 
+		anchor.setLocalRotation( new Quaternion(angles) );
+		angles = arrow.getLocalRotation().toAngles(null);
+		angles[1] = angles[1] + z;
+		arrow.setLocalRotation( new Quaternion(angles) );
 	}
 	
 	
 	public float getAnchorRotation() {
-		System.out.println( anchor.getLocalRotation().toAngles(null)[1] );
 		return anchor.getLocalRotation().toAngles(null)[1]; 
 	}
-	
+
 	
 	public void createPins() {
 		this.pinsDown = new boolean[10];
@@ -186,20 +235,21 @@ public class Dynamics {
 	
 	//Calculates if the coordinates are inside the box
 	public boolean outOfBounds(float x, float z){
-		if( (x > -params.LANE_WIDTH/2 && x < params.LANE_WIDTH/2)&&(z > -params.LANE_LENGTH && z < (-params.LANE_LENGTH + params.BOXMACHINE_LENGTH)) ) {
+		if( (x > -params.LANE_WIDTH/2 && x < params.LANE_WIDTH/2) &&
+			(z > -params.LANE_LENGTH && z < (-params.LANE_LENGTH + params.BOXMACHINE_LENGTH)) ) {
 			return true;
+		}else{
+			return false;
 		}
-		return false;
 	}
 	
 	
 	public boolean isPinDown(DynamicPhysicsNode pin){
 		Double tippingCouple = Math.PI*7/36;
-		if(!this.outOfBounds(pin.getLocalTranslation().x,pin.getLocalTranslation().z)) {
+		if( !this.outOfBounds(pin.getLocalTranslation().x,pin.getLocalTranslation().z) ) {
 			return true;
-		}
-		else if( (Math.abs( pin.getLocalRotation().toAngles(null)[0] - Math.PI/2 ) > tippingCouple) || 
-        	(Math.abs( pin.getLocalRotation().toAngles(null)[2] - 0 ) > tippingCouple)) {
+		}else if( (Math.abs( pin.getLocalRotation().toAngles(null)[0] - Math.PI/2 ) > tippingCouple) || 
+        	(Math.abs( pin.getLocalRotation().toAngles(null)[2] - 0 ) > tippingCouple) ) {
             return true;           
         }
 		return false;

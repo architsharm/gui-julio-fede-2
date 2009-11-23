@@ -65,6 +65,7 @@ public class SceneParameters {
 	public float BALL_RADIUS_EXTRA;
 	public float BALL_DIAMETER;
 	public float BALL_DIAMETER_EXTRA;
+	public float APPROACH_WIDTH;
 	public float ROOM_LENGTH;
 	public float ROOM_CENTER_X;
 	public float ROOM_CENTER_Y;
@@ -105,6 +106,7 @@ public class SceneParameters {
    		BALL_RADIUS_EXTRA = BALL_RADIUS * GUTTER_EXTRA;
    		BALL_DIAMETER = BALL_RADIUS * 2;
    		BALL_DIAMETER_EXTRA = BALL_RADIUS_EXTRA * 2;
+   		APPROACH_WIDTH = LANE_WIDTH + BALL_DIAMETER_EXTRA;
    		ROOM_LENGTH = LANE_LENGTH + APPROACH_LENGTH + BOX_LENGTH;
    		ROOM_CENTER_X = 0;
    		ROOM_CENTER_Y = ROOM_HEIGHT / 2;
