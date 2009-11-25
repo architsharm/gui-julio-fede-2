@@ -208,7 +208,7 @@ public class Scene {
 		Utils.setTexture( laneVisual, "resources/textures/wood.jpg", renderer );
 		StaticPhysicsNode lane = physicsSpace.createStaticNode();
 		lane.setName( "lane" );
-		lane.setMaterial( Material.ICE );
+		lane.setMaterial( Material.WOOD );
 		lane.attachChild( laneVisual );
 		lane.setLocalTranslation( move.x + 0, move.y + params.BALL_RADIUS_EXTRA/2, move.z - params.LANE_LENGTH/2 );
 		lane.generatePhysicsGeometry();

@@ -1,5 +1,7 @@
 package ar.edu.itba.cg;
 
+import ar.edu.itba.cg.utils.ColladaModelLoader;
+
 import com.jme.bounding.BoundingBox;
 import com.jme.bounding.BoundingSphere;
 import com.jme.math.Quaternion;
@@ -7,7 +9,8 @@ import com.jme.math.Vector3f;
 import com.jme.renderer.ColorRGBA;
 import com.jme.renderer.Renderer;
 import com.jme.scene.Node;
-import com.jme.scene.shape.Cylinder;
+import com.jme.scene.SharedMesh;
+import com.jme.scene.Spatial;
 import com.jme.scene.shape.Quad;
 import com.jme.scene.shape.Sphere;
 import com.jmex.physics.DynamicPhysicsNode;
@@ -164,7 +167,10 @@ public class Dynamics {
 		this.pins = new DynamicPhysicsNode[10];
 		for( int i = 0; i < 10; i++ ) {
 			pinsDown[i] = false;
-			Cylinder pinVisual = new Cylinder("pin_"+ i, params.AXIS_SAMPLES, params.RADIAL_SAMPLES, params.PIN_RADIUS, params.PIN_HEIGHT, true);
+			//Cylinder pinVisual = new Cylinder("pin_"+ i, params.AXIS_SAMPLES, params.RADIAL_SAMPLES, params.PIN_RADIUS, params.PIN_HEIGHT, true);
+			Spatial pinVisual = ((Spatial)(new ColladaModelLoader()).getModel("resources/birillo.dae"));
+			BoundingBox pinBound = (BoundingBox)((SharedMesh)pinVisual).getModelBound();
+			pinVisual.setLocalTranslation(new Vector3f().subtract(pinBound.getCenter()));
 			pinVisual.setModelBound( new BoundingBox() );
 			pinVisual.updateModelBound();
 			pinVisual.lockMeshes();
@@ -216,6 +222,7 @@ public class Dynamics {
 			pins[i].rest();
 			pins[i].clearDynamics();
 			pins[i].setLocalRotation(new Quaternion( new float[]{(float)Math.PI/2,0,0} ));
+			pins[i].setLocalScale(0.06f);
 			pins[i].setLocalTranslation( getPinPosition(i) );
 		}
 	}
