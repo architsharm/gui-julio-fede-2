@@ -11,7 +11,7 @@ import com.jmex.model.collada.ColladaImporter;
 
 public class ColladaModelLoader {
 
-	public Spatial getModel(String filename) {
+	public Node getModel(String filename) {
 		// TODO Auto-generated method stub
 		//this stream points to the model itself.
         InputStream mobboss = null;
@@ -29,6 +29,6 @@ public class ColladaModelLoader {
                 
         //all done clean up.
         ColladaImporter.cleanUp();
-		return ((Node)sp).getChild("mesh1-geometry-material0");
+		return ((Node)sp);
 	}
 }
