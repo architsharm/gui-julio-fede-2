@@ -32,18 +32,28 @@ public class Scene {
 	
 	
 	public void createStaticWorld() {
+		Vector3f moveCenter = new Vector3f(0,0,0);
+		Vector3f moveRight = new Vector3f(  params.LANE_WIDTH + params.BALL_DIAMETER_EXTRA*2,0,0);
+		Vector3f moveLeft = new Vector3f(-(params.LANE_WIDTH + params.BALL_DIAMETER_EXTRA*2),0,0);
 		// Room
 		this.createRoom();
 		// Box
-		this.createBox();
+		this.createBox( moveCenter );
 		// Lane
-		this.createLane();
+		this.createLane( moveCenter );
+		this.createLane( moveRight );
+		this.createLane( moveLeft );
 		// Approach
-		this.createApproach();
+		this.createApproach( new Vector3f(0,0,0) );
 		// Gutters
 		this.createGutters();
 		// Lights
 		this.createIlumination();
+	}
+	
+	
+	public void createBowling() {
+		
 	}
 	
 	
@@ -138,7 +148,7 @@ public class Scene {
 	}
 	
 	
-	public void createBox() {
+	public void createBox( Vector3f move ) {
 		Node box = new Node("box");
 		// Top
 		Quad boxTopVisual = new Quad("box_top", params.LANE_WIDTH + params.BALL_DIAMETER_EXTRA * 2, params.BOX_LENGTH + params.BOXMACHINE_LENGTH );
@@ -150,7 +160,7 @@ public class Scene {
 		boxTop.attachChild( boxTopVisual );
 		boxTop.setMaterial( Material.CONCRETE );
 		boxTop.setLocalRotation(  new Quaternion( new float[]{ (float)Math.PI/2, 0, 0 } ) );
-		boxTop.setLocalTranslation(  0, params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT, -(params.LANE_LENGTH) );
+		boxTop.setLocalTranslation(  move.x + 0, move.y + params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT, move.z - params.LANE_LENGTH );
 		boxTop.generatePhysicsGeometry();
 		// Left and right
 		Quad boxLeftVisual =  new Quad("box_left",  params.BOX_LENGTH + params.BOXMACHINE_LENGTH, params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT);
@@ -171,8 +181,8 @@ public class Scene {
 		boxRight.setMaterial( Material.CONCRETE );
 		boxLeft.setLocalRotation(  new Quaternion( new float[]{ 0, (float)Math.PI/2, 0 } ) );
 		boxRight.setLocalRotation( new Quaternion( new float[]{ 0, (float)Math.PI/2, 0 } ) );
-		boxLeft.setLocalTranslation(  -(params.LANE_WIDTH / 2 + params.BALL_DIAMETER_EXTRA), (params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT)/2, -(params.LANE_LENGTH ) );
-		boxRight.setLocalTranslation(   params.LANE_WIDTH / 2 + params.BALL_DIAMETER_EXTRA,  (params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT)/2, -(params.LANE_LENGTH ) );
+		boxLeft.setLocalTranslation(  move.x - (params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA), move.y + (params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT)/2, move.z - params.LANE_LENGTH );
+		boxRight.setLocalTranslation( move.x + (params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA), move.y + (params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT)/2, move.z - params.LANE_LENGTH );
 		boxRight.generatePhysicsGeometry();
 		boxLeft.generatePhysicsGeometry();
 		// Attach
@@ -185,8 +195,8 @@ public class Scene {
 	}
 	
 	
-	public void createLane() {
-		Box laneVisual = new Box("lane", new Vector3f(0,0,0), params.LANE_WIDTH / 2, params.BALL_RADIUS_EXTRA / 2, params.LANE_LENGTH / 2 );
+	public void createLane( Vector3f move ) {
+		Box laneVisual = new Box( "lane", new Vector3f(0,0,0), params.LANE_WIDTH/2, params.BALL_RADIUS_EXTRA/2, params.LANE_LENGTH/2 );
 		laneVisual.setModelBound( new BoundingBox() ); 
 		laneVisual.updateModelBound();
 		Utils.setColor( laneVisual, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
@@ -195,14 +205,14 @@ public class Scene {
 		lane.setName( "lane" );
 		lane.setMaterial( Material.ICE );
 		lane.attachChild( laneVisual );
-		lane.setLocalTranslation( new Vector3f(0, params.BALL_RADIUS_EXTRA / 2, -params.LANE_LENGTH / 2) );
+		lane.setLocalTranslation( move.x + 0, move.y + params.BALL_RADIUS_EXTRA/2, move.z - params.LANE_LENGTH/2 );
 		lane.generatePhysicsGeometry();
 		this.lane = lane;
 		rootNode.attachChild( lane );
 	}
 	
 	
-	public void createApproach() {
+	public void createApproach( Vector3f move ) {
 		Box approachVisual = new Box( "approach", new Vector3f(0,0,0), params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA, params.BALL_RADIUS_EXTRA / 2, params.APPROACH_LENGTH / 2 );
 		approachVisual.setModelBound( new BoundingBox() ); 
 		approachVisual.updateModelBound();
@@ -212,7 +222,7 @@ public class Scene {
 		approach.setName( "approach" );
 		approach.setMaterial( Material.ICE );
 		approach.attachChild( approachVisual );
-		approach.setLocalTranslation( new Vector3f(0, params.BALL_RADIUS_EXTRA / 2, params.APPROACH_LENGTH / 2) );
+		approach.setLocalTranslation( move.x + 0, move.y + params.BALL_RADIUS_EXTRA / 2, move.z + params.APPROACH_LENGTH/2 );
 		approach.generatePhysicsGeometry();
 		rootNode.attachChild( approach );
 	}
@@ -271,8 +281,8 @@ public class Scene {
 			left.setLocalRotation(  new Quaternion( new float[]{ (float)Math.PI/2, 0, rotation } ) );
 			right.setLocalRotation( new Quaternion( new float[]{ (float)Math.PI/2, 0, rotation } ) );
 			float angle = (float)Math.PI + (float)Math.PI / params.GUTTER_SAMPLES * i;
-			left.setLocalTranslation( -(params.LANE_WIDTH/2 + params.BALL_RADIUS_EXTRA) + params.BALL_RADIUS_EXTRA * (float)Math.cos( angle ), params.BALL_RADIUS_EXTRA + params.BALL_RADIUS_EXTRA * (float)Math.sin( angle ), -(params.LANE_LENGTH / 2) );
-			right.setLocalTranslation( params.LANE_WIDTH/2 + params.BALL_RADIUS_EXTRA + params.BALL_RADIUS_EXTRA * (float)Math.cos( angle ), params.BALL_RADIUS_EXTRA + params.BALL_RADIUS_EXTRA * (float)Math.sin( angle ), -(params.LANE_LENGTH / 2) );
+			left.setLocalTranslation( -(params.LANE_WIDTH/2 + params.BALL_RADIUS_EXTRA) + params.BALL_RADIUS_EXTRA * (float)Math.cos( angle ), params.BALL_RADIUS_EXTRA + params.BALL_RADIUS_EXTRA * (float)Math.sin( angle ) + 0.001F, -(params.LANE_LENGTH / 2) );
+			right.setLocalTranslation( params.LANE_WIDTH/2 + params.BALL_RADIUS_EXTRA + params.BALL_RADIUS_EXTRA * (float)Math.cos( angle ), params.BALL_RADIUS_EXTRA + params.BALL_RADIUS_EXTRA * (float)Math.sin( angle ) + 0.001F, -(params.LANE_LENGTH / 2) );
 			left.generatePhysicsGeometry();
 			right.generatePhysicsGeometry();
 			rootNode.attachChild( left );
