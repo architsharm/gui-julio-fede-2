@@ -33,27 +33,32 @@ public class Scene {
 	
 	public void createStaticWorld() {
 		Vector3f moveCenter = new Vector3f(0,0,0);
-		Vector3f moveRight = new Vector3f(  params.LANE_WIDTH + params.BALL_DIAMETER_EXTRA*2,0,0);
-		Vector3f moveLeft = new Vector3f(-(params.LANE_WIDTH + params.BALL_DIAMETER_EXTRA*2),0,0);
+		Vector3f moveRight = new Vector3f(  params.LANE_WIDTH + params.BALL_DIAMETER_EXTRA*2 + params.SEPARATION_WIDTH, 0,0);
+		Vector3f moveLeft = new Vector3f( -(params.LANE_WIDTH + params.BALL_DIAMETER_EXTRA*2 + params.SEPARATION_WIDTH),0,0);
 		// Room
 		this.createRoom();
 		// Box
 		this.createBox( moveCenter );
+		this.createBox( moveRight );
+		this.createBox( moveLeft );
 		// Lane
 		this.createLane( moveCenter );
 		this.createLane( moveRight );
 		this.createLane( moveLeft );
 		// Approach
-		this.createApproach( new Vector3f(0,0,0) );
+		this.createApproach( moveCenter );
+		this.createApproach( moveRight );
+		this.createApproach( moveLeft );
 		// Gutters
-		this.createGutters();
+		this.createGutters( moveCenter );
+		this.createGutters( moveRight );
+		this.createGutters( moveLeft );
+		// Separation
+		this.createSeparation( moveCenter );
+		this.createSeparation( moveRight );
+		this.createSeparation( moveLeft );
 		// Lights
 		this.createIlumination();
-	}
-	
-	
-	public void createBowling() {
-		
 	}
 	
 	
@@ -213,7 +218,7 @@ public class Scene {
 	
 	
 	public void createApproach( Vector3f move ) {
-		Box approachVisual = new Box( "approach", new Vector3f(0,0,0), params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA, params.BALL_RADIUS_EXTRA / 2, params.APPROACH_LENGTH / 2 );
+		Box approachVisual = new Box( "approach", new Vector3f(0,0,0), params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA + params.SEPARATION_WIDTH/2, params.BALL_RADIUS_EXTRA / 2, params.APPROACH_LENGTH / 2 );
 		approachVisual.setModelBound( new BoundingBox() ); 
 		approachVisual.updateModelBound();
 		Utils.setColor( approachVisual, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
@@ -228,7 +233,7 @@ public class Scene {
 	}
 	
 	
-	public void createGutters() {
+	public void createGutters( Vector3f move ) {
 		float circumference = 2.0F * (float)Math.PI * params.BALL_RADIUS_EXTRA;
 		// Node gutterLeft =  getPhysicsSpace().createStaticNode(); // new Node("gutter_left");
 		// Node gutterRight = getPhysicsSpace().createStaticNode(); // new Node("gutter_right");
@@ -252,8 +257,8 @@ public class Scene {
 		gutterBorderRight.attachChild( gutterBorderRightVisual );
 		gutterBorderLeft.setLocalRotation(  new Quaternion( new float[]{ (float)Math.PI/2, 0, -(float)Math.PI/2 } ) );
 		gutterBorderRight.setLocalRotation( new Quaternion( new float[]{ (float)Math.PI/2, 0, -(float)Math.PI/2 } ) );
-		gutterBorderLeft.setLocalTranslation( -(params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA), params.BALL_RADIUS_EXTRA / 2, -(params.LANE_LENGTH / 2) );
-		gutterBorderRight.setLocalTranslation( params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA  , params.BALL_RADIUS_EXTRA / 2, -(params.LANE_LENGTH / 2) );
+		gutterBorderLeft.setLocalTranslation(  move.x - (params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA), move.y + params.BALL_RADIUS_EXTRA/2, move.z - params.LANE_LENGTH/2 );
+		gutterBorderRight.setLocalTranslation( move.x + (params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA), move.y + params.BALL_RADIUS_EXTRA/2, move.z - params.LANE_LENGTH/2 );
 		gutterBorderLeft.generatePhysicsGeometry();
 		gutterBorderRight.generatePhysicsGeometry();
 		rootNode.attachChild( gutterBorderLeft );
@@ -265,8 +270,8 @@ public class Scene {
 			leftVisual.updateModelBound();
 			rightVisual.setModelBound( new BoundingBox() ); 
 			rightVisual.updateModelBound();
-			Utils.setColor( leftVisual, ColorRGBA.gray, params.LOW_SHININESS, params.NO_COLOR, renderer );
-			Utils.setColor( rightVisual,   ColorRGBA.gray, params.LOW_SHININESS, params.NO_COLOR, renderer );
+			Utils.setColor( leftVisual,  ColorRGBA.gray, params.NO_SHININESS, params.NO_COLOR, renderer );
+			Utils.setColor( rightVisual, ColorRGBA.gray, params.NO_SHININESS, params.NO_COLOR, renderer );
 			Utils.setTexture( leftVisual,  "resources/textures/metal.jpg", renderer );
 			Utils.setTexture( rightVisual, "resources/textures/metal.jpg", renderer );
 			StaticPhysicsNode left = physicsSpace.createStaticNode();
@@ -281,13 +286,42 @@ public class Scene {
 			left.setLocalRotation(  new Quaternion( new float[]{ (float)Math.PI/2, 0, rotation } ) );
 			right.setLocalRotation( new Quaternion( new float[]{ (float)Math.PI/2, 0, rotation } ) );
 			float angle = (float)Math.PI + (float)Math.PI / params.GUTTER_SAMPLES * i;
-			left.setLocalTranslation( -(params.LANE_WIDTH/2 + params.BALL_RADIUS_EXTRA) + params.BALL_RADIUS_EXTRA * (float)Math.cos( angle ), params.BALL_RADIUS_EXTRA + params.BALL_RADIUS_EXTRA * (float)Math.sin( angle ) + 0.001F, -(params.LANE_LENGTH / 2) );
-			right.setLocalTranslation( params.LANE_WIDTH/2 + params.BALL_RADIUS_EXTRA + params.BALL_RADIUS_EXTRA * (float)Math.cos( angle ), params.BALL_RADIUS_EXTRA + params.BALL_RADIUS_EXTRA * (float)Math.sin( angle ) + 0.001F, -(params.LANE_LENGTH / 2) );
+			left.setLocalTranslation(  move.x - (params.LANE_WIDTH/2 + params.BALL_RADIUS_EXTRA) + params.BALL_RADIUS_EXTRA * (float)Math.cos( angle ), move.y + params.BALL_RADIUS_EXTRA + params.BALL_RADIUS_EXTRA * (float)Math.sin( angle ) + 0.001F, move.z - params.LANE_LENGTH/2 );
+			right.setLocalTranslation( move.x + (params.LANE_WIDTH/2 + params.BALL_RADIUS_EXTRA) + params.BALL_RADIUS_EXTRA * (float)Math.cos( angle ), move.y + params.BALL_RADIUS_EXTRA + params.BALL_RADIUS_EXTRA * (float)Math.sin( angle ) + 0.001F, move.z - params.LANE_LENGTH/2 );
 			left.generatePhysicsGeometry();
 			right.generatePhysicsGeometry();
 			rootNode.attachChild( left );
 			rootNode.attachChild( right );
 		}	
+	}
+	
+	
+	public void createSeparation( Vector3f move ) {
+		Box separationVisual = new Box( "separation", new Vector3f(0,0,0), params.SEPARATION_WIDTH/2, params.SEPARATION_HEIGHT/2, params.LANE_LENGTH/2 );
+		separationVisual.setModelBound( new BoundingBox() ); 
+		separationVisual.updateModelBound();
+		Utils.setColor( separationVisual, ColorRGBA.black, params.NO_SHININESS, params.NO_COLOR, renderer );
+		// Utils.setTexture( approachVisual, "resources/textures/wood.jpg", renderer );
+		StaticPhysicsNode separation = physicsSpace.createStaticNode();
+		separation.setName( "separation" );
+		separation.setMaterial( Material.IRON );
+		separation.attachChild( separationVisual );
+		separation.setLocalTranslation( move.x + (params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA + params.SEPARATION_WIDTH/2), move.y + params.SEPARATION_HEIGHT/2, move.z - params.LANE_LENGTH/2 );
+		separation.generatePhysicsGeometry();
+		rootNode.attachChild( separation );
+		
+		Box separationVisual_2 = new Box( "separation", new Vector3f(0,0,0), params.SEPARATION_WIDTH/2, params.SEPARATION_HEIGHT/2, params.LANE_LENGTH/2 );
+		separationVisual_2.setModelBound( new BoundingBox() ); 
+		separationVisual_2.updateModelBound();
+		Utils.setColor( separationVisual_2, ColorRGBA.black, params.NO_SHININESS, params.NO_COLOR, renderer );
+		// Utils.setTexture( approachVisual, "resources/textures/wood.jpg", renderer );
+		StaticPhysicsNode separation_2 = physicsSpace.createStaticNode();
+		separation_2.setName( "separation" );
+		separation_2.setMaterial( Material.IRON );
+		separation_2.attachChild( separationVisual_2 );
+		separation_2.setLocalTranslation( move.x - (params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA + params.SEPARATION_WIDTH/2), move.y + params.SEPARATION_HEIGHT/2, move.z - params.LANE_LENGTH/2 );
+		separation_2.generatePhysicsGeometry();
+		rootNode.attachChild( separation_2 );
 	}
 	
 	
