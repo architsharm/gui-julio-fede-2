@@ -22,7 +22,7 @@ public class SceneParameters {
 	// Ball Parameters
 	public float BALL_RADIUS = 0.150F;
 	public float BALL_WEIGHT = 2.800F;
-	public int 	BALL_SAMPLES = 100;		// The definition of the ball
+	public int 	BALL_SAMPLES = 20;		// The definition of the ball
 	// Gutter Parameters
 	public float GUTTER_EXTRA = 1.20F;// How much bigger or smaller than the ball (1 is the same)
 	public int 	GUTTER_SAMPLES = 25;	// The definition of the gutters
