@@ -25,12 +25,15 @@ public class SceneParameters {
 	public int 	BALL_SAMPLES = 100;		// The definition of the ball
 	// Gutter Parameters
 	public float GUTTER_EXTRA = 1.20F;// How much bigger or smaller than the ball (1 is the same)
-	public int 	GUTTER_SAMPLES = 50;	// The definition of the gutters
+	public int 	GUTTER_SAMPLES = 25;	// The definition of the gutters
 	// Lane Parameters
 	// The middle of the foul line is at 0, BALL_RADIUS, 0
 	// Ten Pin Bowling: http://en.wikipedia.org/wiki/Tenpin
 	public float LANE_WIDTH = 1.05F;
 	public float LANE_LENGTH = 18.00F;
+	// Lane separation
+	public float SEPARATION_WIDTH = 0.30F;
+	public float SEPARATION_HEIGHT = 0.30F;
 	// Approach Parameters
 	// Behind the foul line is an "approach" used to gain speed
 	public float APPROACH_LENGTH = 5.00F;
