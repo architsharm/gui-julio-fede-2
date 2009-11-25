@@ -39,6 +39,8 @@ public class Bowling extends SimplePhysicsGame {
 	public static String IMAGE_LOGO = "resources/logo.jpg";
 	private Scene scene;
 	private Dynamics dynamics;
+	private StartUpMenu menu;
+	private HelpMenu helpMenu;
 	private SceneParameters params;
 	public Text help;
 	public Text score;
@@ -47,8 +49,9 @@ public class Bowling extends SimplePhysicsGame {
 	private AudioTrack[] pinDown;
 	private AudioTrack ballMoving;
 	// Game States
-	public static enum States {MENU, SHOOTING, ROLLING};
-	private States state = States.SHOOTING;
+	public static enum States {MENU, SHOOTING, ROLLING, HELP, EXIT};
+	private States state = States.MENU;
+	
 	
 	
 	public static void main(String [] args) throws MalformedURLException {
@@ -66,6 +69,11 @@ public class Bowling extends SimplePhysicsGame {
 	protected void simpleInitGame() {
 		// Parameters
 		this.params = new SceneParameters( "resources/scene/scene.properties" );
+		//Menu
+		this.menu = new StartUpMenu(statNode, display.getWidth(), display.getHeight(),this);
+		this.menu.showAllOptions();
+		//Help menu
+		this.helpMenu = new HelpMenu(statNode, display.getWidth(), display.getHeight(),this);
 		// Display
 		this.createDisplay();
 		// Physics
@@ -84,12 +92,23 @@ public class Bowling extends SimplePhysicsGame {
 		this.createControls();
 		// Update
 		rootNode.updateRenderState();
+		
 	}
 	
 	
 	@Override
 	protected void simpleUpdate() {
 		if( state == States.MENU ) {
+
+			if( KeyInput.get().isKeyDown(KeyInput.KEY_UP) ) {
+				menu.keyUp();
+			}
+			if( KeyInput.get().isKeyDown(KeyInput.KEY_DOWN) ) {
+				menu.keyDown();
+			}
+			if( KeyInput.get().isKeyDown(KeyInput.KEY_RETURN) ) {
+				menu.keyEnter();
+			}
 			
 		}else if( state == States.SHOOTING ){
 			if( KeyInput.get().isKeyDown(KeyInput.KEY_LEFT) && dynamics.getAnchorX() > -params.APPROACH_WIDTH/2 ) {
@@ -137,6 +156,14 @@ public class Bowling extends SimplePhysicsGame {
 				dynamics.releaseBall();
 			}
 			this.score.print(" Pins down: " + dynamics.numberOfPins() );
+		}else if( state == States.HELP ){
+			
+			this.helpMenu.showAllOptions();
+			if( KeyInput.get().isKeyDown(KeyInput.KEY_0) ) {
+				helpMenu.keyScape();
+			}
+		}else if( state == States.EXIT ){
+			this.finish();			
 		}
 	}
 	
@@ -264,5 +291,12 @@ public class Bowling extends SimplePhysicsGame {
 		AudioSystem.getSystem().fadeOutAndClear(1.5f);
 	}
 	
+	public void setState(States state){
+		this.state = state;
+	} 
+	
+	public void showStartUpMenu(){
+		menu.showAllOptions();
+	}
 	
 }
