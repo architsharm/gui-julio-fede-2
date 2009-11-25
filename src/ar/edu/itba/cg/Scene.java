@@ -48,35 +48,37 @@ public class Scene {
 		Vector3f moveCenter = new Vector3f(0,0,0);
 		Vector3f moveRight = new Vector3f(  params.LANE_WIDTH + params.BALL_DIAMETER_EXTRA*2 + params.SEPARATION_WIDTH, 0,0);
 		Vector3f moveLeft = new Vector3f( -(params.LANE_WIDTH + params.BALL_DIAMETER_EXTRA*2 + params.SEPARATION_WIDTH),0,0);
+                Vector3f moveRightRight = moveRight.mult( 2 );
+                Vector3f moveLeftLeft = moveLeft.mult( 2 );
 		// Room
 		this.createRoom();
 		// Box
-		this.createBox( moveCenter );
-		this.createBox( moveRight );
-		this.createBox( moveLeft );
-		// Lane
-		this.createLane( moveCenter );
-		this.createLane( moveRight );
-		this.createLane( moveLeft );
-		// Approach
-		this.createApproach( moveCenter );
-		this.createApproach( moveRight );
-		this.createApproach( moveLeft );
-		// Gutters
-		this.createGutters( moveCenter );
-		this.createGutters( moveRight );
-		this.createGutters( moveLeft );
-		// Separation
-		this.createSeparation( moveCenter );
-		this.createSeparation( moveRight );
-		this.createSeparation( moveLeft );
+		this.createBowling( moveCenter );
+		this.createBowling( moveRight );
+		this.createBowling( moveLeft );
+		this.createBowling( moveRightRight );
+		this.createBowling( moveLeftLeft );
 		// Create bar
 		this.createBar();
 		// Lights
 		this.createIlumination();
 	}
 	
-	
+
+        private void createBowling( Vector3f move ) {
+            // Box
+            this.createBox( move );
+            // Lane
+            this.createLane( move );
+            // Approach
+            this.createApproach( move );
+            // Gutters
+            this.createGutters( move );
+            // Separation
+            this.createSeparation( move );
+        }
+
+
 	public void createRoom() {
 		Node room = new Node("room");
 		// Top and bottom

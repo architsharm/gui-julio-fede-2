@@ -38,7 +38,7 @@ public class SceneParameters {
 	// Behind the foul line is an "approach" used to gain speed
 	public float APPROACH_LENGTH = 5.00F;
 	// Room Parameters
-	public float ROOM_WIDTH = 8.00F;
+	public float ROOM_WIDTH = 12.00F;
 	public float ROOM_HEIGHT = 3.00F;
 	// Final box
 	public float BOX_LENGTH = 1.00F;
