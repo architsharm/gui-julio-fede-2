@@ -189,7 +189,7 @@ public class Bowling extends SimplePhysicsGame {
 				String name2 = c.getNode2().getName();
 				if( name1 == null || name2 == null ) {
 					return false;
-				}
+				}		
 				if( name1.startsWith( "pin" ) && name2.startsWith( "pin" ) ) {
 					// TODO: Set a sound!
 				}else if( name1.startsWith( "pin" ) && name2.startsWith( "ball" ) ) {

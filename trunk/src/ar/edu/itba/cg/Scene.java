@@ -1,5 +1,12 @@
 package ar.edu.itba.cg;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+
+import ar.edu.itba.cg.utils.ColladaModelLoader;
+
 import com.jme.bounding.BoundingBox;
 import com.jme.light.PointLight;
 import com.jme.math.Quaternion;
@@ -7,9 +14,15 @@ import com.jme.math.Vector3f;
 import com.jme.renderer.ColorRGBA;
 import com.jme.renderer.Renderer;
 import com.jme.scene.Node;
+import com.jme.scene.SharedMesh;
+import com.jme.scene.SharedNode;
+import com.jme.scene.Spatial;
 import com.jme.scene.shape.Box;
 import com.jme.scene.shape.Quad;
 import com.jme.scene.state.LightState;
+import com.jme.util.resource.ResourceLocatorTool;
+import com.jme.util.resource.SimpleResourceLocator;
+import com.jmex.physics.PhysicsNode;
 import com.jmex.physics.PhysicsSpace;
 import com.jmex.physics.StaticPhysicsNode;
 import com.jmex.physics.material.Material;
@@ -57,6 +70,8 @@ public class Scene {
 		this.createSeparation( moveCenter );
 		this.createSeparation( moveRight );
 		this.createSeparation( moveLeft );
+		// Create bar
+		this.createBar();
 		// Lights
 		this.createIlumination();
 	}
@@ -168,6 +183,8 @@ public class Scene {
 		boxTop.setLocalTranslation(  move.x + 0, move.y + params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT, move.z - params.LANE_LENGTH );
 		boxTop.generatePhysicsGeometry();
 		// Left and right
+		
+		
 		Quad boxLeftVisual =  new Quad("box_left",  params.BOX_LENGTH + params.BOXMACHINE_LENGTH, params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT);
 		Quad boxRightVisual = new Quad("box_right", params.BOX_LENGTH + params.BOXMACHINE_LENGTH, params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT);
 		boxLeftVisual.setModelBound( new BoundingBox() ); 
@@ -225,7 +242,7 @@ public class Scene {
 		Utils.setTexture( approachVisual, "resources/textures/wood.jpg", renderer );
 		StaticPhysicsNode approach = physicsSpace.createStaticNode();
 		approach.setName( "approach" );
-		approach.setMaterial( Material.ICE );
+		approach.setMaterial( Material.WOOD );
 		approach.attachChild( approachVisual );
 		approach.setLocalTranslation( move.x + 0, move.y + params.BALL_RADIUS_EXTRA / 2, move.z + params.APPROACH_LENGTH/2 );
 		approach.generatePhysicsGeometry();
@@ -297,7 +314,7 @@ public class Scene {
 	
 	
 	public void createSeparation( Vector3f move ) {
-		Box separationVisual = new Box( "separation", new Vector3f(0,0,0), params.SEPARATION_WIDTH/2, params.SEPARATION_HEIGHT/2, params.LANE_LENGTH/2 );
+		Box separationVisual = new Box( "separation", new Vector3f(0,0,0), params.SEPARATION_WIDTH/4, params.SEPARATION_HEIGHT/2, params.LANE_LENGTH/2 );
 		separationVisual.setModelBound( new BoundingBox() ); 
 		separationVisual.updateModelBound();
 		Utils.setColor( separationVisual, ColorRGBA.black, params.NO_SHININESS, params.NO_COLOR, renderer );
@@ -306,11 +323,11 @@ public class Scene {
 		separation.setName( "separation" );
 		separation.setMaterial( Material.IRON );
 		separation.attachChild( separationVisual );
-		separation.setLocalTranslation( move.x + (params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA + params.SEPARATION_WIDTH/2), move.y + params.SEPARATION_HEIGHT/2, move.z - params.LANE_LENGTH/2 );
+		separation.setLocalTranslation( move.x + (params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA + params.SEPARATION_WIDTH/4), move.y + params.SEPARATION_HEIGHT/2, move.z - params.LANE_LENGTH/2 );
 		separation.generatePhysicsGeometry();
 		rootNode.attachChild( separation );
 		
-		Box separationVisual_2 = new Box( "separation", new Vector3f(0,0,0), params.SEPARATION_WIDTH/2, params.SEPARATION_HEIGHT/2, params.LANE_LENGTH/2 );
+		Box separationVisual_2 = new Box( "separation", new Vector3f(0,0,0), params.SEPARATION_WIDTH/4, params.SEPARATION_HEIGHT/2, params.LANE_LENGTH/2 );
 		separationVisual_2.setModelBound( new BoundingBox() ); 
 		separationVisual_2.updateModelBound();
 		Utils.setColor( separationVisual_2, ColorRGBA.black, params.NO_SHININESS, params.NO_COLOR, renderer );
@@ -319,43 +336,83 @@ public class Scene {
 		separation_2.setName( "separation" );
 		separation_2.setMaterial( Material.IRON );
 		separation_2.attachChild( separationVisual_2 );
-		separation_2.setLocalTranslation( move.x - (params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA + params.SEPARATION_WIDTH/2), move.y + params.SEPARATION_HEIGHT/2, move.z - params.LANE_LENGTH/2 );
+		separation_2.setLocalTranslation( move.x - (params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA + params.SEPARATION_WIDTH/4), move.y + params.SEPARATION_HEIGHT/2, move.z - params.LANE_LENGTH/2 );
 		separation_2.generatePhysicsGeometry();
 		rootNode.attachChild( separation_2 );
 	}
 	
 	
+	public void createBar() {
+		try {
+			ResourceLocatorTool.addResourceLocator(ResourceLocatorTool.TYPE_TEXTURE, new SimpleResourceLocator( new URI("file:resources/scene/") ) );
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		ColladaModelLoader loader = new ColladaModelLoader();
+		Node barVisual = loader.getModel( "resources/scene/bar.dae" );
+		try {
+			ResourceLocatorTool.removeResourceLocator( ResourceLocatorTool.TYPE_TEXTURE, new SimpleResourceLocator( new URI("file:resources/scene/") ) );
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		childCreation( barVisual );
+//		Vector3f center = barVisual.getWorldBound().getCenter();
+//		barVisual.setLocalTranslation( new Vector3f().subtract(center) );
+//		barVisual.setModelBound( new BoundingBox() ); 
+//		barVisual.updateModelBound();
+		barVisual.setLocalScale( 0.01F );
+		barVisual.setLocalRotation( new Quaternion(new float[] {(float)-Math.PI/2,(float)Math.PI/2,0} ) );
+		barVisual.setLocalTranslation( new Vector3f(2,params.BALL_RADIUS_EXTRA,5) );
+		rootNode.attachChild( barVisual );
+	}
+	
+	
+	private void childCreation( Node node ) {
+		List<Spatial> attach = new ArrayList<Spatial>();
+		List<Spatial> childs = node.getChildren();
+		if( childs == null ) {
+			return;
+		}
+		for( Spatial child : childs ) {
+			if( child instanceof Node ) {
+				childCreation( (Node)child );
+			}else{
+				attach.add( child );
+			}
+		}
+		for( Spatial n : attach ) {
+			if( n instanceof SharedMesh ) {
+				node.detachChild( n );
+				Vector3f center = ((SharedMesh)n).getModelBound().getCenter().clone();
+				n.setLocalTranslation( new Vector3f().subtract( center )  );
+				n.setModelBound( new BoundingBox() ); 
+				n.updateModelBound();
+				PhysicsNode physics = physicsSpace.createStaticNode();
+				physics.setName( n.getName() );
+				physics.attachChild( n );
+				physics.setLocalTranslation( center );
+				physics.generatePhysicsGeometry();
+				node.attachChild( physics );
+			}
+		}
+	}
+	
+	
 	public void createIlumination() {
-		((PointLight)lightState.get(0)).setLocation(new Vector3f(0, params.ROOM_HEIGHT * 0.9F, 0));
-		lightState.setTwoSidedLighting(true);
+		//((PointLight)lightState.get(0)).setLocation(new Vector3f(0, params.ROOM_HEIGHT * 0.9F, 0));
+		//lightState.setTwoSidedLighting(true);
 		
-//		// Create a point light
-//		PointLight l=new PointLight();
-//		// Give it a location
-//		l.setLocation(new Vector3f(0,25,15));
-//		// Make it a red light
-//		l.setDiffuse(ColorRGBA.red);
-//		// Create a LightState to put my light in
-//		LightState ls=display.getRenderer().createLightState();
-//		// Attach the light
-//		ls.attach(l);
-//		lightState.detachAll();
+		lightState.detachAll();
+        PointLight pl = new PointLight();
+        pl.setAmbient(new ColorRGBA(0.5f,0.5f,0.5f,1));
+        pl.setDiffuse(new ColorRGBA(1,1,1,1));
+        pl.setLocation( new Vector3f(0, params.ROOM_HEIGHT * 0.9F, 0) );
+        pl.setEnabled(true);
+        lightState.attach(pl);
 		
-	} 
-
-// Clear Light state
-//        lightState.detachAll();
-//        lightState.setEnabled( true );
-//        lightState.setGlobalAmbient( ColorRGBA.white.clone() );
-        // Light
-//		PointLight light = new PointLight();
-//        light.setAmbient( ColorRGBA.white.clone() );
-//        light.setDiffuse( ColorRGBA.white.clone() );
-//        light.setSpecular( ColorRGBA.white.clone() );
-//        light.setAttenuate( true );
-//        light.setLocation( new Vector3f( 0, ROOM_HEIGHT * 0.9F, 0 ) );
-//        light.setEnabled( true );
-//        lightState.attach( light );
+	}
 	
 	
 }
