@@ -222,7 +222,7 @@ public class Dynamics {
 			pinsDown[i] = false;
 			pins[i].rest();
 			pins[i].clearDynamics();
-			pins[i].setLocalRotation(new Quaternion( new float[]{(float)Math.PI/2,0,0} ));
+			pins[i].setLocalRotation(new Quaternion( new float[]{(float)-Math.PI/2,0,0} ));
 			pins[i].setLocalScale(0.06f);
 			pins[i].setLocalTranslation( getPinPosition(i) );
 		}
@@ -234,7 +234,7 @@ public class Dynamics {
 			pins[i].rest();
 			pins[i].clearDynamics();
 			if( isPinDown(pins[i]) ) {
-				pins[i].setLocalRotation(new Quaternion( new float[]{(float)Math.PI/2,0,0} ));
+				pins[i].setLocalRotation(new Quaternion( new float[]{(float)-Math.PI/2,0,0} ));
 				pins[i].setLocalTranslation( new Vector3f(9999,9999,9999) );
 			}
 		}
@@ -256,7 +256,7 @@ public class Dynamics {
 		Double tippingCouple = Math.PI*7/36;
 		if( !this.outOfBounds(pin.getLocalTranslation().x,pin.getLocalTranslation().z) ) {
 			return true;
-		}else if( (Math.abs( pin.getLocalRotation().toAngles(null)[0] - Math.PI/2 ) > tippingCouple) || 
+		}else if( (Math.abs( pin.getLocalRotation().toAngles(null)[0] + Math.PI/2 ) > tippingCouple) || 
         	(Math.abs( pin.getLocalRotation().toAngles(null)[2] - 0 ) > tippingCouple) ) {
             return true;           
         }
