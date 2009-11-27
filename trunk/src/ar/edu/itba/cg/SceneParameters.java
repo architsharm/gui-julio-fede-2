@@ -60,7 +60,7 @@ public class SceneParameters {
 	public float LOW_SHININESS = 5.0f;
 	public float HIGH_SHININESS = 100.0f;
 	// Camera speed
-	public float CAMERA_MOVE_SPEED = 350;
+	public float CAMERA_MOVE_SPEED = 5;
 	public float CAMERA_TURN_SPEED = 1;
 	public float CAMERA_DISTANCE_MIN = 0.5F;
 	public float CAMERA_DISTANCE_MAX = 3;
