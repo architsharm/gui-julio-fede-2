@@ -19,7 +19,6 @@ import com.jme.scene.SharedMesh;
 import com.jme.scene.Spatial;
 import com.jme.scene.Spatial.CullHint;
 import com.jme.scene.shape.Box;
-import com.jme.scene.shape.Quad;
 import com.jme.scene.state.LightState;
 import com.jme.util.resource.ResourceLocatorTool;
 import com.jme.util.resource.SimpleResourceLocator;
@@ -74,6 +73,12 @@ public class Scene {
 		this.createBalls( ballsLeft );
 		this.createBalls( ballsRightRight );
 		this.createBalls( ballsLeftLeft );
+		// TV
+		this.createTV( moveCenter );
+		this.createTV( moveRight );
+		this.createTV( moveLeft );
+		this.createTV( moveRightRight );
+		this.createTV( moveLeftLeft );
 	}
 	
 
@@ -243,6 +248,29 @@ public class Scene {
 		balls.setLocalRotation( new Quaternion(new float[] {(float)-Math.PI/2,(float)-Math.PI/2,0} ) );
 		balls.setLocalTranslation( new Vector3f( move.x + 0, move.y + params.BALL_RADIUS_EXTRA, move.z + 0 ) );
 		rootNode.attachChild( balls );
+	}
+	
+	
+	public void createTV( Vector3f move ) {
+		try {
+			ResourceLocatorTool.addResourceLocator(ResourceLocatorTool.TYPE_TEXTURE, new SimpleResourceLocator( new URI("file:resources/scene/") ) );
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		ColladaModelLoader loader = new ColladaModelLoader();
+		Node tv = loader.getModel( "resources/scene/TV.dae" );
+		try {
+			ResourceLocatorTool.removeResourceLocator( ResourceLocatorTool.TYPE_TEXTURE, new SimpleResourceLocator( new URI("file:resources/scene/") ) );
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		childCreation( tv );
+		tv.setLocalScale( 0.015F );
+		tv.setLocalRotation( new Quaternion(new float[] {(float)-Math.PI/2,(float)-Math.PI/2,(float)-Math.PI/5} ) );
+		tv.setLocalTranslation( new Vector3f( move.x + 0, move.y + params.ROOM_HEIGHT - 0.3F, move.z + 0 ) );
+		rootNode.attachChild( tv );
 	}
 	
 	
