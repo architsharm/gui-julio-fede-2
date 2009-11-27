@@ -17,6 +17,7 @@ import com.jme.scene.Node;
 import com.jme.scene.SharedMesh;
 import com.jme.scene.SharedNode;
 import com.jme.scene.Spatial;
+import com.jme.scene.Spatial.CullHint;
 import com.jme.scene.shape.Box;
 import com.jme.scene.shape.Quad;
 import com.jme.scene.state.LightState;
@@ -187,8 +188,13 @@ public class Scene {
 		// Left and right
 		
 		
-		Quad boxLeftVisual =  new Quad("box_left",  params.BOX_LENGTH + params.BOXMACHINE_LENGTH, params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT);
-		Quad boxRightVisual = new Quad("box_right", params.BOX_LENGTH + params.BOXMACHINE_LENGTH, params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT);
+		//Quad boxLeftVisual =  new Quad("box_left",  params.BOX_LENGTH + params.BOXMACHINE_LENGTH, params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT);
+		//Quad boxRightVisual = new Quad("box_right", params.BOX_LENGTH + params.BOXMACHINE_LENGTH, params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT);
+		
+		Box boxLeftVisual =  new Box("box_left",  new Vector3f(), params.SEPARATION_WIDTH/4, (params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT)/2, (params.BOXMACHINE_LENGTH + params.BOX_LENGTH)/2 );
+		Box boxRightVisual = new Box("box_right", new Vector3f(), params.SEPARATION_WIDTH/4, (params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT)/2, (params.BOXMACHINE_LENGTH + params.BOX_LENGTH)/2 );
+		
+		
 		boxLeftVisual.setModelBound( new BoundingBox() ); 
 		boxLeftVisual.updateModelBound();
 		boxRightVisual.setModelBound( new BoundingBox() ); 
@@ -203,10 +209,10 @@ public class Scene {
 		boxRight.attachChild( boxRightVisual );
 		boxLeft.setMaterial( Material.CONCRETE );
 		boxRight.setMaterial( Material.CONCRETE );
-		boxLeft.setLocalRotation(  new Quaternion( new float[]{ 0, (float)Math.PI/2, 0 } ) );
-		boxRight.setLocalRotation( new Quaternion( new float[]{ 0, (float)Math.PI/2, 0 } ) );
-		boxLeft.setLocalTranslation(  move.x - (params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA), move.y + (params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT)/2, move.z - params.LANE_LENGTH );
-		boxRight.setLocalTranslation( move.x + (params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA), move.y + (params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT)/2, move.z - params.LANE_LENGTH );
+		//boxLeft.setLocalRotation(  new Quaternion( new float[]{ 0, (float)Math.PI/2, 0 } ) );
+		//boxRight.setLocalRotation( new Quaternion( new float[]{ 0, (float)Math.PI/2, 0 } ) );
+		boxLeft.setLocalTranslation(  move.x - (params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA + params.SEPARATION_WIDTH/4), move.y + (params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT)/2, move.z - params.LANE_LENGTH );
+		boxRight.setLocalTranslation( move.x + (params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA + params.SEPARATION_WIDTH/4), move.y + (params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT)/2, move.z - params.LANE_LENGTH );
 		boxRight.generatePhysicsGeometry();
 		boxLeft.generatePhysicsGeometry();
 		// Attach
@@ -360,13 +366,10 @@ public class Scene {
 			e.printStackTrace();
 		}
 		childCreation( barVisual );
-//		Vector3f center = barVisual.getWorldBound().getCenter();
-//		barVisual.setLocalTranslation( new Vector3f().subtract(center) );
-//		barVisual.setModelBound( new BoundingBox() ); 
-//		barVisual.updateModelBound();
 		barVisual.setLocalScale( 0.01F );
 		barVisual.setLocalRotation( new Quaternion(new float[] {(float)-Math.PI/2,(float)Math.PI/2,0} ) );
 		barVisual.setLocalTranslation( new Vector3f(2,params.BALL_RADIUS_EXTRA,5) );
+		barVisual.setCullHint( CullHint.Never );
 		rootNode.attachChild( barVisual );
 	}
 	
@@ -408,9 +411,11 @@ public class Scene {
 		
 		lightState.detachAll();
         PointLight pl = new PointLight();
-        pl.setAmbient(new ColorRGBA(0.5f,0.5f,0.5f,1));
+        pl.setAmbient(new ColorRGBA(0,0,0,1));
         pl.setDiffuse(new ColorRGBA(1,1,1,1));
-        pl.setLocation( new Vector3f(0, params.ROOM_HEIGHT * 0.9F, 0) );
+        pl.setLocation( new Vector3f(0, 1, 0) );
+        pl.setAttenuate(true);
+        pl.setShadowCaster(true);
         pl.setEnabled(true);
         lightState.attach(pl);
 		
