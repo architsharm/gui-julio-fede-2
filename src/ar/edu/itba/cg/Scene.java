@@ -16,7 +16,6 @@ import com.jme.renderer.ColorRGBA;
 import com.jme.renderer.Renderer;
 import com.jme.scene.Node;
 import com.jme.scene.SharedMesh;
-import com.jme.scene.SharedNode;
 import com.jme.scene.Spatial;
 import com.jme.scene.Spatial.CullHint;
 import com.jme.scene.shape.Box;
@@ -35,6 +34,7 @@ public class Scene {
 	private LightState lightState;
 	private Renderer renderer;
 	private SceneParameters params;
+	private float ROOM_WIDTH;
 	public StaticPhysicsNode lane;
 	
 	public Scene( Node rootNode, PhysicsSpace physicsSpace, LightState lightState, Renderer renderer, SceneParameters parameters ) {
@@ -50,8 +50,9 @@ public class Scene {
 		Vector3f moveCenter = new Vector3f(0,0,0);
 		Vector3f moveRight = new Vector3f(  params.LANE_WIDTH + params.BALL_DIAMETER_EXTRA*2 + params.SEPARATION_WIDTH, 0,0);
 		Vector3f moveLeft = new Vector3f( -(params.LANE_WIDTH + params.BALL_DIAMETER_EXTRA*2 + params.SEPARATION_WIDTH),0,0);
-                Vector3f moveRightRight = moveRight.mult( 2 );
-                Vector3f moveLeftLeft = moveLeft.mult( 2 );
+        Vector3f moveRightRight = moveRight.mult( 2 );
+        Vector3f moveLeftLeft = moveLeft.mult( 2 );
+        ROOM_WIDTH = params.LANE_WIDTH * 5 + params.SEPARATION_WIDTH * 5 + params.BALL_DIAMETER_EXTRA * 5 * 2;
 		// Room
 		this.createRoom();
 		// Box
@@ -67,195 +68,106 @@ public class Scene {
 	}
 	
 
-        private void createBowling( Vector3f move ) {
-            // Box
-            this.createBox( move );
-            // Lane
-            this.createLane( move );
-            // Approach
-            this.createApproach( move );
-            // Gutters
-            this.createGutters( move );
-            // Separation
-            this.createSeparation( move );
-        }
+	private void createBowling( Vector3f move ) {
+		// Box
+		this.createBox( move );
+		// Lane
+		this.createLane( move );
+		// Approach
+		this.createApproach( move );
+		// Gutters
+		this.createGutters( move );
+		// Separation
+		this.createSeparation( move );
+	}
 
 
-	public void createRoom() {
-		Node room = new Node("room");
-		// Top and bottom
-		Quad wallDownVisual = new Quad("wall_down", params.ROOM_WIDTH, params.ROOM_LENGTH );
-		Quad wallUpVisual =   new Quad("wall_up",   params.ROOM_WIDTH, params.ROOM_LENGTH );
-		wallDownVisual.setModelBound( new BoundingBox() ); 
-		wallDownVisual.updateModelBound();
-		wallUpVisual.setModelBound( new BoundingBox() ); 
-		wallUpVisual.updateModelBound();
-		Utils.setColor( wallDownVisual, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
-		Utils.setColor( wallUpVisual,   ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
-		Utils.setTexture( wallDownVisual, "resources/textures/wall.jpg", renderer );
-		Utils.setTexture( wallUpVisual, "resources/textures/wall.jpg", renderer );
-		StaticPhysicsNode wallDown = physicsSpace.createStaticNode();
-		StaticPhysicsNode wallUp = physicsSpace.createStaticNode();
-		wallDown.setName( "wall_down" );
-		wallUp.setName( "wall_up" );
-		wallDown.attachChild( wallDownVisual );
-		wallUp.attachChild( wallUpVisual );
-		wallDown.setMaterial( Material.CONCRETE );
+	public void createRoom() {		
+		// Top
+		StaticPhysicsNode wallUp = createBox( "wall_up" );
+		Utils.setColor( wallUp, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
+		Utils.setTexture( wallUp, "resources/textures/wall.jpg", renderer );
+		wallUp.getLocalScale().set( ROOM_WIDTH, params.WALL_THICK, params.ROOM_LENGTH );
+		wallUp.getLocalTranslation().set( params.ROOM_CENTER_X, params.ROOM_HEIGHT, params.ROOM_CENTER_Z );
 		wallUp.setMaterial( Material.CONCRETE );
-		wallDown.setLocalRotation( new Quaternion( new float[]{ (float)Math.PI/2, 0, 0 } ) );
-		wallUp.setLocalRotation(   new Quaternion( new float[]{ (float)Math.PI/2, 0, 0 } ) );
-		wallDown.setLocalTranslation( 0, 0, params.ROOM_CENTER_Z );
-		wallUp.setLocalTranslation(   0, params.ROOM_HEIGHT, params.ROOM_CENTER_Z );
-		wallDown.generatePhysicsGeometry();
-		wallUp.generatePhysicsGeometry();
-		// Left and right
-		Quad wallLeftVisual =  new Quad("wall_left",  params.ROOM_LENGTH, params.ROOM_HEIGHT);
-		Quad wallRightVisual = new Quad("wall_right", params.ROOM_LENGTH, params.ROOM_HEIGHT);
-		wallLeftVisual.setModelBound( new BoundingBox() ); 
-		wallLeftVisual.updateModelBound();
-		wallRightVisual.setModelBound( new BoundingBox() ); 
-		wallRightVisual.updateModelBound();
-		Utils.setColor( wallLeftVisual,  ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
-		Utils.setColor( wallRightVisual, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
-		Utils.setTexture( wallLeftVisual, "resources/textures/wall.jpg", renderer );
-		Utils.setTexture( wallRightVisual, "resources/textures/wall.jpg", renderer );
-		StaticPhysicsNode wallLeft = physicsSpace.createStaticNode();
-		StaticPhysicsNode wallRight = physicsSpace.createStaticNode();
-		wallLeft.setName( "wall_left" );
-		wallRight.setName( "wall_right" );
-		wallLeft.attachChild( wallLeftVisual );
-		wallRight.attachChild( wallRightVisual );
+		// Bottom
+		StaticPhysicsNode wallDown = createBox( "wall_down" );
+		Utils.setColor( wallDown, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
+		Utils.setTexture( wallDown, "resources/textures/wall.jpg", renderer );
+		wallDown.getLocalScale().set( ROOM_WIDTH, params.WALL_THICK, params.ROOM_LENGTH );
+		wallDown.getLocalTranslation().set( params.ROOM_CENTER_X, 0, params.ROOM_CENTER_Z );
+		wallDown.setMaterial( Material.CONCRETE );
+		// Left
+		StaticPhysicsNode wallLeft = createBox( "wall_left" );
+		Utils.setColor( wallLeft, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
+		Utils.setTexture( wallLeft, "resources/textures/wall.jpg", renderer );
+		wallLeft.getLocalScale().set( params.WALL_THICK, params.ROOM_HEIGHT, params.ROOM_LENGTH );
+		wallLeft.getLocalTranslation().set( -ROOM_WIDTH/2, params.ROOM_CENTER_Y, params.ROOM_CENTER_Z );
 		wallLeft.setMaterial( Material.CONCRETE );
+		// Right
+		StaticPhysicsNode wallRight = createBox( "wall_right" );
+		Utils.setColor( wallRight, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
+		Utils.setTexture( wallRight, "resources/textures/wall.jpg", renderer );
+		wallRight.getLocalScale().set( params.WALL_THICK, params.ROOM_HEIGHT, params.ROOM_LENGTH );
+		wallRight.getLocalTranslation().set( ROOM_WIDTH/2, params.ROOM_CENTER_Y, params.ROOM_CENTER_Z );
 		wallRight.setMaterial( Material.CONCRETE );
-		wallLeft.setLocalRotation(  new Quaternion( new float[]{ 0, (float)Math.PI/2, 0 } ) );
-		wallRight.setLocalRotation( new Quaternion( new float[]{ 0, (float)Math.PI/2, 0 } ) );
-		wallLeft.setLocalTranslation(  -params.ROOM_WIDTH / 2, params.ROOM_CENTER_Y, params.ROOM_CENTER_Z );
-		wallRight.setLocalTranslation(  params.ROOM_WIDTH / 2, params.ROOM_CENTER_Y, params.ROOM_CENTER_Z );
-		wallRight.generatePhysicsGeometry();
-		wallLeft.generatePhysicsGeometry();
 		// Back
-		Quad wallBackVisual =  new Quad("wall_back", params.ROOM_HEIGHT, params.ROOM_WIDTH);
-		wallBackVisual.setModelBound( new BoundingBox() ); 
-		wallBackVisual.updateModelBound();
-		Utils.setColor( wallBackVisual, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
-		Utils.setTexture( wallBackVisual, "resources/textures/wall.jpg", renderer );
-		StaticPhysicsNode wallBack = physicsSpace.createStaticNode();
-		wallBack.setName( "wall_back" );
-		wallBack.attachChild( wallBackVisual );
+		StaticPhysicsNode wallBack = createBox( "wall_back" );
+		Utils.setColor( wallBack, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
+		Utils.setTexture( wallBack, "resources/textures/wall.jpg", renderer );
+		wallBack.getLocalScale().set( ROOM_WIDTH, params.ROOM_HEIGHT, params.WALL_THICK );
+		wallBack.getLocalTranslation().set( params.ROOM_CENTER_X, params.ROOM_CENTER_Y, params.APPROACH_LENGTH );
 		wallBack.setMaterial( Material.CONCRETE );
-		wallBack.setLocalRotation(  new Quaternion( new float[]{ 0, 0, (float)Math.PI/2 } ) );
-		wallBack.setLocalTranslation(  0, params.ROOM_CENTER_Y, params.APPROACH_LENGTH );
-		wallBack.generatePhysicsGeometry();
 		// Front
-		Quad wallFrontVisual =  new Quad("wall_front", params.ROOM_HEIGHT, params.ROOM_WIDTH);
-		wallFrontVisual.setModelBound( new BoundingBox() ); 
-		wallFrontVisual.updateModelBound();
-		Utils.setColor( wallFrontVisual, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
-		Utils.setTexture( wallFrontVisual, "resources/textures/wall.jpg", renderer );
-		StaticPhysicsNode wallFront = physicsSpace.createStaticNode();
-		wallFront.setName( "wall_front" );
-		wallFront.attachChild( wallFrontVisual );
+		StaticPhysicsNode wallFront = createBox( "wall_front" );
+		Utils.setColor( wallFront, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
+		Utils.setTexture( wallFront, "resources/textures/wall.jpg", renderer );
+		wallFront.getLocalScale().set( ROOM_WIDTH, params.ROOM_HEIGHT, params.WALL_THICK );
+		wallFront.getLocalTranslation().set( params.ROOM_CENTER_X, params.ROOM_CENTER_Y, -(params.LANE_LENGTH + params.BOX_LENGTH) );
 		wallFront.setMaterial( Material.CONCRETE );
-		wallFront.setLocalRotation(  new Quaternion( new float[]{ 0, 0, (float)Math.PI/2 } ) );
-		wallFront.setLocalTranslation(  0, params.ROOM_CENTER_Y, -(params.LANE_LENGTH + params.BOX_LENGTH) );
-		wallFront.generatePhysicsGeometry();
-		// Attach
-		room.attachChild( wallDown );
-		room.attachChild( wallUp );
-		room.attachChild( wallLeft );
-		room.attachChild( wallRight );
-		room.attachChild( wallBack );
-		room.attachChild( wallFront );
-		room.setModelBound( new BoundingBox() ); 
-		room.updateModelBound();
-		rootNode.attachChild( room );	
 	}
 	
 	
 	public void createBox( Vector3f move ) {
-		Node box = new Node("box");
 		// Top
-		Quad boxTopVisual = new Quad("box_top", params.LANE_WIDTH + params.BALL_DIAMETER_EXTRA * 2, params.BOX_LENGTH + params.BOXMACHINE_LENGTH );
-		boxTopVisual.setModelBound( new BoundingBox() ); 
-		boxTopVisual.updateModelBound();
-		Utils.setColor( boxTopVisual, ColorRGBA.darkGray, params.NO_SHININESS, params.NO_COLOR, renderer );
-		StaticPhysicsNode boxTop = physicsSpace.createStaticNode();
-		boxTop.setName( "box_top" );
-		boxTop.attachChild( boxTopVisual );
+		StaticPhysicsNode boxTop = createBox( "box_top" );
+		Utils.setColor( boxTop, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
+		Utils.setTexture( boxTop, "resources/textures/ITBA.jpg", renderer );
+		boxTop.getLocalScale().set( params.LANE_WIDTH + params.BALL_DIAMETER_EXTRA*2 + params.SEPARATION_WIDTH, params.BOX_TOP_HEIGHT, params.BOX_LENGTH + params.BOXMACHINE_LENGTH );
+		boxTop.getLocalTranslation().set( move.x + params.ROOM_CENTER_X, move.y + params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT + (params.BOX_TOP_HEIGHT)/2, move.z - params.LANE_LENGTH );
 		boxTop.setMaterial( Material.CONCRETE );
-		boxTop.setLocalRotation(  new Quaternion( new float[]{ (float)Math.PI/2, 0, 0 } ) );
-		boxTop.setLocalTranslation(  move.x + 0, move.y + params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT, move.z - params.LANE_LENGTH );
-		boxTop.generatePhysicsGeometry();
-		// Left and right
-		
-		
-		//Quad boxLeftVisual =  new Quad("box_left",  params.BOX_LENGTH + params.BOXMACHINE_LENGTH, params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT);
-		//Quad boxRightVisual = new Quad("box_right", params.BOX_LENGTH + params.BOXMACHINE_LENGTH, params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT);
-		
-		Box boxLeftVisual =  new Box("box_left",  new Vector3f(), params.SEPARATION_WIDTH/4, (params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT)/2, (params.BOXMACHINE_LENGTH + params.BOX_LENGTH)/2 );
-		Box boxRightVisual = new Box("box_right", new Vector3f(), params.SEPARATION_WIDTH/4, (params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT)/2, (params.BOXMACHINE_LENGTH + params.BOX_LENGTH)/2 );
-		
-		
-		boxLeftVisual.setModelBound( new BoundingBox() ); 
-		boxLeftVisual.updateModelBound();
-		boxRightVisual.setModelBound( new BoundingBox() ); 
-		boxRightVisual.updateModelBound();
-		Utils.setColor( boxLeftVisual,  ColorRGBA.darkGray, params.NO_SHININESS, params.NO_COLOR, renderer );
-		Utils.setColor( boxRightVisual, ColorRGBA.darkGray, params.NO_SHININESS, params.NO_COLOR, renderer );
-		StaticPhysicsNode boxLeft = physicsSpace.createStaticNode();
-		StaticPhysicsNode boxRight = physicsSpace.createStaticNode();
-		boxLeft.setName( "box_left" );
-		boxRight.setName( "box_right" );
-		boxLeft.attachChild( boxLeftVisual );
-		boxRight.attachChild( boxRightVisual );
+		// Left
+		StaticPhysicsNode boxLeft = createBox( "box_left" );
+		Utils.setColor( boxLeft,  ColorRGBA.darkGray, params.NO_SHININESS, params.NO_COLOR, renderer );
+		boxLeft.getLocalScale().set( params.SEPARATION_WIDTH/2, params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT, params.BOXMACHINE_LENGTH + params.BOX_LENGTH );
+		boxLeft.getLocalTranslation().set( move.x - (params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA + params.SEPARATION_WIDTH/4), move.y + (params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT)/2, move.z - params.LANE_LENGTH );
 		boxLeft.setMaterial( Material.CONCRETE );
+		// Right
+		StaticPhysicsNode boxRight = createBox( "box_right" );
+		Utils.setColor( boxRight,  ColorRGBA.darkGray, params.NO_SHININESS, params.NO_COLOR, renderer );
+		boxRight.getLocalScale().set( params.SEPARATION_WIDTH/2, params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT, params.BOXMACHINE_LENGTH + params.BOX_LENGTH );
+		boxRight.getLocalTranslation().set( move.x + (params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA + params.SEPARATION_WIDTH/4), move.y + (params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT)/2, move.z - params.LANE_LENGTH );
 		boxRight.setMaterial( Material.CONCRETE );
-		//boxLeft.setLocalRotation(  new Quaternion( new float[]{ 0, (float)Math.PI/2, 0 } ) );
-		//boxRight.setLocalRotation( new Quaternion( new float[]{ 0, (float)Math.PI/2, 0 } ) );
-		boxLeft.setLocalTranslation(  move.x - (params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA + params.SEPARATION_WIDTH/4), move.y + (params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT)/2, move.z - params.LANE_LENGTH );
-		boxRight.setLocalTranslation( move.x + (params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA + params.SEPARATION_WIDTH/4), move.y + (params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT)/2, move.z - params.LANE_LENGTH );
-		boxRight.generatePhysicsGeometry();
-		boxLeft.generatePhysicsGeometry();
-		// Attach
-		box.attachChild( boxTop );
-		box.attachChild( boxLeft );
-		box.attachChild( boxRight );
-		box.setModelBound( new BoundingBox() ); 
-		box.updateModelBound();
-		rootNode.attachChild( box );	
 	}
 	
 	
 	public void createLane( Vector3f move ) {
-		Box laneVisual = new Box( "lane", new Vector3f(0,0,0), params.LANE_WIDTH/2, params.BALL_RADIUS_EXTRA/2, params.LANE_LENGTH/2 );
-		laneVisual.setModelBound( new BoundingBox() ); 
-		laneVisual.updateModelBound();
-		Utils.setColor( laneVisual, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
-		Utils.setTexture( laneVisual, "resources/textures/wood.jpg", renderer );
-		StaticPhysicsNode lane = physicsSpace.createStaticNode();
-		lane.setName( "lane" );
+		lane = createBox( "lane" );
+		Utils.setColor( lane, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
+		Utils.setTexture( lane, "resources/textures/wood.jpg", renderer );
+		lane.getLocalScale().set( params.LANE_WIDTH, params.BALL_RADIUS_EXTRA, params.LANE_LENGTH );
+		lane.getLocalTranslation().set( move.x + params.ROOM_CENTER_X, move.y + params.BALL_RADIUS_EXTRA/2, move.z - params.LANE_LENGTH/2 );
 		lane.setMaterial( Material.WOOD );
-		lane.attachChild( laneVisual );
-		lane.setLocalTranslation( move.x + 0, move.y + params.BALL_RADIUS_EXTRA/2, move.z - params.LANE_LENGTH/2 );
-		lane.generatePhysicsGeometry();
-		this.lane = lane;
-		rootNode.attachChild( lane );
 	}
 	
 	
 	public void createApproach( Vector3f move ) {
-		Box approachVisual = new Box( "approach", new Vector3f(0,0,0), params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA + params.SEPARATION_WIDTH/2, params.BALL_RADIUS_EXTRA / 2, params.APPROACH_LENGTH / 2 );
-		approachVisual.setModelBound( new BoundingBox() ); 
-		approachVisual.updateModelBound();
-		Utils.setColor( approachVisual, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
-		Utils.setTexture( approachVisual, "resources/textures/wood.jpg", renderer );
-		StaticPhysicsNode approach = physicsSpace.createStaticNode();
-		approach.setName( "approach" );
+		StaticPhysicsNode approach = createBox( "approach" );
+		Utils.setColor( approach, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
+		Utils.setTexture( approach, "resources/textures/wood.jpg", renderer );
+		approach.getLocalScale().set( params.APPROACH_WIDTH, params.BALL_RADIUS_EXTRA, params.APPROACH_LENGTH );
+		approach.getLocalTranslation().set( move.x + params.ROOM_CENTER_X, move.y + params.BALL_RADIUS_EXTRA/2, move.z + params.APPROACH_LENGTH/2 );
 		approach.setMaterial( Material.WOOD );
-		approach.attachChild( approachVisual );
-		approach.setLocalTranslation( move.x + 0, move.y + params.BALL_RADIUS_EXTRA / 2, move.z + params.APPROACH_LENGTH/2 );
-		approach.generatePhysicsGeometry();
-		rootNode.attachChild( approach );
 	}
 	
 	
@@ -323,31 +235,20 @@ public class Scene {
 	
 	
 	public void createSeparation( Vector3f move ) {
-		Box separationVisual = new Box( "separation", new Vector3f(0,0,0), params.SEPARATION_WIDTH/4, params.SEPARATION_HEIGHT/2, params.LANE_LENGTH/2 );
-		separationVisual.setModelBound( new BoundingBox() ); 
-		separationVisual.updateModelBound();
-		Utils.setColor( separationVisual, ColorRGBA.black, params.NO_SHININESS, params.NO_COLOR, renderer );
-		// Utils.setTexture( approachVisual, "resources/textures/wood.jpg", renderer );
-		StaticPhysicsNode separation = physicsSpace.createStaticNode();
-		separation.setName( "separation" );
-		separation.setMaterial( Material.IRON );
-		separation.attachChild( separationVisual );
-		separation.setLocalTranslation( move.x + (params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA + params.SEPARATION_WIDTH/4), move.y + params.SEPARATION_HEIGHT/2, move.z - params.LANE_LENGTH/2 );
-		separation.generatePhysicsGeometry();
-		rootNode.attachChild( separation );
-		
-		Box separationVisual_2 = new Box( "separation", new Vector3f(0,0,0), params.SEPARATION_WIDTH/4, params.SEPARATION_HEIGHT/2, params.LANE_LENGTH/2 );
-		separationVisual_2.setModelBound( new BoundingBox() ); 
-		separationVisual_2.updateModelBound();
-		Utils.setColor( separationVisual_2, ColorRGBA.black, params.NO_SHININESS, params.NO_COLOR, renderer );
-		// Utils.setTexture( approachVisual, "resources/textures/wood.jpg", renderer );
-		StaticPhysicsNode separation_2 = physicsSpace.createStaticNode();
-		separation_2.setName( "separation" );
-		separation_2.setMaterial( Material.IRON );
-		separation_2.attachChild( separationVisual_2 );
-		separation_2.setLocalTranslation( move.x - (params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA + params.SEPARATION_WIDTH/4), move.y + params.SEPARATION_HEIGHT/2, move.z - params.LANE_LENGTH/2 );
-		separation_2.generatePhysicsGeometry();
-		rootNode.attachChild( separation_2 );
+		// Left
+		StaticPhysicsNode left = createBox( "separation" );
+		Utils.setColor( left, ColorRGBA.white, params.LOW_SHININESS, ColorRGBA.white, renderer );
+		Utils.setTexture( left, "resources/textures/metal.jpg", renderer );
+		left.getLocalScale().set( params.SEPARATION_WIDTH/2, params.SEPARATION_HEIGHT, params.LANE_LENGTH);
+		left.getLocalTranslation().set( move.x - (params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA + params.SEPARATION_WIDTH/4), move.y + params.SEPARATION_HEIGHT/2, move.z - params.LANE_LENGTH/2 );
+		left.setMaterial( Material.IRON );
+		// Right
+		StaticPhysicsNode right = createBox( "separation" );
+		Utils.setColor( right, ColorRGBA.white, params.LOW_SHININESS, ColorRGBA.white, renderer );
+		Utils.setTexture( right, "resources/textures/metal.jpg", renderer );
+		right.getLocalScale().set( params.SEPARATION_WIDTH/2, params.SEPARATION_HEIGHT, params.LANE_LENGTH);
+		right.getLocalTranslation().set( move.x + (params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA + params.SEPARATION_WIDTH/4), move.y + params.SEPARATION_HEIGHT/2, move.z - params.LANE_LENGTH/2 );
+		right.setMaterial( Material.IRON );
 	}
 	
 	
@@ -407,22 +308,32 @@ public class Scene {
 	
 	
 	public void createIlumination() {
-		//((PointLight)lightState.get(0)).setLocation(new Vector3f(0, params.ROOM_HEIGHT * 0.9F, 0));
-		//lightState.setTwoSidedLighting(true);
+		((PointLight)lightState.get(0)).setLocation(new Vector3f(0, params.ROOM_HEIGHT * 0.9F, 0));
+		lightState.setTwoSidedLighting(true);
 		
-		lightState.detachAll();
-		for (float i = 0; i <= params.LANE_LENGTH; i+=params.LANE_LENGTH/4) {
-			SpotLight pl = new SpotLight();
-			pl.setDirection(new Vector3f(0,-1,0));
-			pl.setAngle(45);
-	        pl.setAmbient(new ColorRGBA(1,1,1,1));
-	        pl.setDiffuse(new ColorRGBA(1f,0,0,1));
-	        pl.setLocation( new Vector3f(0, params.ROOM_HEIGHT * 0.9F, -i) );
-	        pl.setShadowCaster(true);
-	        pl.setEnabled(true);
-	        lightState.attach(pl);
-		}
+//		lightState.detachAll();
+//		for (float i = 0; i <= params.LANE_LENGTH; i+=params.LANE_LENGTH/4) {
+//			SpotLight pl = new SpotLight();
+//			pl.setDirection(new Vector3f(0,-1,0));
+//			pl.setAngle(45);
+//	        pl.setAmbient(new ColorRGBA(1,1,1,1));
+//	        pl.setDiffuse(new ColorRGBA(1f,0,0,1));
+//	        pl.setLocation( new Vector3f(0, params.ROOM_HEIGHT * 0.9F, -i) );
+//	        pl.setShadowCaster(true);
+//	        pl.setEnabled(true);
+//	        lightState.attach(pl);
+//		}
 	}
+	
+	
+	private StaticPhysicsNode createBox( String name ) {
+        StaticPhysicsNode staticNode = physicsSpace.createStaticNode();
+        rootNode.attachChild( staticNode );
+        final Box visualBox = new Box( name, new Vector3f(), 0.5f, 0.5f, 0.5f );
+        staticNode.attachChild( visualBox );
+        staticNode.generatePhysicsGeometry();
+        return staticNode;
+    }
 	
 	
 }

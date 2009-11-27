@@ -17,15 +17,16 @@ public class SceneParameters {
 	public float PIN_HEIGHT = 0.40F;
 	public float PIN_RADIUS = 0.65F;
 	public float PIN_WEIGHT = 1.750F;
-	public int 	AXIS_SAMPLES = 4;		// The definition of the pin
-	public int 	RADIAL_SAMPLES = 10;	// The definition of the pin
+	public int 	 AXIS_SAMPLES = 4;		// The definition of the pin
+	public int 	 RADIAL_SAMPLES = 10;	// The definition of the pin
 	// Ball Parameters
 	public float BALL_RADIUS = 0.150F;
 	public float BALL_WEIGHT = 2.800F;
-	public int 	BALL_SAMPLES = 20;		// The definition of the ball
+	public int 	 BALL_SAMPLES = 20;		// The definition of the ball
 	// Gutter Parameters
 	public float GUTTER_EXTRA = 1.20F;// How much bigger or smaller than the ball (1 is the same)
-	public int 	GUTTER_SAMPLES = 25;	// The definition of the gutters
+	public int 	 GUTTER_SAMPLES = 25;	// The definition of the gutters
+	public float GUTTER_THICK = 0.01F;
 	// Lane Parameters
 	// The middle of the foul line is at 0, BALL_RADIUS, 0
 	// Ten Pin Bowling: http://en.wikipedia.org/wiki/Tenpin
@@ -38,11 +39,13 @@ public class SceneParameters {
 	// Behind the foul line is an "approach" used to gain speed
 	public float APPROACH_LENGTH = 5.00F;
 	// Room Parameters
-	public float ROOM_WIDTH = 12.00F;
 	public float ROOM_HEIGHT = 3.00F;
+	// The wall thickness
+	public float WALL_THICK = 0.01F;
 	// Final box
 	public float BOX_LENGTH = 1.00F;
 	public float BOX_HEIGHT = 1.00F;
+	public float BOX_TOP_HEIGHT = 1.00F;
 	public float BOXMACHINE_LENGTH = 2.10F;
 	//Pin Positions
 	//Distance between to pins (12 inches)
@@ -109,7 +112,7 @@ public class SceneParameters {
    		BALL_RADIUS_EXTRA = BALL_RADIUS * GUTTER_EXTRA;
    		BALL_DIAMETER = BALL_RADIUS * 2;
    		BALL_DIAMETER_EXTRA = BALL_RADIUS_EXTRA * 2;
-   		APPROACH_WIDTH = LANE_WIDTH + BALL_DIAMETER_EXTRA;
+   		APPROACH_WIDTH = LANE_WIDTH + BALL_DIAMETER_EXTRA * 2 + SEPARATION_WIDTH;
    		ROOM_LENGTH = LANE_LENGTH + APPROACH_LENGTH + BOX_LENGTH;
    		ROOM_CENTER_X = 0;
    		ROOM_CENTER_Y = ROOM_HEIGHT / 2;
