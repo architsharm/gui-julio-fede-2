@@ -53,6 +53,7 @@ public class Dynamics {
 		Sphere ballVisual = new Sphere("ball", new Vector3f(0, 0, 0), params.BALL_SAMPLES, params.BALL_SAMPLES, params.BALL_RADIUS );
 		ballVisual.setModelBound( new BoundingSphere() ); 
 		ballVisual.updateModelBound();
+		ballVisual.setCastsShadows(true);
 		Utils.setColor( ballVisual, ColorRGBA.green, params.HIGH_SHININESS, ColorRGBA.white, renderer );
 		Utils.setTexture( ballVisual, "resources/textures/marble.jpg", renderer );
 		ball = physicsSpace.createDynamicNode();
