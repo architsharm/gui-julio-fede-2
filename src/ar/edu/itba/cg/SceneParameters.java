@@ -39,12 +39,12 @@ public class SceneParameters {
 	// Behind the foul line is an "approach" used to gain speed
 	public float APPROACH_LENGTH = 5.00F;
 	// Room Parameters
-	public float ROOM_HEIGHT = 3.00F;
+	public float ROOM_HEIGHT = 2.50F;
 	// The wall thickness
 	public float WALL_THICK = 0.01F;
 	// Final box
 	public float BOX_LENGTH = 1.00F;
-	public float BOX_HEIGHT = 1.00F;
+	public float BOX_HEIGHT = 0.50F;
 	public float BOX_TOP_HEIGHT = 1.00F;
 	public float BOXMACHINE_LENGTH = 2.10F;
 	//Pin Positions
