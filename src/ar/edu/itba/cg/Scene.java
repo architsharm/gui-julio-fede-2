@@ -84,42 +84,42 @@ public class Scene {
 
 	public void createRoom() {		
 		// Top
-		StaticPhysicsNode wallUp = createBox( "wall_up" );
+		StaticPhysicsNode wallUp = createStaticVisualBox( "wall_up" );
 		Utils.setColor( wallUp, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
 		Utils.setTexture( wallUp, "resources/textures/wall.jpg", renderer );
 		wallUp.getLocalScale().set( ROOM_WIDTH, params.WALL_THICK, params.ROOM_LENGTH );
 		wallUp.getLocalTranslation().set( params.ROOM_CENTER_X, params.ROOM_HEIGHT, params.ROOM_CENTER_Z );
 		wallUp.setMaterial( Material.CONCRETE );
 		// Bottom
-		StaticPhysicsNode wallDown = createBox( "wall_down" );
+		StaticPhysicsNode wallDown = createStaticVisualBox( "wall_down" );
 		Utils.setColor( wallDown, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
 		Utils.setTexture( wallDown, "resources/textures/wall.jpg", renderer );
 		wallDown.getLocalScale().set( ROOM_WIDTH, params.WALL_THICK, params.ROOM_LENGTH );
 		wallDown.getLocalTranslation().set( params.ROOM_CENTER_X, 0, params.ROOM_CENTER_Z );
 		wallDown.setMaterial( Material.CONCRETE );
 		// Left
-		StaticPhysicsNode wallLeft = createBox( "wall_left" );
+		StaticPhysicsNode wallLeft = createStaticVisualBox( "wall_left" );
 		Utils.setColor( wallLeft, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
 		Utils.setTexture( wallLeft, "resources/textures/wall.jpg", renderer );
 		wallLeft.getLocalScale().set( params.WALL_THICK, params.ROOM_HEIGHT, params.ROOM_LENGTH );
 		wallLeft.getLocalTranslation().set( -ROOM_WIDTH/2, params.ROOM_CENTER_Y, params.ROOM_CENTER_Z );
 		wallLeft.setMaterial( Material.CONCRETE );
 		// Right
-		StaticPhysicsNode wallRight = createBox( "wall_right" );
+		StaticPhysicsNode wallRight = createStaticVisualBox( "wall_right" );
 		Utils.setColor( wallRight, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
 		Utils.setTexture( wallRight, "resources/textures/wall.jpg", renderer );
 		wallRight.getLocalScale().set( params.WALL_THICK, params.ROOM_HEIGHT, params.ROOM_LENGTH );
 		wallRight.getLocalTranslation().set( ROOM_WIDTH/2, params.ROOM_CENTER_Y, params.ROOM_CENTER_Z );
 		wallRight.setMaterial( Material.CONCRETE );
 		// Back
-		StaticPhysicsNode wallBack = createBox( "wall_back" );
+		StaticPhysicsNode wallBack = createStaticVisualBox( "wall_back" );
 		Utils.setColor( wallBack, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
 		Utils.setTexture( wallBack, "resources/textures/wall.jpg", renderer );
 		wallBack.getLocalScale().set( ROOM_WIDTH, params.ROOM_HEIGHT, params.WALL_THICK );
 		wallBack.getLocalTranslation().set( params.ROOM_CENTER_X, params.ROOM_CENTER_Y, params.APPROACH_LENGTH );
 		wallBack.setMaterial( Material.CONCRETE );
 		// Front
-		StaticPhysicsNode wallFront = createBox( "wall_front" );
+		StaticPhysicsNode wallFront = createStaticVisualBox( "wall_front" );
 		Utils.setColor( wallFront, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
 		Utils.setTexture( wallFront, "resources/textures/wall.jpg", renderer );
 		wallFront.getLocalScale().set( ROOM_WIDTH, params.ROOM_HEIGHT, params.WALL_THICK );
@@ -130,20 +130,20 @@ public class Scene {
 	
 	public void createBox( Vector3f move ) {
 		// Top
-		StaticPhysicsNode boxTop = createBox( "box_top" );
+		StaticPhysicsNode boxTop = createStaticVisualBox( "box_top" );
 		Utils.setColor( boxTop, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
 		Utils.setTexture( boxTop, "resources/textures/ITBA.jpg", renderer );
 		boxTop.getLocalScale().set( params.LANE_WIDTH + params.BALL_DIAMETER_EXTRA*2 + params.SEPARATION_WIDTH, params.BOX_TOP_HEIGHT, params.BOX_LENGTH + params.BOXMACHINE_LENGTH );
 		boxTop.getLocalTranslation().set( move.x + params.ROOM_CENTER_X, move.y + params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT + (params.BOX_TOP_HEIGHT)/2, move.z - params.LANE_LENGTH );
 		boxTop.setMaterial( Material.CONCRETE );
 		// Left
-		StaticPhysicsNode boxLeft = createBox( "box_left" );
+		StaticPhysicsNode boxLeft = createStaticVisualBox( "box_left" );
 		Utils.setColor( boxLeft,  ColorRGBA.darkGray, params.NO_SHININESS, params.NO_COLOR, renderer );
 		boxLeft.getLocalScale().set( params.SEPARATION_WIDTH/2, params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT, params.BOXMACHINE_LENGTH + params.BOX_LENGTH );
 		boxLeft.getLocalTranslation().set( move.x - (params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA + params.SEPARATION_WIDTH/4), move.y + (params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT)/2, move.z - params.LANE_LENGTH );
 		boxLeft.setMaterial( Material.CONCRETE );
 		// Right
-		StaticPhysicsNode boxRight = createBox( "box_right" );
+		StaticPhysicsNode boxRight = createStaticVisualBox( "box_right" );
 		Utils.setColor( boxRight,  ColorRGBA.darkGray, params.NO_SHININESS, params.NO_COLOR, renderer );
 		boxRight.getLocalScale().set( params.SEPARATION_WIDTH/2, params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT, params.BOXMACHINE_LENGTH + params.BOX_LENGTH );
 		boxRight.getLocalTranslation().set( move.x + (params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA + params.SEPARATION_WIDTH/4), move.y + (params.BALL_RADIUS_EXTRA + params.BOX_HEIGHT)/2, move.z - params.LANE_LENGTH );
@@ -152,7 +152,7 @@ public class Scene {
 	
 	
 	public void createLane( Vector3f move ) {
-		lane = createBox( "lane" );
+		lane = createStaticVisualBox( "lane" );
 		Utils.setColor( lane, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
 		Utils.setTexture( lane, "resources/textures/wood.jpg", renderer );
 		lane.getLocalScale().set( params.LANE_WIDTH, params.BALL_RADIUS_EXTRA, params.LANE_LENGTH );
@@ -162,7 +162,7 @@ public class Scene {
 	
 	
 	public void createApproach( Vector3f move ) {
-		StaticPhysicsNode approach = createBox( "approach" );
+		StaticPhysicsNode approach = createStaticVisualBox( "approach" );
 		Utils.setColor( approach, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
 		Utils.setTexture( approach, "resources/textures/wood.jpg", renderer );
 		approach.getLocalScale().set( params.APPROACH_WIDTH, params.BALL_RADIUS_EXTRA, params.APPROACH_LENGTH );
@@ -236,14 +236,14 @@ public class Scene {
 	
 	public void createSeparation( Vector3f move ) {
 		// Left
-		StaticPhysicsNode left = createBox( "separation" );
+		StaticPhysicsNode left = createStaticVisualBox( "separation" );
 		Utils.setColor( left, ColorRGBA.white, params.LOW_SHININESS, ColorRGBA.white, renderer );
 		Utils.setTexture( left, "resources/textures/metal.jpg", renderer );
 		left.getLocalScale().set( params.SEPARATION_WIDTH/2, params.SEPARATION_HEIGHT, params.LANE_LENGTH);
 		left.getLocalTranslation().set( move.x - (params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA + params.SEPARATION_WIDTH/4), move.y + params.SEPARATION_HEIGHT/2, move.z - params.LANE_LENGTH/2 );
 		left.setMaterial( Material.IRON );
 		// Right
-		StaticPhysicsNode right = createBox( "separation" );
+		StaticPhysicsNode right = createStaticVisualBox( "separation" );
 		Utils.setColor( right, ColorRGBA.white, params.LOW_SHININESS, ColorRGBA.white, renderer );
 		Utils.setTexture( right, "resources/textures/metal.jpg", renderer );
 		right.getLocalScale().set( params.SEPARATION_WIDTH/2, params.SEPARATION_HEIGHT, params.LANE_LENGTH);
@@ -326,7 +326,7 @@ public class Scene {
 	}
 	
 	
-	private StaticPhysicsNode createBox( String name ) {
+	private StaticPhysicsNode createStaticVisualBox( String name ) {
         StaticPhysicsNode staticNode = physicsSpace.createStaticNode();
         rootNode.attachChild( staticNode );
         final Box visualBox = new Box( name, new Vector3f(), 0.5f, 0.5f, 0.5f );

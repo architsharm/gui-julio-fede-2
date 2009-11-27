@@ -3,7 +3,11 @@ package ar.edu.itba.cg;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import ar.edu.itba.cg.menu.HelpMenu;
+import ar.edu.itba.cg.menu.StartUpMenu;
+
 import com.jme.input.ChaseCamera;
+import com.jme.input.FirstPersonHandler;
 import com.jme.input.KeyInput;
 import com.jme.math.Vector3f;
 import com.jme.renderer.ColorRGBA;
@@ -53,7 +57,6 @@ public class Bowling extends SimplePhysicsGame {
 	private States state = States.MENU;
 	
 	
-	
 	public static void main(String [] args) throws MalformedURLException {
 		Bowling app = new Bowling(); 
 		app.setConfigShowMode( ConfigShowMode.AlwaysShow, new URL("file:" + IMAGE_LOGO ) );
@@ -70,10 +73,10 @@ public class Bowling extends SimplePhysicsGame {
 		// Parameters
 		this.params = new SceneParameters( "resources/scene/scene.properties" );
 		//Menu
-		this.menu = new StartUpMenu(statNode, display.getWidth(), display.getHeight(),this);
+		this.menu = new StartUpMenu( statNode, display.getWidth(), display.getHeight(), this );
 		this.menu.showAllOptions();
 		//Help menu
-		this.helpMenu = new HelpMenu(statNode, display.getWidth(), display.getHeight(),this);
+		this.helpMenu = new HelpMenu( statNode, display.getWidth(), display.getHeight(),this );
 		// Display
 		this.createDisplay();
 		// Physics
@@ -130,10 +133,10 @@ public class Bowling extends SimplePhysicsGame {
 				dynamics.rotateAnchor( -0.01F );
 			}
 			if( KeyInput.get().isKeyDown(KeyInput.KEY_W) && dynamics.getBallZ() > -1 ) {
-				dynamics.addForceZ( -5 );
+				dynamics.addForceZ( -4 * this.timer.getTimePerFrame() * 1000 );
 			}
 			if( KeyInput.get().isKeyDown(KeyInput.KEY_S) && dynamics.getBallZ() > -1 ) {
-				dynamics.addForceZ( 5 );
+				dynamics.addForceZ( 4 * this.timer.getTimePerFrame() * 1000 );
 			}
 			if( KeyInput.get().isKeyDown(KeyInput.KEY_Q) && dynamics.getBallZ() > -1 ) {
 				dynamics.addTorqueZ( 0.5f );
@@ -181,8 +184,8 @@ public class Bowling extends SimplePhysicsGame {
 	
 	private void createPhysics() {
 		getPhysicsSpace().setAutoRestThreshold( 0.2f );
-        setPhysicsSpeed( 4 );
-        getPhysicsSpace().setAccuracy( 0.01F );
+        setPhysicsSpeed( 1 );
+        getPhysicsSpace().setAccuracy( 0.015625F / 2 );
         ContactCallback myCallBack = new ContactCallback() {
 			public boolean adjustContact( PendingContact c ) {
 				String name1 = c.getNode1().getName();
@@ -249,7 +252,7 @@ public class Bowling extends SimplePhysicsGame {
 	private void createCamera() {
 		//cam.setLocation( new Vector3f(0,80,30) );
 		//ChaseCamera chaser = new ChaseCamera( cam, ball);
-		//input = new FirstPersonHandler( cam, CAMERA_MOVE_SPEED, CAMERA_TURN_SPEED );
+//		input = new FirstPersonHandler( cam, params.CAMERA_MOVE_SPEED, params.CAMERA_TURN_SPEED );
 		// Simple chase camera
         input.removeFromAttachedHandlers( cameraInputHandler );
         cameraInputHandler = new ChaseCamera( cam, dynamics.anchor );
