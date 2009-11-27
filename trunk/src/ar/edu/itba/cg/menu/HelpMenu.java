@@ -1,5 +1,6 @@
-package ar.edu.itba.cg;
+package ar.edu.itba.cg.menu;
 
+import ar.edu.itba.cg.Bowling;
 import ar.edu.itba.cg.Bowling.States;
 
 import com.jme.renderer.ColorRGBA;
