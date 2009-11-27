@@ -9,6 +9,7 @@ import ar.edu.itba.cg.utils.ColladaModelLoader;
 
 import com.jme.bounding.BoundingBox;
 import com.jme.light.PointLight;
+import com.jme.light.SpotLight;
 import com.jme.math.Quaternion;
 import com.jme.math.Vector3f;
 import com.jme.renderer.ColorRGBA;
@@ -410,15 +411,17 @@ public class Scene {
 		//lightState.setTwoSidedLighting(true);
 		
 		lightState.detachAll();
-        PointLight pl = new PointLight();
-        pl.setAmbient(new ColorRGBA(0,0,0,1));
-        pl.setDiffuse(new ColorRGBA(1,1,1,1));
-        pl.setLocation( new Vector3f(0, 1, 0) );
-        pl.setAttenuate(true);
-        pl.setShadowCaster(true);
-        pl.setEnabled(true);
-        lightState.attach(pl);
-		
+		for (float i = 0; i <= params.LANE_LENGTH; i+=params.LANE_LENGTH/4) {
+			SpotLight pl = new SpotLight();
+			pl.setDirection(new Vector3f(0,-1,0));
+			pl.setAngle(45);
+	        pl.setAmbient(new ColorRGBA(1,1,1,1));
+	        pl.setDiffuse(new ColorRGBA(1f,0,0,1));
+	        pl.setLocation( new Vector3f(0, params.ROOM_HEIGHT * 0.9F, -i) );
+	        pl.setShadowCaster(true);
+	        pl.setEnabled(true);
+	        lightState.attach(pl);
+		}
 	}
 	
 	
