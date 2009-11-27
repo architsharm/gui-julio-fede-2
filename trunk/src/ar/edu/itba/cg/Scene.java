@@ -65,6 +65,15 @@ public class Scene {
 		this.createBar();
 		// Lights
 		this.createIlumination();
+		// Balls
+		Vector3f ballsRight = new Vector3f( params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA + params.SEPARATION_WIDTH/2, 0, 0 );
+		Vector3f ballsLeft = ballsRight.mult( -1 );
+		Vector3f ballsRightRight = ballsRight.mult( 3 );
+		Vector3f ballsLeftLeft = ballsLeft.mult( 3 );
+		this.createBalls( ballsRight );
+		this.createBalls( ballsLeft );
+		this.createBalls( ballsRightRight );
+		this.createBalls( ballsLeftLeft );
 	}
 	
 
@@ -173,63 +182,25 @@ public class Scene {
 	
 	public void createGutters( Vector3f move ) {
 		float circumference = 2.0F * (float)Math.PI * params.BALL_RADIUS_EXTRA;
-		// Node gutterLeft =  getPhysicsSpace().createStaticNode(); // new Node("gutter_left");
-		// Node gutterRight = getPhysicsSpace().createStaticNode(); // new Node("gutter_right");
-		Quad gutterBorderLeftVisual  = new Quad("gutter_border_left",  params.BALL_RADIUS_EXTRA, params.LANE_LENGTH);
-		Quad gutterBorderRightVisual = new Quad("gutter_border_right", params.BALL_RADIUS_EXTRA, params.LANE_LENGTH);
-		gutterBorderLeftVisual.setModelBound( new BoundingBox() ); 
-		gutterBorderLeftVisual.updateModelBound();
-		gutterBorderRightVisual.setModelBound( new BoundingBox() ); 
-		gutterBorderRightVisual.updateModelBound();
-		Utils.setColor( gutterBorderLeftVisual, ColorRGBA.gray, params.LOW_SHININESS, params.NO_COLOR, renderer );
-		Utils.setColor( gutterBorderRightVisual,   ColorRGBA.gray, params.LOW_SHININESS, params.NO_COLOR, renderer );
-		Utils.setTexture( gutterBorderLeftVisual, "resources/textures/metal.jpg", renderer );
-		Utils.setTexture( gutterBorderRightVisual, "resources/textures/metal.jpg", renderer );
-		StaticPhysicsNode gutterBorderLeft = physicsSpace.createStaticNode();
-		StaticPhysicsNode gutterBorderRight = physicsSpace.createStaticNode();
-		gutterBorderLeft.setName( "gutter_border_left" );
-		gutterBorderRight.setName( "gutter_border_right" );
-		gutterBorderLeft.setMaterial( Material.IRON );
-		gutterBorderRight.setMaterial( Material.IRON );
-		gutterBorderLeft.attachChild( gutterBorderLeftVisual );
-		gutterBorderRight.attachChild( gutterBorderRightVisual );
-		gutterBorderLeft.setLocalRotation(  new Quaternion( new float[]{ (float)Math.PI/2, 0, -(float)Math.PI/2 } ) );
-		gutterBorderRight.setLocalRotation( new Quaternion( new float[]{ (float)Math.PI/2, 0, -(float)Math.PI/2 } ) );
-		gutterBorderLeft.setLocalTranslation(  move.x - (params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA), move.y + params.BALL_RADIUS_EXTRA/2, move.z - params.LANE_LENGTH/2 );
-		gutterBorderRight.setLocalTranslation( move.x + (params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA), move.y + params.BALL_RADIUS_EXTRA/2, move.z - params.LANE_LENGTH/2 );
-		gutterBorderLeft.generatePhysicsGeometry();
-		gutterBorderRight.generatePhysicsGeometry();
-		rootNode.attachChild( gutterBorderLeft );
-		rootNode.attachChild( gutterBorderRight );
 		for( int i = 1; i < params.GUTTER_SAMPLES; i++ ) {
-			Quad leftVisual =  new Quad( "gutter_left_"  + String.valueOf(i), circumference / params.GUTTER_SAMPLES, params.LANE_LENGTH);
-			Quad rightVisual = new Quad( "gutter_right_" + String.valueOf(i), circumference / params.GUTTER_SAMPLES, params.LANE_LENGTH);
-			leftVisual.setModelBound( new BoundingBox() ); 
-			leftVisual.updateModelBound();
-			rightVisual.setModelBound( new BoundingBox() ); 
-			rightVisual.updateModelBound();
-			Utils.setColor( leftVisual,  ColorRGBA.gray, params.NO_SHININESS, params.NO_COLOR, renderer );
-			Utils.setColor( rightVisual, ColorRGBA.gray, params.NO_SHININESS, params.NO_COLOR, renderer );
-			Utils.setTexture( leftVisual,  "resources/textures/metal.jpg", renderer );
-			Utils.setTexture( rightVisual, "resources/textures/metal.jpg", renderer );
-			StaticPhysicsNode left = physicsSpace.createStaticNode();
-			StaticPhysicsNode right = physicsSpace.createStaticNode();
-			left.setName( "gutter_left_" + String.valueOf(i) );
-			right.setName( "gutter_right_" + String.valueOf(i) );
-			left.setMaterial( Material.IRON );
-			right.setMaterial( Material.IRON );
-			left.attachChild( leftVisual );
-			right.attachChild( rightVisual );
 			float rotation =  -(float)Math.PI/2 + (float)Math.PI / params.GUTTER_SAMPLES * i; 
-			left.setLocalRotation(  new Quaternion( new float[]{ (float)Math.PI/2, 0, rotation } ) );
-			right.setLocalRotation( new Quaternion( new float[]{ (float)Math.PI/2, 0, rotation } ) );
 			float angle = (float)Math.PI + (float)Math.PI / params.GUTTER_SAMPLES * i;
-			left.setLocalTranslation(  move.x - (params.LANE_WIDTH/2 + params.BALL_RADIUS_EXTRA) + params.BALL_RADIUS_EXTRA * (float)Math.cos( angle ), move.y + params.BALL_RADIUS_EXTRA + params.BALL_RADIUS_EXTRA * (float)Math.sin( angle ) + 0.001F, move.z - params.LANE_LENGTH/2 );
+			// Left
+			StaticPhysicsNode left = createStaticVisualBox( "gutter_left" );
+			Utils.setColor( left,  ColorRGBA.gray, params.NO_SHININESS, params.NO_COLOR, renderer );
+			Utils.setTexture( left,  "resources/textures/metal.jpg", renderer );
+			left.getLocalScale().set( circumference/params.GUTTER_SAMPLES, params.LANE_LENGTH, params.GUTTER_THICK );
+			left.setLocalRotation( new Quaternion( new float[]{ (float)Math.PI/2, 0, rotation } ) );
+			left.setLocalTranslation( move.x - (params.LANE_WIDTH/2 + params.BALL_RADIUS_EXTRA) + params.BALL_RADIUS_EXTRA * (float)Math.cos( angle ), move.y + params.BALL_RADIUS_EXTRA + params.BALL_RADIUS_EXTRA * (float)Math.sin( angle ) + 0.001F, move.z - params.LANE_LENGTH/2 );
+			left.setMaterial( Material.IRON );
+			// Right
+			StaticPhysicsNode right = createStaticVisualBox( "gutter_left" );
+			Utils.setColor( right,  ColorRGBA.gray, params.NO_SHININESS, params.NO_COLOR, renderer );
+			Utils.setTexture( right,  "resources/textures/metal.jpg", renderer );
+			right.getLocalScale().set( circumference/params.GUTTER_SAMPLES, params.LANE_LENGTH, params.GUTTER_THICK );
+			right.setLocalRotation( new Quaternion( new float[]{ (float)Math.PI/2, 0, rotation } ) );
 			right.setLocalTranslation( move.x + (params.LANE_WIDTH/2 + params.BALL_RADIUS_EXTRA) + params.BALL_RADIUS_EXTRA * (float)Math.cos( angle ), move.y + params.BALL_RADIUS_EXTRA + params.BALL_RADIUS_EXTRA * (float)Math.sin( angle ) + 0.001F, move.z - params.LANE_LENGTH/2 );
-			left.generatePhysicsGeometry();
-			right.generatePhysicsGeometry();
-			rootNode.attachChild( left );
-			rootNode.attachChild( right );
+			right.setMaterial( Material.IRON );
 		}	
 	}
 	
@@ -249,6 +220,29 @@ public class Scene {
 		right.getLocalScale().set( params.SEPARATION_WIDTH/2, params.SEPARATION_HEIGHT, params.LANE_LENGTH);
 		right.getLocalTranslation().set( move.x + (params.LANE_WIDTH/2 + params.BALL_DIAMETER_EXTRA + params.SEPARATION_WIDTH/4), move.y + params.SEPARATION_HEIGHT/2, move.z - params.LANE_LENGTH/2 );
 		right.setMaterial( Material.IRON );
+	}
+	
+	
+	public void createBalls( Vector3f move ) {
+		try {
+			ResourceLocatorTool.addResourceLocator(ResourceLocatorTool.TYPE_TEXTURE, new SimpleResourceLocator( new URI("file:resources/scene/") ) );
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		ColladaModelLoader loader = new ColladaModelLoader();
+		Node balls = loader.getModel( "resources/scene/balls.dae" );
+		try {
+			ResourceLocatorTool.removeResourceLocator( ResourceLocatorTool.TYPE_TEXTURE, new SimpleResourceLocator( new URI("file:resources/scene/") ) );
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		childCreation( balls );
+		balls.setLocalScale( 0.015F );
+		balls.setLocalRotation( new Quaternion(new float[] {(float)-Math.PI/2,(float)-Math.PI/2,0} ) );
+		balls.setLocalTranslation( new Vector3f( move.x + 0, move.y + params.BALL_RADIUS_EXTRA, move.z + 0 ) );
+		rootNode.attachChild( balls );
 	}
 	
 	
@@ -274,6 +268,7 @@ public class Scene {
 		barVisual.setCullHint( CullHint.Never );
 		rootNode.attachChild( barVisual );
 	}
+	
 	
 	
 	private void childCreation( Node node ) {
