@@ -1,3 +1,6 @@
+PROBARLO ENLAS MAQUINAS DEL ITBA!!!
+INFORME!!!!!!!!
+EJECUTABLES!!!!!!
 Sonido ambiente, y mas FXs! (sonido de strike!!)
 Una jukebox con una lista de temas que puedas cambiar con alguna tecla!
 Jugabilidad Puntaje!
