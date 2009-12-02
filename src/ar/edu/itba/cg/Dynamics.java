@@ -1,9 +1,12 @@
 package ar.edu.itba.cg;
 
+import ar.edu.itba.cg.actions.BallCollisionAction;
 import ar.edu.itba.cg.utils.ColladaModelLoader;
 
 import com.jme.bounding.BoundingBox;
 import com.jme.bounding.BoundingSphere;
+import com.jme.input.InputHandler;
+import com.jme.input.util.SyntheticButton;
 import com.jme.math.Quaternion;
 import com.jme.math.Vector3f;
 import com.jme.renderer.ColorRGBA;
@@ -31,13 +34,16 @@ public class Dynamics {
 	private Joint joint;
 	private DynamicPhysicsNode[] pins;
 	private boolean[] pinsDown;
+	InputHandler input;
+	private SoundManager soundManager;
 	
-	
-	public Dynamics( Node rootNode, PhysicsSpace physicsSpace, Renderer renderer, SceneParameters parameters ) {
+	public Dynamics( Node rootNode, PhysicsSpace physicsSpace, Renderer renderer, SceneParameters parameters, InputHandler input, SoundManager soundManager) {
 		this.rootNode = rootNode;
 		this.physicsSpace = physicsSpace;
 		this.renderer = renderer;
 		this.params = parameters;
+		this.input = input;
+		this.soundManager = soundManager;
 	}
 	
 	
@@ -62,6 +68,11 @@ public class Dynamics {
 		ball.attachChild( ballVisual );
 		ball.generatePhysicsGeometry(); 
 		ball.setMass( params.BALL_WEIGHT );
+		
+		final SyntheticButton collisionEventHandler = ball.getCollisionEventHandler();
+        // we can subscribe for such an event with an input handler of our choice now
+        input.addAction( new BallCollisionAction(this.params, this.soundManager), collisionEventHandler, false );
+		
 		rootNode.attachChild( ball );
 		// The joint to make the pendulum with the ball
 		anchor = physicsSpace.createDynamicNode();
