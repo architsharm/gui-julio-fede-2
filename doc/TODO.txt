@@ -1,3 +1,9 @@
-Sonido ambiente y otros!
+Sonido ambiente, y mas FXs! (sonido de strike!!)
+Una jukebox con una lista de temas que puedas cambiar con alguna tecla!
 Jugabilidad Puntaje!
 Distintas cameras (seleccionables con 1, 2 ,3, etc )
+frame independant actions!!!
+buenas luces!
+gente atra de la barra y etc
+las mesitas!
+un chabon que tire la bola si se puede!!!
