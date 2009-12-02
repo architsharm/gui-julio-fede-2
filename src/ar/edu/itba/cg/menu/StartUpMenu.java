@@ -55,9 +55,12 @@ public class StartUpMenu {
 		opt1 = Text.createDefaultTextLabel("opt1");
 		opt2 = Text.createDefaultTextLabel("opt2");
 		opt3 = Text.createDefaultTextLabel("opt3");
-		opt1.setLocalTranslation(screenWidth / 2 - 25, (screenHeight / 2) + 40,	0);
-		opt2.setLocalTranslation(screenWidth / 2 - 25, (screenHeight / 2), 0);
-		opt3.setLocalTranslation(screenWidth / 2 - 25, (screenHeight / 2) - 40,	0);
+		opt1.setLocalScale(1.2f);
+		opt2.setLocalScale(1.2f);
+		opt3.setLocalScale(1.2f);
+		opt1.setLocalTranslation(screenWidth / 2 - 30, (screenHeight / 2) + 40,	0);
+		opt2.setLocalTranslation(screenWidth / 2 - 30, (screenHeight / 2), 0);
+		opt3.setLocalTranslation(screenWidth / 2 - 30, (screenHeight / 2) - 40,	0);
 		opt1.setTextColor(ColorRGBA.red);
 		opt2.setTextColor(ColorRGBA.white);
 		opt3.setTextColor(ColorRGBA.white);
