@@ -61,7 +61,7 @@ public class Scene {
 		this.createBowling( moveRightRight );
 		this.createBowling( moveLeftLeft );
 		// Create bar
-		this.createBar();
+		this.createBar2();
 		// Lights
 		this.createIlumination();
 		// Balls
@@ -130,14 +130,14 @@ public class Scene {
 		Utils.setColor( wallBack, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
 		Utils.setTexture( wallBack, "resources/textures/wall.jpg", renderer );
 		wallBack.getLocalScale().set( ROOM_WIDTH, params.ROOM_HEIGHT, params.WALL_THICK );
-		wallBack.getLocalTranslation().set( params.ROOM_CENTER_X, params.ROOM_CENTER_Y, params.APPROACH_LENGTH );
+		wallBack.getLocalTranslation().set( params.ROOM_CENTER_X, params.ROOM_CENTER_Y, params.ROOM_BACK_Z );
 		wallBack.setMaterial( Material.CONCRETE );
 		// Front
 		StaticPhysicsNode wallFront = createStaticVisualBox( "wall_front" );
 		Utils.setColor( wallFront, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
 		Utils.setTexture( wallFront, "resources/textures/wall.jpg", renderer );
 		wallFront.getLocalScale().set( ROOM_WIDTH, params.ROOM_HEIGHT, params.WALL_THICK );
-		wallFront.getLocalTranslation().set( params.ROOM_CENTER_X, params.ROOM_CENTER_Y, -(params.LANE_LENGTH + params.BOX_LENGTH) );
+		wallFront.getLocalTranslation().set( params.ROOM_CENTER_X, params.ROOM_CENTER_Y, params.ROOM_FRONT_Z );
 		wallFront.setMaterial( Material.CONCRETE );
 	}
 	
@@ -292,7 +292,32 @@ public class Scene {
 		childCreation( barVisual );
 		barVisual.setLocalScale( 0.01F );
 		barVisual.setLocalRotation( new Quaternion(new float[] {(float)-Math.PI/2,(float)Math.PI/2,0} ) );
-		barVisual.setLocalTranslation( new Vector3f(2,params.BALL_RADIUS_EXTRA,5) );
+		barVisual.setLocalTranslation( new Vector3f(0.5F, 0, params.ROOM_BACK_Z) );
+		barVisual.setCullHint( CullHint.Never );
+		rootNode.attachChild( barVisual );
+	}
+	
+	
+	
+	public void createBar2() {
+		try {
+			ResourceLocatorTool.addResourceLocator(ResourceLocatorTool.TYPE_TEXTURE, new SimpleResourceLocator( new URI("file:resources/scene/") ) );
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		ColladaModelLoader loader = new ColladaModelLoader();
+		Node barVisual = loader.getModel( "resources/scene/bar2.dae" );
+		try {
+			ResourceLocatorTool.removeResourceLocator( ResourceLocatorTool.TYPE_TEXTURE, new SimpleResourceLocator( new URI("file:resources/scene/") ) );
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		childCreation( barVisual );
+		barVisual.setLocalScale( 0.04F );
+		barVisual.setLocalRotation( new Quaternion(new float[] {(float)-Math.PI/2,(float)Math.PI,0} ) );
+		barVisual.setLocalTranslation( new Vector3f(6.7F,params.BALL_RADIUS_EXTRA - 0.01F,0.8F) );
 		barVisual.setCullHint( CullHint.Never );
 		rootNode.attachChild( barVisual );
 	}
@@ -317,8 +342,8 @@ public class Scene {
 				node.detachChild( n );
 				Vector3f center = ((SharedMesh)n).getModelBound().getCenter().clone();
 				n.setLocalTranslation( new Vector3f().subtract( center )  );
-				n.setModelBound( new BoundingBox() ); 
-				n.updateModelBound();
+//				n.setModelBound( new BoundingBox() ); 
+//				n.updateModelBound();
 				PhysicsNode physics = physicsSpace.createStaticNode();
 				physics.setName( n.getName() );
 				physics.attachChild( n );

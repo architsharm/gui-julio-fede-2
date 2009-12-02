@@ -39,7 +39,8 @@ public class SceneParameters {
 	// Behind the foul line is an "approach" used to gain speed
 	public float APPROACH_LENGTH = 5.00F;
 	// Room Parameters
-	public float ROOM_HEIGHT = 2.50F;
+	public float ROOM_HEIGHT = 2.20F;
+	public float ROOM_BACK = 7.00F;
 	// The wall thickness
 	public float WALL_THICK = 0.01F;
 	// Final box
@@ -73,6 +74,8 @@ public class SceneParameters {
 	public float BALL_DIAMETER_EXTRA;
 	public float APPROACH_WIDTH;
 	public float ROOM_LENGTH;
+	public float ROOM_BACK_Z;
+	public float ROOM_FRONT_Z;
 	public float ROOM_CENTER_X;
 	public float ROOM_CENTER_Y;
 	public float ROOM_CENTER_Z;
@@ -113,10 +116,12 @@ public class SceneParameters {
    		BALL_DIAMETER = BALL_RADIUS * 2;
    		BALL_DIAMETER_EXTRA = BALL_RADIUS_EXTRA * 2;
    		APPROACH_WIDTH = LANE_WIDTH + BALL_DIAMETER_EXTRA * 2 + SEPARATION_WIDTH;
-   		ROOM_LENGTH = LANE_LENGTH + APPROACH_LENGTH + BOX_LENGTH;
+   		ROOM_LENGTH = ROOM_BACK + LANE_LENGTH + APPROACH_LENGTH + BOX_LENGTH;
+   		ROOM_BACK_Z = ROOM_BACK + APPROACH_LENGTH;
+   		ROOM_FRONT_Z = -(LANE_LENGTH + BOX_LENGTH);
    		ROOM_CENTER_X = 0;
    		ROOM_CENTER_Y = ROOM_HEIGHT / 2;
-   		ROOM_CENTER_Z = APPROACH_LENGTH / 2 - BOX_LENGTH / 2 - LANE_LENGTH / 2;
+   		ROOM_CENTER_Z = ROOM_BACK / 2 + APPROACH_LENGTH / 2 - BOX_LENGTH / 2 - LANE_LENGTH / 2;
    		DIST2PIT = -LANE_LENGTH + 0.868F ;
 	}
 	
