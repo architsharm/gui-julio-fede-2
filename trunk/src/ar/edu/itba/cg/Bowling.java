@@ -7,19 +7,12 @@ import ar.edu.itba.cg.menu.HelpMenu;
 import ar.edu.itba.cg.menu.StartUpMenu;
 
 import com.jme.input.ChaseCamera;
-import com.jme.input.FirstPersonHandler;
 import com.jme.input.KeyInput;
-import com.jme.math.Vector3f;
 import com.jme.renderer.ColorRGBA;
 import com.jme.scene.Text;
 import com.jmex.audio.AudioSystem;
 import com.jmex.audio.AudioTrack;
-import com.jmex.audio.MusicTrackQueue;
 import com.jmex.audio.MusicTrackQueue.RepeatType;
-import com.jmex.physics.DynamicPhysicsNode;
-import com.jmex.physics.contact.ContactCallback;
-import com.jmex.physics.contact.PendingContact;
-import com.jmex.physics.material.Material;
 import com.jmex.physics.util.SimplePhysicsGame;
 
 //	W	 Move Forward
@@ -46,12 +39,11 @@ public class Bowling extends SimplePhysicsGame {
 	private StartUpMenu menu;
 	private HelpMenu helpMenu;
 	private SceneParameters params;
+	private SoundManager soundManager;
 	public Text help;
 	public Text score;
 	// Sounds
-	private MusicTrackQueue audioQueue;
-	private AudioTrack[] pinDown;
-	private AudioTrack ballMoving;
+	
 	// Game States
 	public static enum States {MENU, SHOOTING, ROLLING, HELP, EXIT};
 	private States state = States.MENU;
@@ -82,12 +74,12 @@ public class Bowling extends SimplePhysicsGame {
 		// Physics
 		this.createPhysics();
 		// Audio
-		this.createAudio();
+		this.soundManager = new SoundManager();
 		// Static scene
 		this.scene = new Scene( rootNode, getPhysicsSpace(), lightState, display.getRenderer(), this.params );
 		this.scene.createStaticWorld();
 		// Dynamic objects
-		this.dynamics = new Dynamics( rootNode, getPhysicsSpace(), display.getRenderer(), this.params );
+		this.dynamics = new Dynamics( rootNode, getPhysicsSpace(), display.getRenderer(), this.params, this.input, this.soundManager );
 		this.dynamics.createDynamicWorld();
 		// Camera
 		this.createCamera();
@@ -186,68 +178,7 @@ public class Bowling extends SimplePhysicsGame {
 		getPhysicsSpace().setAutoRestThreshold( 0.2f );
         setPhysicsSpeed( 1 );
         getPhysicsSpace().setAccuracy( 0.015625F / 2 );
-        ContactCallback myCallBack = new ContactCallback() {
-			public boolean adjustContact( PendingContact c ) {
-				String name1 = c.getNode1().getName();
-				String name2 = c.getNode2().getName();
-				if( name1 == null || name2 == null ) {
-					return false;
-				}		
-				if( name1.startsWith( "pin" ) && name2.startsWith( "pin" ) ) {
-					// TODO: Set a sound!
-				}else if( name1.startsWith( "pin" ) && name2.startsWith( "ball" ) ) {
-                	Vector3f v1 = new Vector3f();
-                	Vector3f v2 = new Vector3f();
-					((DynamicPhysicsNode)c.getNode1()).getLinearVelocity( v1 );
-					((DynamicPhysicsNode)c.getNode2()).getLinearVelocity( v2 );
-					v1.subtract( v2 );
-					playSound( pinDown[ Integer.valueOf( name1.substring(4) ) ], v1.length()/2 );
-                }else if( name1.startsWith( "ball" ) && name2.startsWith( "pin" ) ) {
-                	Vector3f v1 = new Vector3f();
-                	Vector3f v2 = new Vector3f();
-					((DynamicPhysicsNode)c.getNode1()).getLinearVelocity( v1 );
-					((DynamicPhysicsNode)c.getNode2()).getLinearVelocity( v2 );
-					v1.subtract( v2 );
-                	playSound( pinDown[ Integer.valueOf( name2.substring(4) ) ], v1.length()/2 );
-                }
-				
-				if( name1.startsWith( "ball" ) && name2.startsWith( "lane" ) || name1.startsWith( "lane" ) && name2.startsWith( "ball" ) ) {
-					DynamicPhysicsNode node;
-					if( name1.startsWith( "ball" ) ) {
-						node = (DynamicPhysicsNode)c.getNode1();
-					}else{
-						node = (DynamicPhysicsNode)c.getNode2();
-					}
-					Vector3f v = new Vector3f();
-					node.getLinearVelocity(v);
-					float length = v.lengthSquared();
-					if( length > 1F ) {
-						playSound( ballMoving, length / 4096 );
-						if (scene.lane.getMaterial() == Material.ICE && dynamics.ball.getLocalTranslation().z < -params.LANE_LENGTH * 0.7f) {
-							System.out.println("changed material");
-							scene.lane.setMaterial(Material.WOOD);
-						}
-					}
-				}
-                // everything normal, continue with next callback
-                return false;
-            }
-        };
-        getPhysicsSpace().getContactCallbacks().add( myCallBack );
 	}
-	
-	
-	private void createAudio() {
-		audioQueue = AudioSystem.getSystem().getMusicQueue();
-		audioQueue.setCrossfadeinTime(0);
-		audioQueue.setRepeatType(RepeatType.NONE);
-		pinDown = new AudioTrack[10];
-		for( int i = 0; i < 10; i++ ) {
-			pinDown[i] = getAudioTrack( "resources/Sounds/pinHitLong.wav" );
-		}
-		ballMoving = getAudioTrack( "resources/Sounds/ballMoving.wav" );
-	}
-	
 	
 	private void createCamera() {
 		//cam.setLocation( new Vector3f(0,80,30) );
@@ -266,32 +197,6 @@ public class Bowling extends SimplePhysicsGame {
 	private void createControls() {
 		//new PhysicsPicker( input, rootNode, getPhysicsSpace() );
         //MouseInput.get().setCursorVisible( true );
-	}
-
-	
-	public AudioTrack getAudioTrack(String file) {
-		AudioTrack track = null;
-		try {
-			track = AudioSystem.getSystem().createAudioTrack( new URL( "file:" + file ), false);
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		track.setLooping( true );
-		track.setVolume( 1.0f );
-		return track;
-	}
-	
-	
-	public void playSound(AudioTrack track, float volume ) {
-		if( !track.isPlaying() ) {
-			track.setMinVolume( 0 );
-			track.setVolume(volume);
-			audioQueue.addTrack(track);
-			audioQueue.play();
-		}
-		AudioSystem.getSystem().update();
-		AudioSystem.getSystem().fadeOutAndClear(1.5f);
 	}
 	
 	public void setState(States state){
