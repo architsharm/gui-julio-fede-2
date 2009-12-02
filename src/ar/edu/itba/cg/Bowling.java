@@ -7,12 +7,12 @@ import ar.edu.itba.cg.menu.HelpMenu;
 import ar.edu.itba.cg.menu.StartUpMenu;
 
 import com.jme.input.ChaseCamera;
+import com.jme.input.InputHandler;
 import com.jme.input.KeyInput;
+import com.jme.input.action.InputAction;
+import com.jme.input.action.InputActionEvent;
 import com.jme.renderer.ColorRGBA;
 import com.jme.scene.Text;
-import com.jmex.audio.AudioSystem;
-import com.jmex.audio.AudioTrack;
-import com.jmex.audio.MusicTrackQueue.RepeatType;
 import com.jmex.physics.util.SimplePhysicsGame;
 
 //	W	 Move Forward
@@ -85,81 +85,116 @@ public class Bowling extends SimplePhysicsGame {
 		this.createCamera();
 		// Create controls
 		this.createControls();
+		
+		input.addAction( new MyInputAction(),
+        InputHandler.DEVICE_KEYBOARD, InputHandler.BUTTON_ALL, InputHandler.AXIS_NONE, true );
+		input.addAction( new MyInputAction2(),
+		InputHandler.DEVICE_KEYBOARD, InputHandler.BUTTON_ALL, InputHandler.AXIS_NONE, false );
 		// Update
 		rootNode.updateRenderState();
 		
 	}
 	
+	private class MyInputAction2 extends InputAction {
+        /**
+         * This method gets invoked upon key event
+         *
+         * @param evt more data about the event (we don't need it)
+         */
+        public void performAction( InputActionEvent evt ) {
+        	if( state == States.MENU ) {
+
+    			if( KeyInput.get().isKeyDown(KeyInput.KEY_UP) ) {
+    				menu.keyUp();
+    			}
+    			if( KeyInput.get().isKeyDown(KeyInput.KEY_DOWN) ) {
+    				menu.keyDown();
+    			}
+    			if( KeyInput.get().isKeyDown(KeyInput.KEY_RETURN) ) {
+    				menu.keyEnter();
+    			}
+    			
+    		} else if( state == States.SHOOTING ){
+    			if ( pause ) {
+    				score.print( "Paused" );
+    			}
+    			if ( KeyInput.get().isKeyDown(KeyInput.KEY_SPACE)) {
+    				dynamics.resetBall();
+    				dynamics.resetPins();
+    			}
+    			if ( KeyInput.get().isKeyDown(KeyInput.KEY_RETURN)) {
+    				dynamics.resetBall();
+    				dynamics.removePins();
+    			}
+    			if( KeyInput.get().isKeyDown(KeyInput.KEY_Z)) {
+    				dynamics.releaseBall();
+    			}
+    			score.print(" Pins down: " + dynamics.numberOfPins() );
+    		}else if( state == States.HELP ){
+    			helpMenu.showAllOptions();
+    			if( KeyInput.get().isKeyDown(KeyInput.KEY_0) ) {
+    				helpMenu.keyScape();
+    			}
+    		}else if( state == States.EXIT ){
+    			finish();			
+    		}
+        }
+    }
+	
+	/**
+     * An action that get's invoked on a keystroke (once per stroke).
+     */
+    private class MyInputAction extends InputAction {
+        /**
+         * This method gets invoked upon key event
+         *
+         * @param evt more data about the event (we don't need it)
+         */
+        public void performAction( InputActionEvent evt ) {
+        	if( state == States.SHOOTING ){
+    			if( KeyInput.get().isKeyDown(KeyInput.KEY_LEFT) && dynamics.getAnchorX() > -params.APPROACH_WIDTH/2 ) {
+    				dynamics.moveAnchorX( -0.01F );
+    			}
+    			if( KeyInput.get().isKeyDown(KeyInput.KEY_RIGHT) && dynamics.getAnchorX() < params.APPROACH_WIDTH/2 ) {
+    				dynamics.moveAnchorX( 0.01F );
+    			}
+    			if( KeyInput.get().isKeyDown(KeyInput.KEY_UP) && dynamics.getAnchorZ() > 0 ) {
+    				dynamics.moveAnchorZ( -0.01F );
+    			}
+    			if( KeyInput.get().isKeyDown(KeyInput.KEY_DOWN) && dynamics.getAnchorZ() < params.APPROACH_LENGTH ) {
+    				dynamics.moveAnchorZ( 0.01F );
+    			}
+    			if( KeyInput.get().isKeyDown(KeyInput.KEY_A) && dynamics.getAnchorRotation() < (float)(Math.PI/4) ) {
+    				dynamics.rotateAnchor( 0.01F );
+    			}
+    			if( KeyInput.get().isKeyDown(KeyInput.KEY_D) && dynamics.getAnchorRotation() > (float)(-Math.PI/4) ) {
+    				dynamics.rotateAnchor( -0.01F );
+    			}
+    			if( KeyInput.get().isKeyDown(KeyInput.KEY_W) && dynamics.getBallZ() > -1 ) {
+    				dynamics.addForceZ( -4 * timer.getTimePerFrame() * 1000 );
+    			}
+    			if( KeyInput.get().isKeyDown(KeyInput.KEY_S) && dynamics.getBallZ() > -1 ) {
+    				dynamics.addForceZ( 4 * timer.getTimePerFrame() * 1000 );
+    			}
+    			if( KeyInput.get().isKeyDown(KeyInput.KEY_Q) && dynamics.getBallZ() > -1 ) {
+    				dynamics.addTorqueZ( 0.5f );
+    			}
+    			if( KeyInput.get().isKeyDown(KeyInput.KEY_E) && dynamics.getBallZ() > -1 ) {
+    				dynamics.addTorqueZ( -0.5f );
+    			}
+    			if ( pause ) {
+    				score.print( "Chupala" );
+    			}
+    			score.print(" Pins down: " + dynamics.numberOfPins() );
+    		}else if( state == States.EXIT ){
+    			finish();			
+    		}
+        }
+    }
 	
 	@Override
 	protected void simpleUpdate() {
-		if( state == States.MENU ) {
-
-			if( KeyInput.get().isKeyDown(KeyInput.KEY_UP) ) {
-				menu.keyUp();
-			}
-			if( KeyInput.get().isKeyDown(KeyInput.KEY_DOWN) ) {
-				menu.keyDown();
-			}
-			if( KeyInput.get().isKeyDown(KeyInput.KEY_RETURN) ) {
-				menu.keyEnter();
-			}
-			
-		}else if( state == States.SHOOTING ){
-			if( KeyInput.get().isKeyDown(KeyInput.KEY_LEFT) && dynamics.getAnchorX() > -params.APPROACH_WIDTH/2 ) {
-				dynamics.moveAnchorX( -0.01F );
-			}
-			if( KeyInput.get().isKeyDown(KeyInput.KEY_RIGHT) && dynamics.getAnchorX() < params.APPROACH_WIDTH/2 ) {
-				dynamics.moveAnchorX( 0.01F );
-			}
-			if( KeyInput.get().isKeyDown(KeyInput.KEY_UP) && dynamics.getAnchorZ() > 0 ) {
-				dynamics.moveAnchorZ( -0.01F );
-			}
-			if( KeyInput.get().isKeyDown(KeyInput.KEY_DOWN) && dynamics.getAnchorZ() < params.APPROACH_LENGTH ) {
-				dynamics.moveAnchorZ( 0.01F );
-			}
-			if( KeyInput.get().isKeyDown(KeyInput.KEY_A) && dynamics.getAnchorRotation() < (float)(Math.PI/4) ) {
-				dynamics.rotateAnchor( 0.01F );
-			}
-			if( KeyInput.get().isKeyDown(KeyInput.KEY_D) && dynamics.getAnchorRotation() > (float)(-Math.PI/4) ) {
-				dynamics.rotateAnchor( -0.01F );
-			}
-			if( KeyInput.get().isKeyDown(KeyInput.KEY_W) && dynamics.getBallZ() > -1 ) {
-				dynamics.addForceZ( -4 * this.timer.getTimePerFrame() * 1000 );
-			}
-			if( KeyInput.get().isKeyDown(KeyInput.KEY_S) && dynamics.getBallZ() > -1 ) {
-				dynamics.addForceZ( 4 * this.timer.getTimePerFrame() * 1000 );
-			}
-			if( KeyInput.get().isKeyDown(KeyInput.KEY_Q) && dynamics.getBallZ() > -1 ) {
-				dynamics.addTorqueZ( 0.5f );
-			}
-			if( KeyInput.get().isKeyDown(KeyInput.KEY_E) && dynamics.getBallZ() > -1 ) {
-				dynamics.addTorqueZ( -0.5f );
-			}
-			if ( this.pause ) {
-				score.print( "Chupala" );
-			}
-			if ( KeyInput.get().isKeyDown(KeyInput.KEY_SPACE)) {
-				dynamics.resetBall();
-				dynamics.resetPins();
-			}
-			if ( KeyInput.get().isKeyDown(KeyInput.KEY_RETURN)) {
-				dynamics.resetBall();
-				dynamics.removePins();
-			}
-			if( KeyInput.get().isKeyDown(KeyInput.KEY_Z)) {
-				dynamics.releaseBall();
-			}
-			this.score.print(" Pins down: " + dynamics.numberOfPins() );
-		}else if( state == States.HELP ){
-			
-			this.helpMenu.showAllOptions();
-			if( KeyInput.get().isKeyDown(KeyInput.KEY_0) ) {
-				helpMenu.keyScape();
-			}
-		}else if( state == States.EXIT ){
-			this.finish();			
-		}
+		
 	}
 	
 	
