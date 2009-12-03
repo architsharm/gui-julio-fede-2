@@ -28,7 +28,7 @@ import com.jmex.physics.StaticPhysicsNode;
 import com.jmex.physics.material.Material;
 
 public class Scene {
-	private Node rootNode;
+        private Node rootNode;
 	private PhysicsSpace physicsSpace;
 	private LightState lightState;
 	private Renderer renderer;
@@ -266,7 +266,8 @@ public class Scene {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		childCreation( tv );
+		// Create this node as a static physics node! (slower)
+                // childCreation( tv );
 		tv.setLocalScale( 0.015F );
 		tv.setLocalRotation( new Quaternion(new float[] {(float)-Math.PI/2,(float)-Math.PI/2,(float)-Math.PI/5} ) );
 		tv.setLocalTranslation( new Vector3f( move.x + 0, move.y + params.ROOM_HEIGHT - 0.3F, move.z + 0 ) );
@@ -289,7 +290,8 @@ public class Scene {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		childCreation( barVisual );
+		// Create this node as a static physics node! (slower)
+                // childCreation( barVisual );
 		barVisual.setLocalScale( 0.01F );
 		barVisual.setLocalRotation( new Quaternion(new float[] {(float)-Math.PI/2,(float)Math.PI/2,0} ) );
 		barVisual.setLocalTranslation( new Vector3f(0.5F, 0, params.ROOM_BACK_Z) );
@@ -314,7 +316,8 @@ public class Scene {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		childCreation( barVisual );
+		// Create this node as a static physics node! (slower)
+                // childCreation( barVisual );
 		barVisual.setLocalScale( 0.04F );
 		barVisual.setLocalRotation( new Quaternion(new float[] {(float)-Math.PI/2,(float)Math.PI,0} ) );
 		barVisual.setLocalTranslation( new Vector3f(6.7F,params.BALL_RADIUS_EXTRA - 0.01F,0.8F) );
@@ -373,8 +376,8 @@ public class Scene {
 //		}
 	}
 	
-	
-	private StaticPhysicsNode createStaticVisualBox( String name ) {
+
+    private StaticPhysicsNode createStaticVisualBox( String name ) {
         StaticPhysicsNode staticNode = physicsSpace.createStaticNode();
         rootNode.attachChild( staticNode );
         final Box visualBox = new Box( name, new Vector3f(), 0.5f, 0.5f, 0.5f );
