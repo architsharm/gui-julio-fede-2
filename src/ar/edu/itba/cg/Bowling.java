@@ -75,13 +75,13 @@ public class Bowling extends SimplePhysicsGame {
 		// Audio
 		this.soundManager = new SoundManager();
 		// Static scene
-		this.scene = new Scene( rootNode, getPhysicsSpace(), lightState, display.getRenderer(), this.params );
+		this.scene = new Scene( rootNode, getPhysicsSpace(), lightState, display.getRenderer(), params );
 		this.scene.createStaticWorld();
 		// Dynamic objects
-		this.dynamics = new Dynamics( rootNode, getPhysicsSpace(), display.getRenderer(), this.params, this.input, this.soundManager );
+		this.dynamics = new Dynamics( rootNode, getPhysicsSpace(), display.getRenderer(), params, input, soundManager );
 		this.dynamics.createDynamicWorld();
 		// Camera
-		this.cameraManager = new CameraManager( scene, dynamics, input, cameraInputHandler );
+		this.cameraManager = new CameraManager( scene, dynamics, input, cameraInputHandler, params );
 		cameraManager.setAnchorCamera();
 		// Create controls
 		this.createControls();
