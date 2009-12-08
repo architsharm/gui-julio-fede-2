@@ -1,12 +1,15 @@
 PROBARLO ENLAS MAQUINAS DEL ITBA!!!
 INFORME!!!!!!!!
 EJECUTABLES!!!!!!
+CAMBIAR DE REPO!!!!
+
 Sonido ambiente, y mas FXs! (sonido de strike!!)
-Una jukebox con una lista de temas que puedas cambiar con alguna tecla!
+Mejorar el sonido de bola pinos (agregar la velocidad)
+
 Jugabilidad Puntaje!
-Distintas cameras (seleccionables con 1, 2 ,3, etc )
-frame independant actions!!!
 buenas luces!
+
 gente atra de la barra y etc
 las mesitas!
+
 un chabon que tire la bola si se puede!!!
