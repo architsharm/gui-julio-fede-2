@@ -17,8 +17,6 @@ public class SceneParameters {
 	public float PIN_HEIGHT = 0.40F;
 	public float PIN_RADIUS = 0.65F;
 	public float PIN_WEIGHT = 1.750F;
-	public int 	 AXIS_SAMPLES = 4;		// The definition of the pin
-	public int 	 RADIAL_SAMPLES = 10;	// The definition of the pin
 	// Ball Parameters
 	public float BALL_RADIUS = 0.150F;
 	public float BALL_WEIGHT = 2.800F;

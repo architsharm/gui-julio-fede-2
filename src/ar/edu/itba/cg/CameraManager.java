@@ -2,6 +2,7 @@ package ar.edu.itba.cg;
 
 import com.jme.input.ChaseCamera;
 import com.jme.input.InputHandler;
+import com.jme.math.Vector3f;
 import com.jme.renderer.Camera;
 import com.jme.system.DisplaySystem;
 
@@ -30,9 +31,12 @@ public class CameraManager {
 	public void setBallCamera() {
 		Camera cam = DisplaySystem.getDisplaySystem().getRenderer().getCamera();
 		InputHandler cameraInputHandler = new ChaseCamera( cam, dynamics.ball );
-        cameraInputHandler.setActionSpeed( 0.3F );
+		cameraInputHandler.setActionSpeed( 0.3F );
+		((ChaseCamera)cameraInputHandler).setDampingK( 0 );
+		((ChaseCamera)cameraInputHandler).setSpringK( 0 );
         ((ChaseCamera)cameraInputHandler).setMaxDistance( 3 );
         ((ChaseCamera)cameraInputHandler).setMinDistance( 2 );
+        ((ChaseCamera)cameraInputHandler).setTargetOffset( new Vector3f(0,0.4F,1) );
 		changeInput( cameraInputHandler );
 	}
 	
@@ -40,7 +44,6 @@ public class CameraManager {
 	public void setAnchorCamera() {
 		Camera cam = DisplaySystem.getDisplaySystem().getRenderer().getCamera();
 		InputHandler cameraInputHandler = new ChaseCamera( cam, dynamics.anchor );
-        cameraInputHandler.setActionSpeed( 0.3F );
         ((ChaseCamera)cameraInputHandler).setMaxDistance( 2 );
         ((ChaseCamera)cameraInputHandler).setMinDistance( 1 );
 		changeInput( cameraInputHandler );		
