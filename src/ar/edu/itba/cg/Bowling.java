@@ -6,13 +6,13 @@ import java.net.URL;
 import ar.edu.itba.cg.menu.HelpMenu;
 import ar.edu.itba.cg.menu.StartUpMenu;
 
-import com.jme.input.ChaseCamera;
 import com.jme.input.InputHandler;
 import com.jme.input.KeyInput;
 import com.jme.input.action.InputAction;
 import com.jme.input.action.InputActionEvent;
 import com.jme.renderer.ColorRGBA;
 import com.jme.scene.Text;
+import com.jme.scene.state.CullState;
 import com.jmex.physics.util.SimplePhysicsGame;
 
 //	W	 Move Forward
@@ -36,14 +36,12 @@ public class Bowling extends SimplePhysicsGame {
 	public static String IMAGE_LOGO = "resources/logo.jpg";
 	private Scene scene;
 	private Dynamics dynamics;
+	private CameraManager cameraManager;
 	private StartUpMenu menu;
 	private HelpMenu helpMenu;
 	private SceneParameters params;
 	private SoundManager soundManager;
-	public Text help;
 	public Text score;
-	// Sounds
-	
 	// Game States
 	public static enum States {MENU, SHOOTING, ROLLING, HELP, EXIT};
 	private States state = States.MENU;
@@ -82,18 +80,53 @@ public class Bowling extends SimplePhysicsGame {
 		this.dynamics = new Dynamics( rootNode, getPhysicsSpace(), display.getRenderer(), this.params, this.input, this.soundManager );
 		this.dynamics.createDynamicWorld();
 		// Camera
-		this.createCamera();
+		this.cameraManager = new CameraManager( scene, dynamics, input, cameraInputHandler );
+		cameraManager.setAnchorCamera();
 		// Create controls
 		this.createControls();
-		
-		input.addAction( new MyInputAction(),
-        InputHandler.DEVICE_KEYBOARD, InputHandler.BUTTON_ALL, InputHandler.AXIS_NONE, true );
-		input.addAction( new MyInputAction2(),
-		InputHandler.DEVICE_KEYBOARD, InputHandler.BUTTON_ALL, InputHandler.AXIS_NONE, false );
 		// Update
 		rootNode.updateRenderState();
+	}
+	
+    
+	@Override
+	protected void simpleUpdate() {
 		
 	}
+	
+	
+	private void createDisplay() {
+//		CullState cs = display.getRenderer().createCullState();
+//		cs.setCullFace( CullState.Face.Back );
+//		rootNode.setRenderState( cs );
+		
+		display.getRenderer().setBackgroundColor( ColorRGBA.black );
+		
+		display.getRenderer().getCamera().setFrustumFar( params.ROOM_LENGTH * 1.1f);
+		display.getRenderer().getCamera().update();
+		
+		display.setTitle( params.TITLE );
+		
+		score = Text.createDefaultTextLabel( "score", "" );
+		score.setLocalTranslation( 0, 20, 0 );
+		statNode.attachChild( score );
+	}
+	
+	
+	private void createPhysics() {
+		getPhysicsSpace().setAutoRestThreshold( 0.2f );
+        setPhysicsSpeed( 1 );
+        getPhysicsSpace().setAccuracy( 0.015625F / 2 );
+	}
+	
+	
+	private void createControls() {
+		input.addAction( new MyInputAction(),
+				InputHandler.DEVICE_KEYBOARD, InputHandler.BUTTON_ALL, InputHandler.AXIS_NONE, true );
+		input.addAction( new MyInputAction2(),
+				InputHandler.DEVICE_KEYBOARD, InputHandler.BUTTON_ALL, InputHandler.AXIS_NONE, false );
+	}
+	
 	
 	private class MyInputAction2 extends InputAction {
         /**
@@ -103,7 +136,6 @@ public class Bowling extends SimplePhysicsGame {
          */
         public void performAction( InputActionEvent evt ) {
         	if( state == States.MENU ) {
-
     			if( KeyInput.get().isKeyDown(KeyInput.KEY_UP) ) {
     				menu.keyUp();
     			}
@@ -113,21 +145,23 @@ public class Bowling extends SimplePhysicsGame {
     			if( KeyInput.get().isKeyDown(KeyInput.KEY_RETURN) ) {
     				menu.keyEnter();
     			}
-    			
-    		} else if( state == States.SHOOTING ){
+    		}else if( state == States.SHOOTING ){
     			if ( pause ) {
     				score.print( "Paused" );
     			}
     			if ( KeyInput.get().isKeyDown(KeyInput.KEY_SPACE)) {
     				dynamics.resetBall();
     				dynamics.resetPins();
+    				cameraManager.setAnchorCamera();
     			}
     			if ( KeyInput.get().isKeyDown(KeyInput.KEY_RETURN)) {
     				dynamics.resetBall();
     				dynamics.removePins();
+    				cameraManager.setAnchorCamera();
     			}
     			if( KeyInput.get().isKeyDown(KeyInput.KEY_Z)) {
     				dynamics.releaseBall();
+    				cameraManager.setBallCamera();
     			}
     			score.print(" Pins down: " + dynamics.numberOfPins() );
     		}else if( state == States.HELP ){
@@ -138,6 +172,12 @@ public class Bowling extends SimplePhysicsGame {
     		}else if( state == States.EXIT ){
     			finish();			
     		}
+        	if( KeyInput.get().isKeyDown(KeyInput.KEY_1) ) {
+				cameraManager.setAnchorCamera();
+			}
+        	if( KeyInput.get().isKeyDown(KeyInput.KEY_2) ) {
+				cameraManager.setBallCamera();
+			}
         }
     }
 	
@@ -191,55 +231,16 @@ public class Bowling extends SimplePhysicsGame {
     		}
         }
     }
-	
-	@Override
-	protected void simpleUpdate() {
-		
-	}
-	
-	
-	private void createDisplay() {
-		display.getRenderer().setBackgroundColor( ColorRGBA.black );
-		display.getRenderer().getCamera().setFrustumFar( params.ROOM_LENGTH * 1.1f);
-		display.getRenderer().getCamera().update();
-		display.setTitle( params.TITLE );
-		score = Text.createDefaultTextLabel( "score", "" );
-		score.setLocalTranslation( 0, 20, 0 );
-		statNode.attachChild( score );
-	}
-	
-	
-	private void createPhysics() {
-		getPhysicsSpace().setAutoRestThreshold( 0.2f );
-        setPhysicsSpeed( 1 );
-        getPhysicsSpace().setAccuracy( 0.015625F / 2 );
-	}
-	
-	private void createCamera() {
-		//cam.setLocation( new Vector3f(0,80,30) );
-		//ChaseCamera chaser = new ChaseCamera( cam, ball);
-//		input = new FirstPersonHandler( cam, params.CAMERA_MOVE_SPEED, params.CAMERA_TURN_SPEED );
-		// Simple chase camera
-        input.removeFromAttachedHandlers( cameraInputHandler );
-        cameraInputHandler = new ChaseCamera( cam, dynamics.anchor );
-        cameraInputHandler.setActionSpeed( 0.3F );
-        ((ChaseCamera)cameraInputHandler).setMaxDistance( 2 );
-        ((ChaseCamera)cameraInputHandler).setMinDistance( 1 );
-        input.addToAttachedHandlers( cameraInputHandler );
-	}
-	
-	
-	private void createControls() {
-		//new PhysicsPicker( input, rootNode, getPhysicsSpace() );
-        //MouseInput.get().setCursorVisible( true );
-	}
-	
+    
+    
 	public void setState(States state){
 		this.state = state;
 	} 
 	
+	
 	public void showStartUpMenu(){
 		menu.showAllOptions();
 	}
+	
 	
 }
