@@ -7,7 +7,6 @@ import java.util.List;
 
 import ar.edu.itba.cg.utils.ColladaModelLoader;
 
-import com.jme.bounding.BoundingBox;
 import com.jme.light.PointLight;
 import com.jme.light.SpotLight;
 import com.jme.math.Quaternion;
@@ -320,7 +319,7 @@ public class Scene {
                 // childCreation( barVisual );
 		barVisual.setLocalScale( 0.04F );
 		barVisual.setLocalRotation( new Quaternion(new float[] {(float)-Math.PI/2,(float)Math.PI,0} ) );
-		barVisual.setLocalTranslation( new Vector3f(6.7F,params.BALL_RADIUS_EXTRA - 0.01F,0.8F) );
+		barVisual.setLocalTranslation( new Vector3f(6.7F, 0.01F, 0.8F) );
 		barVisual.setCullHint( CullHint.Never );
 		rootNode.attachChild( barVisual );
 	}
@@ -360,6 +359,7 @@ public class Scene {
 	
 	public void createIlumination() {
 		((PointLight)lightState.get(0)).setLocation(new Vector3f(0, params.ROOM_HEIGHT * 0.9F, 0));
+		((PointLight)lightState.get(0)).setAmbient( new ColorRGBA(1,1,1,1) );
 		lightState.setTwoSidedLighting(true);
 		
 //		lightState.detachAll();

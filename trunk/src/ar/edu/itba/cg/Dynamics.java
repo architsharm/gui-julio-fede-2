@@ -120,7 +120,7 @@ public class Dynamics {
 	
 	
 	public float getBallZ() {
-		return ball.getLocalRotation().z;
+		return ball.getLocalTranslation().z;
 	}
 	
 	

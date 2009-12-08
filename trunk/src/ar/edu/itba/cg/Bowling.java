@@ -23,6 +23,7 @@ import com.jmex.physics.util.SimplePhysicsGame;
 //	Down	 Look Down
 //	Left	 Look Left
 //	Right	 Look Right
+
 //	T	 Wireframe Mode on/off
 //	P	 Pause On/Off
 //	L	 Lights On/Off
@@ -104,6 +105,8 @@ public class Bowling extends SimplePhysicsGame {
 		
 		display.getRenderer().getCamera().setFrustumFar( params.ROOM_LENGTH * 1.1f);
 		display.getRenderer().getCamera().update();
+		
+		cam.setFrustumPerspective(45.0f, (float) display.getWidth() / (float) display.getHeight(), 1, 5000);
 		
 		display.setTitle( params.TITLE );
 		
@@ -201,7 +204,7 @@ public class Bowling extends SimplePhysicsGame {
     			if( KeyInput.get().isKeyDown(KeyInput.KEY_UP) && dynamics.getAnchorZ() > 0 ) {
     				dynamics.moveAnchorZ( -0.01F );
     			}
-    			if( KeyInput.get().isKeyDown(KeyInput.KEY_DOWN) && dynamics.getAnchorZ() < params.APPROACH_LENGTH ) {
+    			if( KeyInput.get().isKeyDown(KeyInput.KEY_DOWN) && dynamics.getAnchorZ() < (params.APPROACH_LENGTH - params.BALL_RADIUS) ) {
     				dynamics.moveAnchorZ( 0.01F );
     			}
     			if( KeyInput.get().isKeyDown(KeyInput.KEY_A) && dynamics.getAnchorRotation() < (float)(Math.PI/4) ) {
@@ -216,11 +219,11 @@ public class Bowling extends SimplePhysicsGame {
     			if( KeyInput.get().isKeyDown(KeyInput.KEY_S) && dynamics.getBallZ() > -1 ) {
     				dynamics.addForceZ( 4 * timer.getTimePerFrame() * 1000 );
     			}
-    			if( KeyInput.get().isKeyDown(KeyInput.KEY_Q) && dynamics.getBallZ() > -1 ) {
-    				dynamics.addTorqueZ( 0.5f );
+    			if( KeyInput.get().isKeyDown(KeyInput.KEY_Q) ) {
+    				dynamics.addTorqueZ( 0.8f );
     			}
-    			if( KeyInput.get().isKeyDown(KeyInput.KEY_E) && dynamics.getBallZ() > -1 ) {
-    				dynamics.addTorqueZ( -0.5f );
+    			if( KeyInput.get().isKeyDown(KeyInput.KEY_E) ) {
+    				dynamics.addTorqueZ( -0.8f );
     			}
     			if ( pause ) {
     				score.print( "Chupala" );
