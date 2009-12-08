@@ -41,7 +41,7 @@ public class BallCollisionAction extends InputAction {
 			((DynamicPhysicsNode)contactInfo.getNode1()).getLinearVelocity( v1 );
 			((DynamicPhysicsNode)contactInfo.getNode2()).getLinearVelocity( v2 );
 			v1.subtract( v2 );
-			soundManager.playSound( soundManager.pinDown[ pin ], Math.abs(v1.length()/2) );
+			soundManager.playSound( soundManager.pinDown[ pin ], Math.abs(v1.length()/5) );
         }
 		if( name1.startsWith( "lane" ) || name2.startsWith( "lane" ) ) {
 			DynamicPhysicsNode ball;

@@ -13,10 +13,12 @@ public class SoundManager {
 	public AudioTrack[] pinDown;
 	public AudioTrack ballMoving;
 	
+	
 	public SoundManager() {
 		this.createAudio();
 	}
 
+	
 	private void createAudio() {
 		audioQueue = AudioSystem.getSystem().getMusicQueue();
 		audioQueue.setCrossfadeinTime(0);
@@ -27,6 +29,7 @@ public class SoundManager {
 		}
 		ballMoving = getAudioTrack( "resources/Sounds/ballMoving.wav" );
 	}
+	
 	
 	public AudioTrack getAudioTrack(String file) {
 		AudioTrack track = null;
@@ -41,14 +44,20 @@ public class SoundManager {
 		return track;
 	}
 	
+	
 	public void playSound(AudioTrack track, float volume ) {
 		if( !track.isPlaying() ) {
 			track.setMinVolume( 0 );
-			track.setVolume(volume);
+			track.setVolume( volume );
+			track.setTargetVolume( volume );
+			track.setVolumeChangeRate( 1 );
+			track.update( 1 );
 			audioQueue.addTrack(track);
 			audioQueue.play();
 		}
 		AudioSystem.getSystem().update();
 		AudioSystem.getSystem().fadeOutAndClear(1.5f);
 	}
+	
+	
 }
