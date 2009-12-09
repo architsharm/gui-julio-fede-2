@@ -29,13 +29,13 @@ public class SoundManager {
 			pinDown[i] = getAudioTrack( "resources/Sounds/pinHitLong.wav" );
 		}
 		ballMoving = getAudioTrack( "resources/Sounds/ballMoving.wav" );
-//		ambient = getAudioTrack( "resources/Sounds/ambient.wav" );
-//		ambient.setLooping(true);
-//		ambient.setVolume( 0.1F );
-//		ambient.setTargetVolume( 0.1F );
-//		ambient.setVolumeChangeRate( 1 );
-//		ambient.update( 1 );
-//		ambient.play();
+		ambient = getAudioTrack( "resources/Sounds/ambient.wav" );
+		ambient.setLooping(true);
+		ambient.setVolume( 0.9F );
+		ambient.setTargetVolume( 0.9F );
+		ambient.setVolumeChangeRate( 1 );
+		ambient.update( 1 );
+		ambient.play();
 	}
 	
 	
