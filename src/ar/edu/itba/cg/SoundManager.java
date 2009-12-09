@@ -26,7 +26,7 @@ public class SoundManager {
 		audioQueue.setRepeatType(RepeatType.NONE);
 		pinDown = new AudioTrack[10];
 		for( int i = 0; i < 10; i++ ) {
-			pinDown[i] = getAudioTrack( "resources/Sounds/pinHitLong.wav" );
+			pinDown[i] = getAudioTrack( "resources/Sounds/pinHit.wav" );
 		}
 		ballMoving = getAudioTrack( "resources/Sounds/ballMoving.wav" );
 		ambient = getAudioTrack( "resources/Sounds/ambient.wav" );
