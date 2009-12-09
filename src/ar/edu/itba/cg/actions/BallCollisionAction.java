@@ -57,7 +57,7 @@ public class BallCollisionAction extends InputAction {
 			float z = Math.abs( v.getZ() );
 			float y = Math.abs( v.getY() );
 			if( y < 1  && z > 1 ) {
-				soundManager.playSound( soundManager.ballMoving, z/4 );
+				soundManager.playSound( soundManager.ballMoving, z );
 			}
 		}
     }
