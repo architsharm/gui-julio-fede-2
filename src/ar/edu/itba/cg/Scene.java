@@ -379,6 +379,7 @@ public class Scene {
 
     private StaticPhysicsNode createStaticVisualBox( String name ) {
         StaticPhysicsNode staticNode = physicsSpace.createStaticNode();
+        staticNode.setName( name );
         rootNode.attachChild( staticNode );
         final Box visualBox = new Box( name, new Vector3f(), 0.5f, 0.5f, 0.5f );
         staticNode.attachChild( visualBox );
