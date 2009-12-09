@@ -33,7 +33,6 @@ public class Scene {
 	private Renderer renderer;
 	private SceneParameters params;
 	private float ROOM_WIDTH;
-	public StaticPhysicsNode lane;
 	
 	public Scene( Node rootNode, PhysicsSpace physicsSpace, LightState lightState, Renderer renderer, SceneParameters parameters ) {
 		this.rootNode = rootNode;
@@ -165,12 +164,19 @@ public class Scene {
 	
 	
 	public void createLane( Vector3f move ) {
-		lane = createStaticVisualBox( "lane" );
-		Utils.setColor( lane, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
-		Utils.setTexture( lane, "resources/textures/wood.jpg", renderer );
-		lane.getLocalScale().set( params.LANE_WIDTH, params.BALL_RADIUS_EXTRA, params.LANE_LENGTH );
-		lane.getLocalTranslation().set( move.x + params.ROOM_CENTER_X, move.y + params.BALL_RADIUS_EXTRA/2, move.z - params.LANE_LENGTH/2 );
-		lane.setMaterial( Material.WOOD );
+		StaticPhysicsNode laneStart = createStaticVisualBox( "lane" );
+		Utils.setColor( laneStart, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
+		Utils.setTexture( laneStart, "resources/textures/wood.jpg", renderer );
+		laneStart.getLocalScale().set( params.LANE_WIDTH, params.BALL_RADIUS_EXTRA, params.LANE_LENGTH * 1 / 2 );
+		laneStart.getLocalTranslation().set( move.x + params.ROOM_CENTER_X, move.y + params.BALL_RADIUS_EXTRA/2, move.z - params.LANE_LENGTH/2 * 1/2 );
+		laneStart.setMaterial( Material.ICE );
+		
+		StaticPhysicsNode laneEnd = createStaticVisualBox( "lane" );
+		Utils.setColor( laneEnd, ColorRGBA.white, params.NO_SHININESS, params.NO_COLOR, renderer );
+		Utils.setTexture( laneEnd, "resources/textures/wood.jpg", renderer );
+		laneEnd.getLocalScale().set( params.LANE_WIDTH, params.BALL_RADIUS_EXTRA, params.LANE_LENGTH * 1/2  );
+		laneEnd.getLocalTranslation().set( move.x + params.ROOM_CENTER_X, move.y + params.BALL_RADIUS_EXTRA/2, move.z - params.LANE_LENGTH/2 /2 - params.LANE_LENGTH * 1 / 2 );
+		laneEnd.setMaterial( Material.WOOD );
 	}
 	
 	
