@@ -3,9 +3,6 @@ INFORME!!!!!!!!
 EJECUTABLES!!!!!!
 CAMBIAR DE REPO!!!!
 
-Sonido ambiente, y mas FXs! (sonido de strike!!)
-Mejorar el sonido de bola pinos (agregar la velocidad)
-
 Jugabilidad Puntaje!
 buenas luces!
 
