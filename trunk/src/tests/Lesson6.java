@@ -1,3 +1,4 @@
+package tests;
 /*
  * Copyright (c) 2005-2006 jME Physics 2
  * All rights reserved.

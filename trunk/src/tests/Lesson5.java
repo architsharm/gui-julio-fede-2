@@ -1,3 +1,4 @@
+package tests;
 /*
  * Copyright (c) 2005-2006 jME Physics 2
  * All rights reserved.
@@ -39,70 +40,95 @@ import com.jme.input.action.InputAction;
 import com.jme.input.action.InputActionEvent;
 import com.jme.math.Vector3f;
 import com.jmex.physics.DynamicPhysicsNode;
+import com.jmex.physics.PhysicsSpace;
+import com.jmex.physics.PhysicsUpdateCallback;
 import com.jmex.physics.StaticPhysicsNode;
 import com.jmex.physics.geometry.PhysicsBox;
 import com.jmex.physics.util.SimplePhysicsGame;
 
 /**
- * This class shows first interaction with physics: A sphere falling onto a floor. The sphere can be moved with forces
- * by pressing a key. It is put back onto the floor if it falls down.
- * <p/>
- * Note: We are not just changing the location of sphere but apply forces. This allows the physics system to take
- * care that nodes do not move straight through each other. The physics system might even get quite unstable if
- * we move nodes into each other just by changing location.
+ * This class shows how to apply forces continuously. Again a sphere that can be moved with forces
+ * by pressing keys.
  *
  * @author Irrisor
  */
-public class Lesson4 extends SimplePhysicsGame {
+public class Lesson5 extends SimplePhysicsGame {
+    private InputHandler physicsStepInputHandler;
     private DynamicPhysicsNode dynamicNode;
 
     protected void simpleInitGame() {
-        // first we will create a floor like in Lesson1
+        // first we will create a floor and sphere like in Lesson4
         StaticPhysicsNode staticNode = getPhysicsSpace().createStaticNode();
         rootNode.attachChild( staticNode );
         PhysicsBox floorBox = staticNode.createBox( "floor" );
         floorBox.getLocalScale().set( 10, 0.5f, 10 );
-        // note: we did not call floorBox.setLocalScale( new Vector( 10, 0.5f, 10 ) ) as this creates a vector
-        //       this is especially important (not creating object) when you do it every frame
-
-        // second we create a sphere that should fall down on the floor - analoguous to the box from Lesson1
         dynamicNode = getPhysicsSpace().createDynamicNode();
         rootNode.attachChild( dynamicNode );
         dynamicNode.createSphere( "rolling sphere" );
         dynamicNode.getLocalTranslation().set( 0, 5, 0 );
-        // note: we do not move the collision geometry but the physics node!
 
-        // now we add an input action to move the sphere on a key event
-        input.addAction( new MyInputAction(),
-                InputHandler.DEVICE_KEYBOARD, KeyInput.KEY_SPACE, InputHandler.AXIS_NONE, false );
+        // we want to take in account now what was already mentioned in Lesson3:
+        // forces must be applied for each physics step if you want a constant force applied
+        // thus we create an input handler that gets invoked each physics step
+        physicsStepInputHandler = new InputHandler();
+        getPhysicsSpace().addToUpdateCallbacks( new PhysicsUpdateCallback() {
+            public void beforeStep( PhysicsSpace space, float time ) {
+                physicsStepInputHandler.update( time );
+            }
+            public void afterStep( PhysicsSpace space, float time ) {
+
+            }
+        } );
+
+        // now we add an input action to move the sphere while a key is pressed
+        physicsStepInputHandler.addAction( new MyInputAction( new Vector3f( 70, 0, 0 ) ),
+                InputHandler.DEVICE_KEYBOARD, KeyInput.KEY_U, InputHandler.AXIS_NONE, true );
         // the action is defined below
-        // we register it to be invoked _once_ of every stroke of the HOME key (POS1)
+        // we register it to be invoked every update of the input handler while the HOME key (POS1) is down
+        //                              ( last parameter value is 'true' )
+        // note: as the used input handler gets updated each physics step the force is framerate independent -
+        //       we can't use the normal input handler here!
+
+        // register an action for the other direction, too
+        physicsStepInputHandler.addAction( new MyInputAction( new Vector3f( -70, 0, 0 ) ),
+                InputHandler.DEVICE_KEYBOARD, KeyInput.KEY_I, InputHandler.AXIS_NONE, true );
 
         // again we have created only physics - activate physics debug mode to see something
         showPhysics = true;
     }
 
     /**
-     * An action that get's invoked on a keystroke (once per stroke).
+     * An action that get's invoked while a key is down.
      */
     private class MyInputAction extends InputAction {
+        private final Vector3f direction;
+        private final Vector3f appliedForce = new Vector3f();
+
+        /**
+         * The action get the node it should move and the direction it should move in.
+         *
+         * @param direction force that should be applied on each invocation of the action
+         */
+        public MyInputAction( Vector3f direction ) {
+            // simply remember in member variables
+            this.direction = direction;
+        }
+
         /**
          * This method gets invoked upon key event
          *
          * @param evt more data about the event (we don't need it)
          */
         public void performAction( InputActionEvent evt ) {
-            // the only really important line: apply a force to the moved node
-            dynamicNode.addForce( new Vector3f( 50, 0, 0 ) );
-            // note: forces are applied every physics step and accumulate until then
-            //       to apply a constant force we would have to do it for each physics step! (see next lesson)
+            appliedForce.set( direction ).multLocal( evt.getTime() );
+            // the really important line: apply a force to the moved node
+            dynamicNode.addForce( appliedForce );
         }
     }
 
     @Override
     protected void simpleUpdate() {
-        // as the user can steer the sphere only in one direction it will fall off the floor after a short time
-        // we want to put it back up then
+        // put the sphere back on the floor when it fell down
         if ( dynamicNode.getWorldTranslation().y < -20 ) {
             // ok it has definately fallen off the floor
             // clear speed and forces
@@ -119,10 +145,11 @@ public class Lesson4 extends SimplePhysicsGame {
      */
     public static void main( String[] args ) {
         Logger.getLogger( "" ).setLevel( Level.WARNING ); // to see the important stuff
-        new Lesson4().start();
+        new Lesson5().start();
     }
 }
 
 /*
  * $log$
  */
+

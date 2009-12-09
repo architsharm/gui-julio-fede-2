@@ -1,3 +1,4 @@
+package tests;
 /*
  * Copyright (c) 2005-2006 jME Physics 2
  * All rights reserved.
@@ -33,25 +34,19 @@
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jme.math.Vector3f;
+import com.jme.scene.shape.Box;
 import com.jmex.physics.DynamicPhysicsNode;
 import com.jmex.physics.StaticPhysicsNode;
-import com.jmex.physics.geometry.PhysicsBox;
 import com.jmex.physics.util.SimplePhysicsGame;
 
 /**
- * This class shows the most simple physics: A dynamic box falling onto a static floor (also a box).
- * <p/>
- * Prerequisites:
- * <ul>
- * <li> Java 5 and general programming skill, of course </li>
- * <li> you should have a general understanding of jME (including OpenGL as LWJGL is the default rederer) </li>
- * <li> read up a bit on general physics simulation (e.g. chapter 3 of the ODE user guide on http://ode.org) </li>
- * <li> already got jME Physics 2 API + implementation compiled - run TestGenerateGeometry to verify that </li>
- * <ul>
+ * This class shows the most simple physics with graphical representation: A dynamic box falling onto a static floor
+ * (also a box).
  *
  * @author Irrisor
  */
-public class Lesson1 extends SimplePhysicsGame {
+public class Lesson2 extends SimplePhysicsGame {
     protected void simpleInitGame() {
         // first we will create the floor
         // as the floor can't move we create a _static_ physics node
@@ -60,32 +55,41 @@ public class Lesson1 extends SimplePhysicsGame {
         // attach the node to the root node to have it updated each frame
         rootNode.attachChild( staticNode );
 
-        // now we create a collision geometry for the floor - a box
-        PhysicsBox floorBox = staticNode.createBox( "floor" );
+        // now we do not create a collision geometry but a visual box
+        final Box visualFloorBox = new Box( "floor", new Vector3f(), 5, 0.25f, 5 );
+        // note: we have used the constructor (name, center, xExtent, yExtent, zExtent)
+        //       thus our box is centered at (0,0,0) and has size (10, 0.5f, 10)
 
-        // the box is already attached to our static node
-        // it currently has height, width and depth of 1
-        // resize it to be 10x10 thin (0.5) floor
-        floorBox.getLocalScale().set( 10, 0.5f, 10 );
+        // we have to attach it to our node
+        staticNode.attachChild( visualFloorBox );
+
+        // now we let jME Physics 2 generate the collision geometry for our box
+        staticNode.generatePhysicsGeometry();
 
         // second we create a box that should fall down on the floor
         // as the new box should move we create a _dynamic_ physics node
         DynamicPhysicsNode dynamicNode = getPhysicsSpace().createDynamicNode();
-
-        // also attach it to the scene
         rootNode.attachChild( dynamicNode );
 
-        // create another collision geometry, now for the falling box
-        dynamicNode.createBox( "falling box" );
-        // we don't scale this one, size (1,1,1) is fine
+        // again we create a visual box
+        final Box visualFallingBox = new Box( "falling box", new Vector3f(), 0.5f, 0.5f, 0.5f );
+        // note: again we have used the constructor (name, center, xExtent, yExtent, zExtent)
+        //       thus our box is centered at (0,0,0) and has size (1, 1, 1)
+        //       the center is really important here because we want the center of the box to lie in the center
+        //       of the dynamic physics node - which is the center of gravity!
+
+        // attach it to the dynamic node
+        dynamicNode.attachChild( visualFallingBox );
+
+        // and generate collision geometries again
+        dynamicNode.generatePhysicsGeometry();
 
         // we have to move our dynamic node upwards such that is does not start in but above the floor
         dynamicNode.getLocalTranslation().set( 0, 5, 0 );
         // note: we do not move the collision geometry but the physics node!
 
-        // ok we have created some physics stuff but no actual meshes that could be seen
-        // thus we activate the debug mode to allow us to see anything (can be toggled in game with key V)
-        showPhysics = true;
+        // now we have visuals for the physics and don't necessarily need to activate the physics debugger
+        // though you can do it (V key) to see physics in the app
     }
 
     /**
@@ -95,7 +99,7 @@ public class Lesson1 extends SimplePhysicsGame {
      */
     public static void main( String[] args ) {
         Logger.getLogger( "" ).setLevel( Level.WARNING ); // to see the important stuff
-        new Lesson1().start();
+        new Lesson2().start();
     }
 }
 
