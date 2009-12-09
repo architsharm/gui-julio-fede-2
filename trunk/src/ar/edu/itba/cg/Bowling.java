@@ -103,7 +103,7 @@ public class Bowling extends SimplePhysicsGame {
     
 	@Override
 	protected void simpleUpdate() {
-		
+		score.print(" Pins down: " + dynamics.numberOfPins() );
 	}
 	
 	
@@ -119,7 +119,7 @@ public class Bowling extends SimplePhysicsGame {
 		display.setTitle( params.TITLE );
 		
 		score = Text.createDefaultTextLabel( "score", "" );
-		score.setLocalTranslation( 0, 20, 0 );
+		score.setLocalTranslation( 0, 8, 0 );
 		statNode.attachChild( score );
 		
 //        CullState cullState = display.getRenderer().createCullState();
@@ -180,7 +180,7 @@ public class Bowling extends SimplePhysicsGame {
     			}
     		}else if( state == States.SHOOTING ){
     			if ( pause ) {
-    				score.print( "Paused" );
+    				score.print( " Paused" );
     			}
     			if ( KeyInput.get().isKeyDown(KeyInput.KEY_SPACE)) {
     				dynamics.resetBall();
@@ -196,7 +196,6 @@ public class Bowling extends SimplePhysicsGame {
     				dynamics.releaseBall();
     				cameraManager.setBallCamera();
     			}
-    			score.print(" Pins down: " + dynamics.numberOfPins() );
     		}else if( state == States.HELP ){
     			helpMenu.showAllOptions();
     			if( KeyInput.get().isKeyDown(KeyInput.KEY_0) ) {
@@ -255,10 +254,6 @@ public class Bowling extends SimplePhysicsGame {
     			if( KeyInput.get().isKeyDown(KeyInput.KEY_E) ) {
     				dynamics.addTorqueZ( -0.8f );
     			}
-    			if ( pause ) {
-    				score.print( "Chupala" );
-    			}
-    			score.print(" Pins down: " + dynamics.numberOfPins() );
     		}else if( state == States.EXIT ){
     			finish();			
     		}
@@ -274,7 +269,11 @@ public class Bowling extends SimplePhysicsGame {
 	public void showStartUpMenu(){
 		menu.showAllOptions();
 	}
+	
+	
 	public void startGame(){
 		gameScore.createScore();
 	}
+	
+	
 }
