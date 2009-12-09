@@ -12,8 +12,14 @@ import com.jme.input.KeyInput;
 import com.jme.input.action.InputAction;
 import com.jme.input.action.InputActionEvent;
 import com.jme.renderer.ColorRGBA;
+import com.jme.renderer.Renderer;
+import com.jme.renderer.pass.ShadowedRenderPass;
+import com.jme.scene.Spatial;
 import com.jme.scene.Text;
+import com.jme.scene.Spatial.TextureCombineMode;
 import com.jme.scene.state.CullState;
+import com.jme.scene.state.FogState;
+import com.jme.scene.state.ZBufferState;
 import com.jmex.physics.util.SimplePhysicsGame;
 
 //	W	 Move Forward
@@ -38,6 +44,7 @@ public class Bowling extends SimplePhysicsGame {
 	public static String IMAGE_LOGO = "resources/logo.jpg";
 	private Scene scene;
 	private Dynamics dynamics;
+	private static ShadowedRenderPass sPass = new ShadowedRenderPass();
 	private CameraManager cameraManager;
 	private StartUpMenu menu;
 	private HelpMenu helpMenu;
@@ -65,6 +72,10 @@ public class Bowling extends SimplePhysicsGame {
 	protected void simpleInitGame() {
 		// Parameters
 		this.params = new SceneParameters( "resources/scene/scene.properties" );
+		// Display
+		this.createDisplay();
+		// Physics
+		this.createPhysics();
 		//Menu
 		this.menu = new StartUpMenu( statNode, display.getWidth(), display.getHeight(), this );
 		this.menu.showAllOptions();
@@ -72,10 +83,6 @@ public class Bowling extends SimplePhysicsGame {
 		this.helpMenu = new HelpMenu( statNode, display.getWidth(), display.getHeight(),this );
 		//Game menu
 		this.gameScore = new GameMenu(statNode, display.getWidth(), display.getHeight());
-		// Display
-		this.createDisplay();
-		// Physics
-		this.createPhysics();
 		// Audio
 		this.soundManager = new SoundManager();
 		// Static scene
@@ -100,23 +107,42 @@ public class Bowling extends SimplePhysicsGame {
 	}
 	
 	
-	private void createDisplay() {
-//		CullState cs = display.getRenderer().createCullState();
-//		cs.setCullFace( CullState.Face.Back );
-//		rootNode.setRenderState( cs );
-		
+	private void createDisplay() {      
 		display.getRenderer().setBackgroundColor( ColorRGBA.black );
 		
 		display.getRenderer().getCamera().setFrustumFar( params.ROOM_LENGTH * 1.1f);
 		display.getRenderer().getCamera().update();
 		
-		cam.setFrustumPerspective(45.0f, (float) display.getWidth() / (float) display.getHeight(), 1, 5000);
+        cam.setFrustumPerspective( 50.0f, (float) display.getWidth()/ (float) display.getHeight(), 1f, 10000 );
+		
 		
 		display.setTitle( params.TITLE );
 		
 		score = Text.createDefaultTextLabel( "score", "" );
 		score.setLocalTranslation( 0, 20, 0 );
 		statNode.attachChild( score );
+		
+//        CullState cullState = display.getRenderer().createCullState();
+//        cullState.setCullFace( CullState.Face.None );
+//        cullState.setEnabled( true );
+//        rootNode.setRenderState( cullState );
+//		
+//        rootNode.setCullHint( Spatial.CullHint.Never );
+//		
+//        rootNode.setRenderQueueMode( Renderer.QUEUE_OPAQUE );
+//		
+//        ZBufferState zState = display.getRenderer().createZBufferState();
+//        zState.setEnabled( true );
+//        rootNode.setRenderState( zState );
+//        
+//        rootNode.setLightCombineMode(Spatial.LightCombineMode.Off);
+//        rootNode.setTextureCombineMode(TextureCombineMode.Replace);
+//        
+//        rootNode.updateRenderState();
+//
+//        rootNode.lockBounds();
+//        rootNode.lockMeshes();
+       
 	}
 	
 	
