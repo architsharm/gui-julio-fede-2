@@ -12,14 +12,10 @@ import com.jme.input.KeyInput;
 import com.jme.input.action.InputAction;
 import com.jme.input.action.InputActionEvent;
 import com.jme.renderer.ColorRGBA;
-import com.jme.renderer.Renderer;
 import com.jme.renderer.pass.ShadowedRenderPass;
-import com.jme.scene.Spatial;
 import com.jme.scene.Text;
-import com.jme.scene.Spatial.TextureCombineMode;
-import com.jme.scene.state.CullState;
-import com.jme.scene.state.FogState;
-import com.jme.scene.state.ZBufferState;
+import com.jmex.physics.PhysicsSpace;
+import com.jmex.physics.PhysicsUpdateCallback;
 import com.jmex.physics.util.SimplePhysicsGame;
 
 //	W	 Move Forward
@@ -55,6 +51,8 @@ public class Bowling extends SimplePhysicsGame {
 	// Game States
 	public static enum States {MENU, SHOOTING, ROLLING, HELP, EXIT};
 	private States state = States.MENU;
+	
+	private InputHandler physicsStepInputHandler;
 	
 	
 	public static void main(String [] args) throws MalformedURLException {
@@ -150,11 +148,20 @@ public class Bowling extends SimplePhysicsGame {
 		getPhysicsSpace().setAutoRestThreshold( 0.2f );
         setPhysicsSpeed( 1 );
         getPhysicsSpace().setAccuracy( 0.015625F / 2 );
+        physicsStepInputHandler = new InputHandler();
+        getPhysicsSpace().addToUpdateCallbacks( new PhysicsUpdateCallback() {
+            public void beforeStep( PhysicsSpace space, float time ) {
+                physicsStepInputHandler.update( time );
+            }
+            public void afterStep( PhysicsSpace space, float time ) {
+
+            }
+        } );
 	}
 	
 	
 	private void createControls() {
-		input.addAction( new MyInputAction(),
+		physicsStepInputHandler.addAction( new MyInputAction(),
 				InputHandler.DEVICE_KEYBOARD, InputHandler.BUTTON_ALL, InputHandler.AXIS_NONE, true );
 		input.addAction( new MyInputAction2(),
 				InputHandler.DEVICE_KEYBOARD, InputHandler.BUTTON_ALL, InputHandler.AXIS_NONE, false );
@@ -243,10 +250,10 @@ public class Bowling extends SimplePhysicsGame {
     				dynamics.rotateAnchor( -0.01F );
     			}
     			if( KeyInput.get().isKeyDown(KeyInput.KEY_W) && dynamics.getBallZ() > -1 ) {
-    				dynamics.addForceZ( -4 * timer.getTimePerFrame() * 1000 );
+    				dynamics.addForceZ( -40 * evt.getTime() * 1000 );
     			}
     			if( KeyInput.get().isKeyDown(KeyInput.KEY_S) && dynamics.getBallZ() > -1 ) {
-    				dynamics.addForceZ( 4 * timer.getTimePerFrame() * 1000 );
+    				dynamics.addForceZ( 40 * evt.getTime() * 1000 );
     			}
     			if( KeyInput.get().isKeyDown(KeyInput.KEY_Q) ) {
     				dynamics.addTorqueZ( 0.8f );

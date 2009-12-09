@@ -32,12 +32,13 @@ public class CameraManager {
 	
 	public void setBallCamera() {
 		Camera cam = DisplaySystem.getDisplaySystem().getRenderer().getCamera();
-		InputHandler cameraInputHandler = new ChaseCamera( cam, dynamics.ball );
+		cam.setAxes(new Vector3f(1,1,0), new Vector3f(0,1,1), new Vector3f(0,0,1));
+		ChaseCamera cameraInputHandler = new ChaseCamera( cam, dynamics.ball );
 		cameraInputHandler.setActionSpeed( 5.3F );
 		((ChaseCamera)cameraInputHandler).setDampingK( 0 );
 		((ChaseCamera)cameraInputHandler).setSpringK( 0 );
-        ((ChaseCamera)cameraInputHandler).setMaxDistance( 3 );
-        ((ChaseCamera)cameraInputHandler).setMinDistance( 2 );
+        cameraInputHandler.setMaxDistance( 3 );
+        cameraInputHandler.setMinDistance( 2 );
         ((ChaseCamera)cameraInputHandler).setTargetOffset( new Vector3f( 0, params.BALL_DIAMETER, -params.BOX_LENGTH ) );
 		changeInput( cameraInputHandler );
 //		cam.setUp( new Vector3f(0,1,0) );
@@ -49,9 +50,9 @@ public class CameraManager {
 	
 	public void setAnchorCamera() {
 		Camera cam = DisplaySystem.getDisplaySystem().getRenderer().getCamera();
-		InputHandler cameraInputHandler = new ChaseCamera( cam, dynamics.anchor );
-        ((ChaseCamera)cameraInputHandler).setMaxDistance( 2 );
-        ((ChaseCamera)cameraInputHandler).setMinDistance( 1 );
+		ChaseCamera cameraInputHandler = new ChaseCamera( cam, dynamics.anchor );
+        cameraInputHandler.setMaxDistance( 2 );
+        cameraInputHandler.setMinDistance( 1 );
 		changeInput( cameraInputHandler );
 //		cam.setUp( new Vector3f(0,1,0) );
 //		cam.setLeft( new Vector3f(-1,0,0) );

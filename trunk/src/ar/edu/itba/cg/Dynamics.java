@@ -236,7 +236,7 @@ public class Dynamics {
 			pins[i].rest();
 			pins[i].clearDynamics();
 			pins[i].setLocalRotation(new Quaternion( new float[]{(float)-Math.PI/2,0,0} ));
-			pins[i].setLocalScale(0.06f);
+			pins[i].setLocalScale(0.055f);
 			pins[i].setLocalTranslation( getPinPosition(i) );
 		}
 	}
