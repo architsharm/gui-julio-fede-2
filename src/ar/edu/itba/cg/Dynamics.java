@@ -138,6 +138,7 @@ public class Dynamics {
 
 
 	public void moveAnchorX(float x) {
+		ball.unrest();
 		anchor.getLocalTranslation().addLocal( x, 0, 0 );
 		arrow.getLocalTranslation().addLocal( x, 0, 0 );
 	}
@@ -149,6 +150,7 @@ public class Dynamics {
 	
 	
 	public void moveAnchorZ(float z) {
+		ball.unrest();
 		anchor.getLocalTranslation().addLocal( 0, 0, z );
 		arrow.getLocalTranslation().addLocal( 0, 0, z );
 	}
