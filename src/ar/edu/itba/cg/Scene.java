@@ -258,7 +258,7 @@ public class Scene {
 			e.printStackTrace();
 		}
 		ColladaModelLoader loader = new ColladaModelLoader();
-		Node tv = loader.getModel( "resources/scene/TV.dae" );
+		Node tv = loader.getModel( "resources/scene/sorny.dae" );
 		try {
 			ResourceLocatorTool.removeResourceLocator( ResourceLocatorTool.TYPE_TEXTURE, new SimpleResourceLocator( new URI("file:resources/scene/") ) );
 		} catch (URISyntaxException e) {
@@ -267,9 +267,9 @@ public class Scene {
 		}
 		// Create this node as a static physics node! (slower)
                 // childCreation( tv );
-		tv.setLocalScale( 0.015F );
-		tv.setLocalRotation( new Quaternion(new float[] {(float)-Math.PI/2,(float)-Math.PI/2,(float)-Math.PI/5} ) );
-		tv.setLocalTranslation( new Vector3f( move.x + 0, move.y + params.ROOM_HEIGHT - 0.3F, move.z + 0 ) );
+		tv.setLocalScale( 0.4F );
+		tv.setLocalRotation( new Quaternion(new float[] {(float)-Math.PI/2,(float)-Math.PI/2,(float)-Math.PI/6} ) );
+		tv.setLocalTranslation( new Vector3f( move.x + 0, move.y + params.ROOM_HEIGHT + 0.4F, move.z + 0 ) );
 		rootNode.attachChild( tv );
 	}
 	
