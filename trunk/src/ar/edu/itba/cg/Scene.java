@@ -361,6 +361,8 @@ public class Scene {
 		((PointLight)lightState.get(0)).setLocation(new Vector3f(0, params.ROOM_HEIGHT * 0.9F, 0));
 		((PointLight)lightState.get(0)).setAmbient( new ColorRGBA(1,1,1,1) );
 		lightState.setTwoSidedLighting(true);
+		lightState.setEnabled(true);
+		lightState.setGlobalAmbient( new ColorRGBA(0.7f, 0.7f, 0.7f, 1.0f) );
 		
 //		lightState.detachAll();
 //		for (float i = 0; i <= params.LANE_LENGTH; i+=params.LANE_LENGTH/4) {
