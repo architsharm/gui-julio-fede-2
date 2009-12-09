@@ -163,6 +163,8 @@ public class Bowling extends SimplePhysicsGame {
 	private void createControls() {
 		physicsStepInputHandler.addAction( new MyInputAction(),
 				InputHandler.DEVICE_KEYBOARD, InputHandler.BUTTON_ALL, InputHandler.AXIS_NONE, true );
+		input.addAction( new AnchorAction(),
+				InputHandler.DEVICE_KEYBOARD, InputHandler.BUTTON_ALL, InputHandler.AXIS_NONE, true );
 		input.addAction( new MyInputAction2(),
 				InputHandler.DEVICE_KEYBOARD, InputHandler.BUTTON_ALL, InputHandler.AXIS_NONE, false );
 	}
@@ -223,7 +225,8 @@ public class Bowling extends SimplePhysicsGame {
 	/**
      * An action that get's invoked on a keystroke (once per stroke).
      */
-    private class MyInputAction extends InputAction {
+	
+	private class AnchorAction extends InputAction {
         /**
          * This method gets invoked upon key event
          *
@@ -238,11 +241,23 @@ public class Bowling extends SimplePhysicsGame {
     				dynamics.moveAnchorX( 0.01F );
     			}
     			if( KeyInput.get().isKeyDown(KeyInput.KEY_UP) && dynamics.getAnchorZ() > 0 ) {
-    				dynamics.moveAnchorZ( -0.01F );
+    				dynamics.moveAnchorZ( -0.1F );
     			}
     			if( KeyInput.get().isKeyDown(KeyInput.KEY_DOWN) && dynamics.getAnchorZ() < (params.APPROACH_LENGTH - params.BALL_RADIUS) ) {
-    				dynamics.moveAnchorZ( 0.01F );
+    				dynamics.moveAnchorZ( 0.1F );
     			}
+        	}
+        }
+	}
+	
+    private class MyInputAction extends InputAction {
+        /**
+         * This method gets invoked upon key event
+         *
+         * @param evt more data about the event (we don't need it)
+         */
+        public void performAction( InputActionEvent evt ) {
+        	if( state == States.SHOOTING ){
     			if( KeyInput.get().isKeyDown(KeyInput.KEY_A) && dynamics.getAnchorRotation() < (float)(Math.PI/4) ) {
     				dynamics.rotateAnchor( 0.01F );
     			}
