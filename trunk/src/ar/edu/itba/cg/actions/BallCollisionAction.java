@@ -1,6 +1,5 @@
 package ar.edu.itba.cg.actions;
 
-import ar.edu.itba.cg.Bowling;
 import ar.edu.itba.cg.SceneParameters;
 import ar.edu.itba.cg.SoundManager;
 
@@ -41,7 +40,7 @@ public class BallCollisionAction extends InputAction {
 			((DynamicPhysicsNode)contactInfo.getNode1()).getLinearVelocity( v1 );
 			((DynamicPhysicsNode)contactInfo.getNode2()).getLinearVelocity( v2 );
 			v1.subtract( v2 );
-			soundManager.playSound( soundManager.pinDown[ pin ], Math.abs(v1.length()/5) );
+			soundManager.playSound( soundManager.pinDown[ pin ], Math.abs(v1.length()/3) );
         }
 		if( name1.startsWith( "lane" ) || name2.startsWith( "lane" ) ) {
 			DynamicPhysicsNode ball;
@@ -55,13 +54,10 @@ public class BallCollisionAction extends InputAction {
 			}
 			Vector3f v = new Vector3f();
 			ball.getLinearVelocity(v);
-			float length = v.lengthSquared();
-			if( length > 1F ) {
-				soundManager.playSound( soundManager.ballMoving, length / 4096 );
-				if (lane.getMaterial() == Material.ICE && ball.getLocalTranslation().z < - params.LANE_LENGTH * 0.7f) {
-					System.out.println("changed material");
-					lane.setMaterial(Material.WOOD);
-				}
+			float z = Math.abs( v.getZ() );
+			float y = Math.abs( v.getY() );
+			if( y < 1  && z > 1 ) {
+				soundManager.playSound( soundManager.ballMoving, z/4 );
 			}
 		}
     }
