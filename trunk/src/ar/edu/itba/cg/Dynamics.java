@@ -64,7 +64,7 @@ public class Dynamics {
 		Utils.setTexture( ballVisual, "resources/textures/marble.jpg", renderer );
 		ball = physicsSpace.createDynamicNode();
 		ball.setName( "ball" );
-		ball.setMaterial( Material.GRANITE );
+		ball.setMaterial( Material.WOOD );
 		ball.attachChild( ballVisual );
 		ball.generatePhysicsGeometry(); 
 		ball.setMass( params.BALL_WEIGHT );

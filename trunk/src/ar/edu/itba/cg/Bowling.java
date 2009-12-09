@@ -241,14 +241,21 @@ public class Bowling extends SimplePhysicsGame {
     				dynamics.moveAnchorX( 0.01F );
     			}
     			if( KeyInput.get().isKeyDown(KeyInput.KEY_UP) && dynamics.getAnchorZ() > 0 ) {
-    				dynamics.moveAnchorZ( -0.1F );
+    				dynamics.moveAnchorZ( -0.05F );
     			}
     			if( KeyInput.get().isKeyDown(KeyInput.KEY_DOWN) && dynamics.getAnchorZ() < (params.APPROACH_LENGTH - params.BALL_RADIUS) ) {
-    				dynamics.moveAnchorZ( 0.1F );
+    				dynamics.moveAnchorZ( 0.05F );
+    			}
+    			if( KeyInput.get().isKeyDown(KeyInput.KEY_A) && dynamics.getAnchorRotation() < (float)(Math.PI/4) ) {
+    				dynamics.rotateAnchor( 0.01F );
+    			}
+    			if( KeyInput.get().isKeyDown(KeyInput.KEY_D) && dynamics.getAnchorRotation() > (float)(-Math.PI/4) ) {
+    				dynamics.rotateAnchor( -0.01F );
     			}
         	}
         }
 	}
+	
 	
     private class MyInputAction extends InputAction {
         /**
@@ -258,23 +265,17 @@ public class Bowling extends SimplePhysicsGame {
          */
         public void performAction( InputActionEvent evt ) {
         	if( state == States.SHOOTING ){
-    			if( KeyInput.get().isKeyDown(KeyInput.KEY_A) && dynamics.getAnchorRotation() < (float)(Math.PI/4) ) {
-    				dynamics.rotateAnchor( 0.01F );
-    			}
-    			if( KeyInput.get().isKeyDown(KeyInput.KEY_D) && dynamics.getAnchorRotation() > (float)(-Math.PI/4) ) {
-    				dynamics.rotateAnchor( -0.01F );
-    			}
     			if( KeyInput.get().isKeyDown(KeyInput.KEY_W) && dynamics.getBallZ() > -1 ) {
-    				dynamics.addForceZ( -40 * evt.getTime() * 1000 );
+    				dynamics.addForceZ( -10 * evt.getTime() * 1000 );
     			}
     			if( KeyInput.get().isKeyDown(KeyInput.KEY_S) && dynamics.getBallZ() > -1 ) {
-    				dynamics.addForceZ( 40 * evt.getTime() * 1000 );
+    				dynamics.addForceZ( 10 * evt.getTime() * 1000 );
     			}
     			if( KeyInput.get().isKeyDown(KeyInput.KEY_Q) ) {
-    				dynamics.addTorqueZ( 0.8f );
+    				dynamics.addTorqueZ( 10.0f );
     			}
     			if( KeyInput.get().isKeyDown(KeyInput.KEY_E) ) {
-    				dynamics.addTorqueZ( -0.8f );
+    				dynamics.addTorqueZ( -10.0f );
     			}
     		}else if( state == States.EXIT ){
     			finish();			
