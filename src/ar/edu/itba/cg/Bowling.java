@@ -3,6 +3,7 @@ package ar.edu.itba.cg;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import ar.edu.itba.cg.menu.GameMenu;
 import ar.edu.itba.cg.menu.HelpMenu;
 import ar.edu.itba.cg.menu.StartUpMenu;
 
@@ -40,6 +41,7 @@ public class Bowling extends SimplePhysicsGame {
 	private CameraManager cameraManager;
 	private StartUpMenu menu;
 	private HelpMenu helpMenu;
+	private GameMenu gameScore;
 	private SceneParameters params;
 	private SoundManager soundManager;
 	public Text score;
@@ -68,6 +70,8 @@ public class Bowling extends SimplePhysicsGame {
 		this.menu.showAllOptions();
 		//Help menu
 		this.helpMenu = new HelpMenu( statNode, display.getWidth(), display.getHeight(),this );
+		//Game menu
+		this.gameScore = new GameMenu(statNode, display.getWidth(), display.getHeight());
 		// Display
 		this.createDisplay();
 		// Physics
@@ -244,6 +248,7 @@ public class Bowling extends SimplePhysicsGame {
 	public void showStartUpMenu(){
 		menu.showAllOptions();
 	}
-	
-	
+	public void startGame(){
+		gameScore.createScore();
+	}
 }
