@@ -2,29 +2,19 @@ package ar.edu.itba.cg.menu;
 
 import java.util.ArrayList;
 
-import ar.edu.itba.cg.Bowling;
-import ar.edu.itba.cg.Bowling.States;
-
 import com.jme.math.Vector3f;
 import com.jme.renderer.ColorRGBA;
 import com.jme.renderer.Renderer;
 import com.jme.scene.Node;
-import com.jme.scene.Spatial;
 import com.jme.scene.Text;
-import com.jme.scene.Spatial.TextureCombineMode;
 import com.jme.scene.shape.Quad;
-import com.jme.scene.state.RenderState;
-import com.jme.scene.state.ZBufferState;
-import com.jme.scene.state.RenderState.StateType;
-import com.jmex.font2d.Text2D;
 
 public class GameMenu {
 
-	private Node gameMenu;
 	private int screenWidth;
 	private int screenHeight;
 	private Node statNode;
-	private ArrayList<Text[]> score = new ArrayList();
+	private ArrayList<Text[]> score = new ArrayList<Text[]>();
 
 	public GameMenu(Node statNode, int screenWidth, int screenHeight)
 	{
@@ -57,7 +47,7 @@ public class GameMenu {
 		hudNode.attachChild(opt);
 		hudNode.setLocalTranslation(location);
 		parent.attachChild(hudNode);
-		opt.print(" ");
+		opt.print("  ");
 		opt.updateRenderState();
 		opt.setLocalTranslation(-opt.getWidth() / 2, -opt.getHeight() / 2, 0);
 		
@@ -106,33 +96,36 @@ public class GameMenu {
 	}
 	
 	public void setScore(int num, int shot, int value) {
-		String strValue;
-		if (value == -1) {
-			strValue = "";
-		} else {
-			strValue = Integer.toString(value);
-		}
-		setScore(num, shot, strValue);
+		setScore(num, shot, Integer.toString(value));
 	}
 	
 	public void setScore(int num, int shot, String value) {
-
 		Text node = score.get(num)[shot];
 		node.print(value);
 		node.updateRenderState();
 	}
 	
+	public void setFrameScore(int num, int value) {
+		Text[] frameScores = score.get(num);
+		this.printScore(frameScores[frameScores.length-1],Integer.toString(value));
+	}
+	
+	private void printScore(Text node, String value) {
+		node.print(value);
+		node.setLocalTranslation(-node.getWidth() / 2, -node.getHeight() / 2, 0);
+		node.updateRenderState();
+	}
 
 	public void resetScore(){
 		for (int i=0;i<9;i++) {
-			this.setScore(i, 0, -1);
-			this.setScore(i, 1, -1);
-			this.setScore(i, 2, -1);
+			this.setScore(i, 0, "");
+			this.setScore(i, 1, "");
+			this.setScore(i, 2, "");
 		}
-		this.setScore(9, 0, -1);
-		this.setScore(9, 1, -1);
-		this.setScore(9, 2, -1);
-		this.setScore(9, 3, -1);
+		this.setScore(9, 0, "");
+		this.setScore(9, 1, "");
+		this.setScore(9, 2, "");
+		this.setScore(9, 3, "");
 	}
 
 }
