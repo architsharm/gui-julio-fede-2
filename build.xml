@@ -5,13 +5,7 @@
 	<property name="lib.dir"    value="lib"/> 		<!-- local libraries linked against -->
 
 	<path id="compileClasspath">
-		<fileset dir="${lib.dir}/jbullet"/>
-		<fileset dir="${lib.dir}/jme"/>
-		<fileset dir="${lib.dir}/jogl"/>
-		<fileset dir="${lib.dir}/jorbis"/>
-		<fileset dir="${lib.dir}/lwjgl"/>
-		<fileset file="${lib.dir}/jmePhysics.jar"/>
-		<fileset file="${lib.dir}/jme-colladabinding.jar"/>
+		<fileset dir="${lib.dir}"/>
 	</path>
 
 	<target name="clean" description="Borra los archivos binarios">
