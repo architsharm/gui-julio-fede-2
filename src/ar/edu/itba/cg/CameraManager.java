@@ -35,11 +35,11 @@ public class CameraManager {
 		cam.setAxes(new Vector3f(1,1,0), new Vector3f(0,1,1), new Vector3f(0,0,1));
 		ChaseCamera cameraInputHandler = new ChaseCamera( cam, dynamics.ball );
 		cameraInputHandler.setActionSpeed( 5.3F );
-		((ChaseCamera)cameraInputHandler).setDampingK( 0 );
-		((ChaseCamera)cameraInputHandler).setSpringK( 0 );
+		cameraInputHandler.setDampingK( 0 );
+		cameraInputHandler.setSpringK( 0 );
         cameraInputHandler.setMaxDistance( 3 );
         cameraInputHandler.setMinDistance( 2 );
-        ((ChaseCamera)cameraInputHandler).setTargetOffset( new Vector3f( 0, params.BALL_DIAMETER, -params.BOX_LENGTH ) );
+        cameraInputHandler.setTargetOffset( new Vector3f( 0, params.BALL_DIAMETER, -params.BOX_LENGTH ) );
 		changeInput( cameraInputHandler );
 //		cam.setUp( new Vector3f(0,1,0) );
 //		cam.setLeft( new Vector3f(-1,0,0) );

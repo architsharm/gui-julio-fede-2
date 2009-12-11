@@ -182,7 +182,7 @@ public class Dynamics {
 		for( int i = 0; i < 10; i++ ) {
 			pinsDown[i] = false;
 			//Cylinder pinVisual = new Cylinder("pin_"+ i, params.AXIS_SAMPLES, params.RADIAL_SAMPLES, params.PIN_RADIUS, params.PIN_HEIGHT, true);
-			Spatial pinVisual = ((Spatial)(new ColladaModelLoader()).getModel("resources/birillo.dae").getChild("mesh1-geometry-material_0_8"));
+			Spatial pinVisual = (new ColladaModelLoader()).getModel("resources/birillo.dae").getChild("mesh1-geometry-material_0_8");
 			BoundingBox pinBound = (BoundingBox)((SharedMesh)pinVisual).getModelBound();
 			pinVisual.setLocalTranslation(new Vector3f().subtract(pinBound.getCenter()));
 			pinVisual.setModelBound( new BoundingBox() );
