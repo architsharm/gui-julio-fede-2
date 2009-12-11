@@ -114,8 +114,8 @@ public class StartUpMenu {
 	public void keyEnter(){
 		
 		if(internalState == 0){
-			game.setState(States.SHOOTING);
 			game.getGameMenu().resetScore();
+			game.setState(States.SHOOTING);
 		}else if (internalState == 1)
 			game.setState(States.HELP);
 		else

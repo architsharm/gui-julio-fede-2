@@ -28,11 +28,17 @@ public class Gameplay {
 		this.pinsDown[9]= new int[3];
 	}
 	
-	
 	public void updateScore(int pinsDown){
 		
 		int amountPinsDown = 0;
 				
+		if(shoot==3){
+			shoot=0;
+			frame=0;
+			game.setState(States.MENU);
+			game.showStartUpMenu();
+		}
+		
 		if(shoot == 0)
 			this.pinsDown[frame][shoot] = pinsDown;
 		else
@@ -56,7 +62,8 @@ public class Gameplay {
 			}else if(shoot == 2){
 				shoot=0;
 				frame=0;
-				game.setState(States.HELP);
+				game.setState(States.MENU);
+				game.showStartUpMenu();
 				
 			}
 			else

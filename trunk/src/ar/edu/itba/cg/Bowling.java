@@ -194,11 +194,6 @@ public class Bowling extends SimplePhysicsGame {
     			if ( pause ) {
     				score.print( " Paused" );
     			}
-    			if ( KeyInput.get().isKeyDown(KeyInput.KEY_SPACE)) {
-    				dynamics.resetBall();
-    				dynamics.resetPins();
-    				cameraManager.setAnchorCamera();
-    			}
     			if ( KeyInput.get().isKeyDown(KeyInput.KEY_RETURN)) {
     				dynamics.resetBall();
     				dynamics.removePins();
