@@ -1,0 +1,70 @@
+<project name="Macaque" default="all" basedir=".">
+
+	<property name="src.dir"	value="src"/> 		<!-- java source folder -->
+	<property name="bin.dir"    value="bin"/> 		<!-- intermediate build products -->
+	<property name="build.dir"	value="build"/>		<!-- jar files -->
+	<property name="lib.dir"    value="lib"/> 		<!-- local libraries linked against -->
+	<property name="resources" 	value="resources"/> <!-- location of general java resources -->
+
+	<path id="compileClasspath">
+		<fileset dir="${lib.dir}"/>
+	</path>
+
+	<target name="all" depends="jar" description="Borra los archivos y los vuelve a compilar."/>
+
+	<target name="clean" description="Borra los archivos binarios">
+		<delete>
+			<fileset dir="${bin.dir}" includes="**/*.class"/>
+		</delete>
+	</target>
+
+	<target name="compile" description="Compile code">
+		<mkdir dir="${bin.dir}"/>
+		<javac 
+			deprecation="on" 
+			srcdir="${src.dir}" 
+			destdir="${bin.dir}"
+			source="1.6" 
+			target="1.6"
+			includeAntRuntime="no"
+			classpathref="compileClasspath" 
+			debug="${compile.debug}">
+			<compilerarg value="-Xlint"/>
+		</javac>
+	</target>
+
+	<target name="jar" depends="compile" description="Build jar">
+		<mkdir dir="${build.dir}" />
+		<jar jarfile="${build.dir}/MomentoBowling.jar" compress="false" basedir="${bin.dir}">
+			<manifest>
+                <attribute name="Main-class" value="ar.edu.itba.cg.Bowling"/>
+                <attribute name="Class-Path" value="${lib.dir}/jme-colladabinding-src.jar"/>
+				<attribute name="Class-Path" value="${lib.dir}/jme-colladabinding.jar"/>
+				<attribute name="Class-Path" value="${lib.dir}/jmePhysics.jar"/>
+				<attribute name="Class-Path" value="${lib.dir}/jme/jme-audio.jar"/>
+				<attribute name="Class-Path" value="${lib.dir}/jme/jme-awt.jar"/>
+				<attribute name="Class-Path" value="${lib.dir}/jme/jme-collada.jar"/>
+				<attribute name="Class-Path" value="${lib.dir}/jme/jme-editors.jar"/>
+				<attribute name="Class-Path" value="${lib.dir}/jme/jme-effects.jar"/>
+				<attribute name="Class-Path" value="${lib.dir}/jme/jme-font.jar"/>
+				<attribute name="Class-Path" value="${lib.dir}/jme/jme-gamestates.jar"/>
+				<attribute name="Class-Path" value="${lib.dir}/jme/jme-model.jar"/>
+				<attribute name="Class-Path" value="${lib.dir}/jme/jme-ogrexml.jar"/>
+				<attribute name="Class-Path" value="${lib.dir}/jme/jme-scene.jar"/>
+				<attribute name="Class-Path" value="${lib.dir}/jme/jme-swt.jar"/>
+				<attribute name="Class-Path" value="${lib.dir}/jme/jme-terrain.jar"/>
+				<attribute name="Class-Path" value="${lib.dir}/jme/jme.jar"/>
+				<attribute name="Class-Path" value="${lib.dir}/jogl/jgluegen-rt.jar"/>
+				<attribute name="Class-Path" value="${lib.dir}/jogl/jogl.jar"/>
+				<attribute name="Class-Path" value="${lib.dir}/jorbis/jorbis-0.0.17.jar"/>
+				<attribute name="Class-Path" value="${lib.dir}/lwjgl/jinput.jar"/>
+				<attribute name="Class-Path" value="${lib.dir}/lwjgl/lwjgl_test.jar"/>
+				<attribute name="Class-Path" value="${lib.dir}/lwjgl/lwjgl_util_applet.jar"/>
+				<attribute name="Class-Path" value="${lib.dir}/lwjgl/lwjgl_util.jar"/>
+				<attribute name="Class-Path" value="${lib.dir}/lwjgl/lwjgl-debug.jar"/>
+				<attribute name="Class-Path" value="${lib.dir}/lwjgl/lwjgl.jar"/>
+            </manifest>
+		</jar>
+	</target>
+
+</project>
