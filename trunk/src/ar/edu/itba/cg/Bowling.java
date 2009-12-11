@@ -49,6 +49,7 @@ public class Bowling extends SimplePhysicsGame {
 	private SceneParameters params;
 	private SoundManager soundManager;
 	public Text score;
+	public Text label;
 	// Game States
 	public static enum States {MENU, SHOOTING, ROLLING, HELP, EXIT};
 	private States state = States.MENU;
@@ -105,6 +106,7 @@ public class Bowling extends SimplePhysicsGame {
 	@Override
 	protected void simpleUpdate() {
 		score.print(" Pins down: " + dynamics.numberOfPins() );
+		label.print(" Presione enter para el proximo tiro." );
 	}
 	
 	
@@ -120,8 +122,12 @@ public class Bowling extends SimplePhysicsGame {
 		display.setTitle( params.TITLE );
 		
 		score = Text.createDefaultTextLabel( "score", "" );
-		score.setLocalTranslation( 0, 8, 0 );
+		score.setLocalTranslation( 0, 30, 0 );
 		statNode.attachChild( score );
+
+		label = Text.createDefaultTextLabel( "label", "" );
+		label.setLocalTranslation( 0, 8, 0 );
+		statNode.attachChild( label );
 		
 //        CullState cullState = display.getRenderer().createCullState();
 //        cullState.setCullFace( CullState.Face.None );
@@ -192,7 +198,8 @@ public class Bowling extends SimplePhysicsGame {
     			}
     		}else if( state == States.SHOOTING ){
     			if ( pause ) {
-    				score.print( " Paused" );
+    				score.print( " " );
+    				label.print( " Juego en pausa. Presione P para volver." );
     			}
     			if ( KeyInput.get().isKeyDown(KeyInput.KEY_RETURN)) {
     				dynamics.resetBall();
