@@ -205,6 +205,12 @@ public class Bowling extends SimplePhysicsGame {
     				dynamics.releaseBall();
     				cameraManager.setBallCamera();
     			}
+            	if( KeyInput.get().isKeyDown(KeyInput.KEY_1) ) {
+    				cameraManager.setAnchorCamera();
+    			}
+            	if( KeyInput.get().isKeyDown(KeyInput.KEY_2) ) {
+    				cameraManager.setBallCamera();
+    			}
     		}else if( state == States.HELP ){
     			helpMenu.showAllOptions();
     			if( KeyInput.get().isKeyDown(KeyInput.KEY_0) ) {
@@ -213,12 +219,6 @@ public class Bowling extends SimplePhysicsGame {
     		}else if( state == States.EXIT ){
     			finish();			
     		}
-        	if( KeyInput.get().isKeyDown(KeyInput.KEY_1) ) {
-				cameraManager.setAnchorCamera();
-			}
-        	if( KeyInput.get().isKeyDown(KeyInput.KEY_2) ) {
-				cameraManager.setBallCamera();
-			}
         }
     }
 	
