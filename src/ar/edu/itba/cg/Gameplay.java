@@ -63,7 +63,7 @@ public class Gameplay {
 		
 		amountPinsDown = this.pinsDown[frame][shoot];
 		
-		if(pinsDown == 10 && shoot == 0 || (frame == 9 && this.pinsDown[frame][shoot -1] == 10)){
+		if(pinsDown == 10 && shoot == 0 || (frame == 9 && shoot > 0 && this.pinsDown[frame][shoot - 1] == 10)){
 			this.strikes.add(frame);
 			gameMenu.setScore(frame, shoot, "X");
 		} else if(pinsDown == 10 ){
