@@ -265,17 +265,17 @@ public class Bowling extends SimplePhysicsGame {
          */
         public void performAction( InputActionEvent evt ) {
         	if( state == States.SHOOTING ){
-    			if( KeyInput.get().isKeyDown(KeyInput.KEY_W) && dynamics.getBallZ() > -1 ) {
+    			if( KeyInput.get().isKeyDown(KeyInput.KEY_W) && dynamics.getBallZ() > -1 && dynamics.getBallZ() < params.APPROACH_LENGTH ) {
     				dynamics.addForceZ( -10 * evt.getTime() * 1000 );
     			}
-    			if( KeyInput.get().isKeyDown(KeyInput.KEY_S) && dynamics.getBallZ() > -1 ) {
+    			if( KeyInput.get().isKeyDown(KeyInput.KEY_S) && dynamics.getBallZ() > -1 && dynamics.getBallZ() < params.APPROACH_LENGTH ) {
     				dynamics.addForceZ( 10 * evt.getTime() * 1000 );
     			}
-    			if( KeyInput.get().isKeyDown(KeyInput.KEY_Q) ) {
-    				dynamics.addTorqueZ( 10.0f );
+    			if( KeyInput.get().isKeyDown(KeyInput.KEY_Q) && dynamics.getBallZ() > -1 && dynamics.getBallZ() < 0 ) {
+    				dynamics.addTorqueZ( 50.0f );
     			}
-    			if( KeyInput.get().isKeyDown(KeyInput.KEY_E) ) {
-    				dynamics.addTorqueZ( -10.0f );
+    			if( KeyInput.get().isKeyDown(KeyInput.KEY_E) && dynamics.getBallZ() > -1 && dynamics.getBallZ() < 0 ) {
+    				dynamics.addTorqueZ( -50.0f );
     			}
     		}else if( state == States.EXIT ){
     			finish();			
