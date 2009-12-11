@@ -38,7 +38,7 @@ public class Gameplay {
 		gameMenu.resetScore();
 	}
 	
-	public void updateScore(int pinsDown){
+	public void updateScore(int pinsDownInScene){
 		
 		int amountPinsDown = 0;
 				
@@ -47,26 +47,26 @@ public class Gameplay {
 			frame=0;
 			game.setState(States.MENU);
 			game.showStartUpMenu();
+			return;
 		}
 		
 		if(shoot == 0)
-			this.pinsDown[frame][shoot] = pinsDown;
+			this.pinsDown[frame][shoot] = pinsDownInScene;
 		else if (frame == 9) {
 			if (this.pinsDown[frame][shoot - 1] == 10) {
-				this.pinsDown[frame][shoot] = pinsDown;
+				this.pinsDown[frame][shoot] = pinsDownInScene;
 			} else if (shoot == 2) {
-				this.pinsDown[frame][shoot] = pinsDown - this.pinsDown[frame][shoot-1];
+				this.pinsDown[frame][shoot] = pinsDownInScene - this.pinsDown[frame][shoot-1];
 			}
 		}
 		else
-			this.pinsDown[frame][shoot] = pinsDown - this.pinsDown[frame][shoot-1];
+			this.pinsDown[frame][shoot] = pinsDownInScene - this.pinsDown[frame][shoot-1];
 		
 		amountPinsDown = this.pinsDown[frame][shoot];
-		
-		if(pinsDown == 10 && shoot == 0 || (frame == 9 && shoot > 0 && this.pinsDown[frame][shoot - 1] == 10)){
+		if(pinsDownInScene == 10 && shoot == 0 || (frame == 9 && shoot > 0 && this.pinsDown[frame][shoot - 1] == 10)){
 			this.strikes.add(frame);
 			gameMenu.setScore(frame, shoot, "X");
-		} else if(pinsDown == 10 ){
+		} else if(pinsDownInScene == 10 ){
 			this.spares.add(frame);
 			gameMenu.setScore(frame, shoot, "/");
 		} else {
@@ -92,28 +92,36 @@ public class Gameplay {
 		}
 	}
 	
+	private boolean wasStrike(int i) {
+		return this.strikes.contains((Object) new Integer(i));
+	}
+	
+	private boolean wasSpare(int i) {
+		return this.spares.contains((Object) new Integer(i));
+	}
+	
 	private void updateFrameScore() {
-		if (this.strikes.contains(frame - 1) && this.strikes.contains(frame - 2)) {
+		if (this.wasStrike(frame - 1) && this.wasStrike(frame - 2)) {
 			int score = this.getFrameTotal(frame - 3);
 			score += this.pinsDown[frame-2][0] + this.pinsDown[frame-1][0];
 			frameTotal[frame - 2] = score + this.pinsDown[frame][0];
 			gameMenu.setFrameScore(frame-2, frameTotal[frame - 2]);
 			this.strikes.remove((Object)new Integer(frame - 2));
 		}
-		if (this.spares.contains(frame - 1)) {
+		if (this.wasSpare(frame - 1)) {
 			int score = this.getFrameTotal(frame - 2);
 			score += this.pinsDown[frame-1][0] + this.pinsDown[frame-1][1];
 			frameTotal[frame - 1] = score + this.pinsDown[frame][0];
 			gameMenu.setFrameScore(frame-1, frameTotal[frame - 1]);
 			this.spares.remove((Object)new Integer(frame - 1));
-		} else if (this.strikes.contains(frame - 1) && (!this.strikes.contains(frame) || (this.strikes.contains(frame) && frame == 9))) {
+		} else if (this.wasStrike(frame - 1) && (!this.wasStrike(frame) || (this.wasStrike(frame) && frame == 9))) {
 			int score = this.getFrameTotal(frame - 2);
 			score += this.pinsDown[frame-1][0] + this.pinsDown[frame-1][1];
 			frameTotal[frame - 1] = score + this.pinsDown[frame][0] + this.pinsDown[frame][1];
 			gameMenu.setFrameScore(frame-1, frameTotal[frame - 1]);
 			this.strikes.remove((Object)new Integer(frame - 1));
 		}
-		if (!this.spares.contains(frame) && !this.strikes.contains(frame)) {
+		if (!this.wasSpare(frame) && !this.wasStrike(frame)) {
 			int score = this.getFrameTotal(frame - 1);
 			frameTotal[frame] = score + this.pinsDown[frame][0] + this.pinsDown[frame][1];
 			gameMenu.setFrameScore(frame, frameTotal[frame]);
