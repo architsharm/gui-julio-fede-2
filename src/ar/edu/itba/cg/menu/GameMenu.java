@@ -31,6 +31,7 @@ public class GameMenu {
 		this.screenWidth = screenWidth;
 		this.screenHeight = screenHeight;
 		this.statNode = statNode;
+		createScore();
 	}
 
 	private Text createBox(float boxHeight,float boxwidth,Vector3f location, Node parent) {
@@ -101,12 +102,7 @@ public class GameMenu {
 			}
 		}
 		statNode.attachChild(node);
-		
-		for (int i=0;i<10;i++) {
-			this.setScore(i, 0, -1);
-			this.setScore(i, 1, -1);
-			this.setScore(i, 2, -1);
-		}
+		resetScore();
 	}
 	
 	public void setScore(int num, int shot, int value) {
@@ -116,9 +112,27 @@ public class GameMenu {
 		} else {
 			strValue = Integer.toString(value);
 		}
+		setScore(num, shot, strValue);
+	}
+	
+	public void setScore(int num, int shot, String value) {
+
 		Text node = score.get(num)[shot];
-		node.print(strValue);
+		node.print(value);
 		node.updateRenderState();
+	}
+	
+
+	public void resetScore(){
+		for (int i=0;i<9;i++) {
+			this.setScore(i, 0, -1);
+			this.setScore(i, 1, -1);
+			this.setScore(i, 2, -1);
+		}
+		this.setScore(9, 0, -1);
+		this.setScore(9, 1, -1);
+		this.setScore(9, 2, -1);
+		this.setScore(9, 3, -1);
 	}
 
 }

@@ -45,6 +45,7 @@ public class Bowling extends SimplePhysicsGame {
 	private StartUpMenu menu;
 	private HelpMenu helpMenu;
 	private GameMenu gameScore;
+	private Gameplay gameplay;
 	private SceneParameters params;
 	private SoundManager soundManager;
 	public Text score;
@@ -89,6 +90,8 @@ public class Bowling extends SimplePhysicsGame {
 		// Dynamic objects
 		this.dynamics = new Dynamics( rootNode, getPhysicsSpace(), display.getRenderer(), params, input, soundManager );
 		this.dynamics.createDynamicWorld();
+		//Game Play
+		this.gameplay = new Gameplay(statNode,display.getWidth(),display.getHeight(),dynamics,this);
 		// Camera
 		this.cameraManager = new CameraManager( scene, dynamics, input, cameraInputHandler, params );
 		cameraManager.setAnchorCamera();
@@ -199,7 +202,9 @@ public class Bowling extends SimplePhysicsGame {
     			if ( KeyInput.get().isKeyDown(KeyInput.KEY_RETURN)) {
     				dynamics.resetBall();
     				dynamics.removePins();
+    				gameplay.updateScore(dynamics.numberOfPins());
     				cameraManager.setAnchorCamera();
+    				KeyInput.get().clearKey(KeyInput.KEY_RETURN);
     			}
     			if( KeyInput.get().isKeyDown(KeyInput.KEY_Z)) {
     				dynamics.releaseBall();
@@ -293,10 +298,7 @@ public class Bowling extends SimplePhysicsGame {
 		menu.showAllOptions();
 	}
 	
-	
-	public void startGame(){
-		gameScore.createScore();
+	public GameMenu getGameMenu(){
+		return gameScore;
 	}
-	
-	
 }
