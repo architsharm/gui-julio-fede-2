@@ -115,7 +115,7 @@ public class StartUpMenu {
 		
 		if(internalState == 0){
 			game.setState(States.SHOOTING);
-			game.startGame();
+			game.getGameMenu().resetScore();
 		}else if (internalState == 1)
 			game.setState(States.HELP);
 		else
