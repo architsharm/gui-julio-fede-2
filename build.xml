@@ -2,6 +2,7 @@
 
 	<property name="src.dir"	value="src"/> 		<!-- java source folder -->
 	<property name="build.dir"	value="build"/>		<!-- intermediate build products -->
+	<property name="lib.dir"    value="lib"/> 		<!-- local libraries linked against -->
 
 	<path id="compileClasspath">
 		<fileset dir="${lib.dir}"/>
@@ -19,8 +20,6 @@
 			deprecation="on" 
 			srcdir="${src.dir}" 
 			destdir="${build.dir}"
-			source="1.6" 
-			target="1.6"
 			includeAntRuntime="no"
 			classpathref="compileClasspath" 
 			debug="${compile.debug}">
