@@ -1,29 +1,24 @@
-<project name="Macaque" default="all" basedir=".">
+<project name="MomentoBowling" default="compile" basedir=".">
 
 	<property name="src.dir"	value="src"/> 		<!-- java source folder -->
-	<property name="bin.dir"    value="bin"/> 		<!-- intermediate build products -->
-	<property name="build.dir"	value="build"/>		<!-- jar files -->
-	<property name="lib.dir"    value="lib"/> 		<!-- local libraries linked against -->
-	<property name="resources" 	value="resources"/> <!-- location of general java resources -->
+	<property name="build.dir"	value="build"/>		<!-- intermediate build products -->
 
 	<path id="compileClasspath">
 		<fileset dir="${lib.dir}"/>
 	</path>
 
-	<target name="all" depends="jar" description="Borra los archivos y los vuelve a compilar."/>
-
 	<target name="clean" description="Borra los archivos binarios">
 		<delete>
-			<fileset dir="${bin.dir}" includes="**/*.class"/>
+			<fileset dir="${build.dir}" includes="**/*.class"/>
 		</delete>
 	</target>
 
 	<target name="compile" description="Compile code">
-		<mkdir dir="${bin.dir}"/>
+		<mkdir dir="${build.dir}"/>
 		<javac 
 			deprecation="on" 
 			srcdir="${src.dir}" 
-			destdir="${bin.dir}"
+			destdir="${build.dir}"
 			source="1.6" 
 			target="1.6"
 			includeAntRuntime="no"
@@ -33,7 +28,7 @@
 		</javac>
 	</target>
 
-	<target name="jar" depends="compile" description="Build jar">
+	<!--target name="jar" depends="compile" description="Build jar">
 		<mkdir dir="${build.dir}" />
 		<jar jarfile="${build.dir}/MomentoBowling.jar" compress="false" basedir="${bin.dir}">
 			<manifest>
@@ -65,6 +60,6 @@
 				<attribute name="Class-Path" value="${lib.dir}/lwjgl/lwjgl.jar"/>
             </manifest>
 		</jar>
-	</target>
+	</target-->
 
 </project>
